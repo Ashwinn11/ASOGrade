@@ -5,6 +5,8 @@ export interface KeywordRow {
   difficulty: number | null;
   appsCount: number | null;
   lastUpdate: string | null;
+  /** When this user added it — what "newest first" sorts on. */
+  addedAt?: string | null;
 }
 
 export interface RankingApp {
@@ -13,6 +15,10 @@ export interface RankingApp {
   iconUrl?: string;
   ranking?: number;
   ratingCount?: number;
+  /** 30 characters the competitor chose on purpose — their strategy, in the open. */
+  subtitle?: string;
+  developer?: string;
+  averageRating?: number;
 }
 
 export const STORES: [string, string][] = [

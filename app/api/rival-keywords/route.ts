@@ -1,0 +1,150 @@
+import { NextResponse } from "next/server";
+import { callTool, isOffline } from "@/lib/backend";
+import { supabaseAdmin } from "@/lib/supabase/admin";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+/**
+ * A competitor's keyword profile.
+ *
+ * The provider will describe any App Store ID, tracked or not, so this needs
+ * no add_app and leaves nothing behind. The answer depends only on the app and
+ * the store, never on who asked, so one fetch serves every user forever.
+ */
+const TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+type Row = { keyword: string; popularity: number | null; difficulty: number | null; appsCount: number | null };
+
+const idFromUrl = (v: string) =>
+  (v.match(/\/id(\d{6,})/) ?? v.match(/^\s*(\d{6,})\s*$/))?.[1] ?? null;
+
+export async function POST(req: Request) {
+  const { appStoreId, query, store = "us", app: given } = await req.json().catch(() => ({}) as any);
+  const st = String(store).toLowerCase();
+
+  const db = supabaseAdmin();
+  if (!db) return NextResponse.json({ ok: false, error: "database is not configured" }, { status: 500 });
+
+  /* ------------------------------------------------- 1. work out which app */
+
+  let id: string | null = appStoreId ? String(appStoreId) : null;
+  let found: any = null;
+
+  /*
+   * Deliberately link-only. Resolving a typed name means guessing which app
+   * was meant, and a wrong guess silently returns a different app's keywords —
+   * which looks like real data and isn't. The provider's own docs say to paste
+   * the App Store URL, so we ask for the same thing.
+   */
+  if (!id && query) id = idFromUrl(String(query));
+  if (!id) {
+    return NextResponse.json(
+      { ok: false, error: "Paste an App Store link — for example apps.apple.com/us/app/…/id123456789" },
+      { status: 400 },
+    );
+  }
+
+  /* ------------------------------------------------------------ 2. cache */
+
+  const { data: hit } = await db
+    .from("rival_keywords")
+    .select("name, subtitle, developer, icon_url, keywords, fetched_at")
+    .eq("app_store_id", id)
+    .eq("store", st)
+    .maybeSingle();
+
+  if (hit && Date.now() - new Date(hit.fetched_at).getTime() < TTL_MS) {
+    // An entry cached from a bare id has no name or icon. If the caller knows
+    // them, fill the gap now rather than showing a raw number forever.
+    const merged = {
+      name: hit.name ?? given?.name ?? null,
+      subtitle: hit.subtitle ?? given?.subtitle ?? null,
+      developer: hit.developer ?? given?.developer ?? null,
+      icon_url: hit.icon_url ?? given?.iconUrl ?? null,
+    };
+    const gained = (["name", "subtitle", "developer", "icon_url"] as const)
+      .some((k) => !hit[k] && merged[k]);
+    if (gained) {
+      await db.from("rival_keywords").update(merged).eq("app_store_id", id).eq("store", st);
+    }
+    return NextResponse.json({ ok: true, cached: true, app: shapeApp(id, merged), keywords: hit.keywords as Row[] });
+  }
+
+  /* ---------------------------------------------------------- 3. go fetch */
+
+  try {
+    // The caller usually knows the name and icon already — a leaderboard row
+    // carries them — so prefer that over guessing from a search.
+    if (!found && given?.name) found = given;
+
+    // Fill in the app's own details when we were handed a bare id.
+    if (!found) {
+      try {
+        const res = await callTool<any>("search_app_store", { keyword: id, store: st, limit: 5 });
+        found = (res?.apps ?? res?.results ?? []).find((a: any) => String(a.appStoreId) === id) ?? null;
+      } catch { /* the profile matters more than the cosmetics */ }
+    }
+
+    const out = await callTool<any>("get_keyword_suggestions", {
+      appId: id, store: st, highPopularity: false,
+    });
+    const raw: any[] = Array.isArray(out) ? out : out?.suggestions ?? out?.keywords ?? [];
+
+    // The provider pads some phrases with repeated spaces ("habit  tracker"),
+    // which collapse into duplicates once normalised — keep the strongest.
+    const best = new Map<string, Row>();
+    for (const r of raw) {
+      const keyword = String(r.text ?? r.keyword ?? "").replace(/\s+/g, " ").trim().toLowerCase();
+      if (!keyword) continue;
+      const row: Row = {
+        keyword,
+        popularity: r.popularity ?? null,
+        difficulty: r.difficulty ?? null,
+        appsCount: r.appsCount ?? null,
+      };
+      const seen = best.get(keyword);
+      if (!seen || (row.popularity ?? 0) > (seen.popularity ?? 0)) best.set(keyword, row);
+    }
+    const keywords: Row[] = [...best.values()]
+      .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0));
+
+    const row = {
+      app_store_id: id,
+      store: st,
+      name: found?.name ?? hit?.name ?? null,
+      subtitle: found?.subtitle ?? hit?.subtitle ?? null,
+      developer: found?.developer ?? hit?.developer ?? null,
+      icon_url: found?.iconUrl ?? hit?.icon_url ?? null,
+      keywords,
+      fetched_at: new Date().toISOString(),
+    };
+    await db.from("rival_keywords").upsert(row, { onConflict: "app_store_id,store" });
+
+    return NextResponse.json({ ok: true, cached: false, app: shapeApp(id, row), keywords });
+  } catch (err) {
+    // A week-old profile still beats an error page.
+    if (hit) {
+      return NextResponse.json({ ok: true, cached: true, stale: true, app: shapeApp(id, hit), keywords: hit.keywords as Row[] });
+    }
+    return offlineOr(err, "could not read that app's keywords");
+  }
+}
+
+function shapeApp(id: string, r: any) {
+  return {
+    appStoreId: id,
+    name: r.name ?? null,
+    subtitle: r.subtitle ?? null,
+    developer: r.developer ?? null,
+    iconUrl: r.icon_url ?? r.iconUrl ?? null,
+  };
+}
+
+function offlineOr(err: unknown, fallback: string) {
+  const down = isOffline(err);
+  return NextResponse.json(
+    { ok: false, offline: down, error: down ? "Keyword service is not reachable" : fallback },
+    { status: down ? 503 : 500 },
+  );
+}

@@ -7,17 +7,11 @@ import SignInModal from "./components/SignInModal";
 import { STORES } from "@/lib/types";
 
 const SAMPLE = [
-  { kw: "habit tracker", store: "US", pop: 67, diff: 38, tag: "shortlist" },
-  { kw: "budget planner", store: "GB", pop: 51, diff: 42, tag: "shortlist" },
-  { kw: "sleep sounds", store: "CA", pop: 66, diff: 71, tag: "crowded" },
-  { kw: "gratitude journal", store: "AU", pop: 34, diff: 28, tag: "opening" },
-  { kw: "meal planner", store: "US", pop: 48, diff: 64, tag: "watch" },
-];
-
-const STOREFRONTS = [
-  { code: "US", name: "United States", pop: 67, diff: 38 },
-  { code: "GB", name: "United Kingdom", pop: 58, diff: 31 },
-  { code: "BR", name: "Brazil", pop: 33, diff: 19 },
+  { kw: "habit tracker", pop: 67, diff: 38, apps: 248, added: "2m" },
+  { kw: "budget planner", pop: 51, diff: 42, apps: 246, added: "2m" },
+  { kw: "sleep sounds", pop: 66, diff: 71, apps: 250, added: "14m" },
+  { kw: "gratitude journal", pop: 34, diff: 28, apps: 243, added: "1h" },
+  { kw: "meal planner", pop: 48, diff: 64, apps: 249, added: "3h" },
 ];
 
 const ADVANTAGES = [
@@ -44,6 +38,22 @@ const OPPORTUNITIES = [
   { kw: "meal planner", store: "US", score: "48 / 64", tone: "watch" },
   { kw: "sleep sounds", store: "CA", score: "66 / 71", tone: "hard" },
 ];
+
+/* Taken from a real teardown of Finch in the US store, so the numbers on the
+   landing page are the numbers the product actually returns. */
+const RIVAL = {
+  name: "Finch: Self-Care Pet",
+  subtitle: "Daily Journal & Habit Tracker",
+  icon: "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/58/9e/50/589e5087-2232-b59f-32bb-8aac4e8a2432/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/120x0w.webp",
+  total: 108,
+  keywords: [
+    { kw: "finch", pop: 68, diff: 61 },
+    { kw: "habit tracker", pop: 67, diff: 67 },
+    { kw: "how we feel", pop: 57, diff: 55 },
+    { kw: "mental health", pop: 55, diff: 73 },
+    { kw: "daylio", pop: 55, diff: 67 },
+  ],
+};
 
 const WORKFLOW = [
   {
@@ -90,6 +100,10 @@ const FAQ = [
     a: "No. Keyword scores belong to the keyword and storefront, so you can research a product name, subtitle, or keyword field before launch.",
   },
   {
+    q: "Can I see which keywords a competitor ranks for?",
+    a: "Yes. Paste their App Store link and you get the keywords they appear for, each scored for popularity and difficulty. You can also open any keyword you are tracking and read the set behind any app holding a top spot.",
+  },
+  {
     q: "Can I check the same keyword in several countries?",
     a: `Yes. Switch between individual storefronts or use the all-store view to compare the same list across the ${STORES.length} supported App Store markets.`,
   },
@@ -134,6 +148,7 @@ export default function Landing() {
         <span className="brand-mark">aso<b>kit</b></span>
         <nav className="nav-menu" aria-label="Primary">
           <a href="#product">Product</a>
+          <a href="#spy">Competitors</a>
           <a href="#workflow">Workflow</a>
           <a href="#compare">Compare</a>
           <a href="#faq">FAQ</a>
@@ -180,47 +195,42 @@ export default function Landing() {
             </dl>
           </div>
 
-          <div className="product-shot" aria-label="ASOKit keyword research preview">
-            <div className="shot-top">
-              <span className="window-dots" aria-hidden="true"><i /><i /><i /></span>
-              <span className="shot-title">Keyword workspace</span>
-              <span className="shot-status">live scores</span>
+          <div className="product-shot" aria-label="ASOKit keyword workspace preview">
+            {/* Mirrors the real workspace: coral bar, dark column header, dark rows. */}
+            <div className="shot-head">
+              <span className="shot-titlegroup">
+                <b>{SAMPLE.length * 32} keywords</b>
+                <em>Researching United States</em>
+              </span>
+              <span className="shot-pill">🇺🇸 United States</span>
+              <span className="shot-pill wide">Spy on a competitor</span>
+              <span className="shot-pill narrow">Filter</span>
             </div>
 
-            <div className="query-strip">
-              <span>habit tracker, budget planner, sleep sounds</span>
-              <b>US</b>
+            <div className="shot-cols">
+              <span className="shot-box" aria-hidden="true" />
+              <span>Keyword</span>
+              <span className="num">Pop</span>
+              <span className="num">Diff</span>
+              <span className="num">Apps</span>
+              <span className="num">Added</span>
             </div>
 
-            <div className="market-snap">
-              {STOREFRONTS.map((store) => (
-                <div key={store.code}>
-                  <span>{store.code}</span>
-                  <b>{store.name}</b>
-                  <small>{store.pop} pop / {store.diff} diff</small>
-                </div>
-              ))}
-            </div>
-
-            <div className="keyword-table" role="table" aria-label="Sample keyword scores">
-              <div className="keyword-head" role="row">
-                <span>Keyword</span>
-                <span>Store</span>
-                <span>Pop</span>
-                <span>Diff</span>
-                <span>Decision</span>
-              </div>
+            <div className="shot-rows" role="table" aria-label="Sample keyword scores">
               {SAMPLE.map((row, i) => (
-                <div className="keyword-row" role="row" key={`${row.store}-${row.kw}`} style={{ animationDelay: `${120 + i * 70}ms` }}>
-                  <span className="keyword-name"><b>{row.kw}</b></span>
-                  <span className="store-code">{row.store}</span>
+                <div className="shot-row" role="row" key={row.kw}
+                  style={{ animationDelay: `${140 + i * 70}ms` }}>
+                  <span className="shot-box" aria-hidden="true" />
+                  <span className="shot-kw">{row.kw}</span>
                   <ScoreCell value={row.pop} band={popBand(row.pop)} />
                   <ScoreCell value={row.diff} band={diffBand(row.diff)} />
-                  <span className={`decision ${row.tag}`}>{row.tag}</span>
+                  <span className="num">{row.apps}</span>
+                  <span className="num">{row.added}</span>
                 </div>
               ))}
             </div>
           </div>
+
         </section>
 
         <section className="signal-band" aria-label="ASOKit highlights">
@@ -266,6 +276,57 @@ export default function Landing() {
                   <p>{item.copy}</p>
                 </article>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="section-shell rival-section" id="spy">
+          <div className="section-copy compact">
+            <span className="section-kicker">Competitor teardown</span>
+            <h2>Read the keyword set behind any app in the chart.</h2>
+            <p>
+              Paste a competitor&apos;s App Store link and get the keywords they show up
+              for, each with its own popularity and difficulty. Take the ones worth
+              having straight into your list.
+            </p>
+          </div>
+
+          <div className="rival-board">
+            <div className="rival-panel" aria-label="Example competitor teardown">
+              <div className="rival-head">
+                <img className="rival-icon" src={RIVAL.icon} alt="" width={40} height={40} loading="lazy" />
+                <span className="rival-who">
+                  <b>{RIVAL.name}</b>
+                  <em>{RIVAL.subtitle}</em>
+                </span>
+                <span className="rival-count">{RIVAL.total} keywords</span>
+              </div>
+              <div className="rival-cols">
+                <span>Keyword</span><span>Pop</span><span>Diff</span><span />
+              </div>
+              {RIVAL.keywords.map((r) => (
+                <div className="rival-row" key={r.kw}>
+                  <span className="rival-kw">{r.kw}</span>
+                  <ScoreCell value={r.pop} band={popBand(r.pop)} />
+                  <ScoreCell value={r.diff} band={diffBand(r.diff)} />
+                  <span className="rival-add" aria-hidden="true">+</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="rival-notes">
+              <article>
+                <b>No app required</b>
+                <p>You do not have to publish, or even name, an app of your own to read someone else&apos;s.</p>
+              </article>
+              <article>
+                <b>Straight from the rankings</b>
+                <p>Open any keyword, then use the eye on a competing app to read its full set.</p>
+              </article>
+              <article>
+                <b>Names and subtitles too</b>
+                <p>Every app in a ranking list shows the 30 characters it chose to compete on.</p>
+              </article>
             </div>
           </div>
         </section>

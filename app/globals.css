@@ -144,11 +144,12 @@ kbd {
 .under { margin-top: 13px; font-size: 12.5px; color: var(--faint); }
 
 /* ================================================================= panel */
+/* The workspace panel carries the same dark surface as the landing page's
+   teardown: it is where the actual work happens, so it gets the anchor. */
 .panel {
   background: var(--surface); border: 1px solid var(--line);
   border-radius: var(--r-card); box-shadow: var(--sh-2);
 }
-.panel > .bar-load:first-of-type { border-radius: var(--pill); overflow: hidden; margin: 0 2px }
 .panel .head {
   display: flex; align-items: center; gap: 8px; padding: 13px 14px; flex-wrap: wrap;
   background: var(--accent); color: #fff;
@@ -159,7 +160,7 @@ kbd {
 
 .cols {
   margin-top: 12px;
-  display: grid; grid-template-columns: 26px 1fr 122px 122px 58px 28px 24px;
+  display: grid; grid-template-columns: 26px 1fr 122px 122px 58px 62px 28px 24px;
   gap: 14px; align-items: center; padding: 0 18px 10px;
   font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
   color: var(--faint); border-bottom: 1px solid var(--line);
@@ -174,7 +175,7 @@ kbd {
 .list { padding: 7px 9px 12px; }
 
 .krow {
-  display: grid; grid-template-columns: 26px 1fr 122px 122px 58px 28px 24px;
+  display: grid; grid-template-columns: 26px 1fr 122px 122px 58px 62px 28px 24px;
   gap: 14px; align-items: center; width: 100%; text-align: left;
   border: 0; background: transparent; font: inherit; color: inherit; cursor: pointer;
   padding: 12px 11px; border-radius: 15px;
@@ -188,6 +189,7 @@ kbd {
 .krow:focus-visible { outline: none; box-shadow: var(--ring) }
 @media (max-width: 700px) {
   .krow { grid-template-columns: 26px 1fr 74px 74px 28px; }
+  .cols .added, .krow .added { display: none }
   .krow .apps, .krow .chev { display: none }
 }
 
@@ -214,7 +216,7 @@ kbd {
 .krow[data-open="1"] .chev { transform: rotate(180deg); color: var(--accent) }
 
 /* the cross-store view inserts a store column between the box and the keyword */
-.cols[data-all="1"], .krow[data-all="1"] { grid-template-columns: 26px 66px 1fr 122px 122px 58px 28px 24px; }
+.cols[data-all="1"], .krow[data-all="1"] { grid-template-columns: 26px 66px 1fr 122px 122px 58px 62px 28px 24px; }
 @media (max-width: 700px) {
   .cols[data-all="1"], .krow[data-all="1"] { grid-template-columns: 26px 52px 1fr 74px 74px 28px; }
 }
@@ -558,12 +560,66 @@ a.btn { text-decoration: none; }
   color: var(--muted);
   text-align: center;
 }
+/* The workspace is where the work happens, so it carries the same dark surface
+   as the teardown panel on the landing page. Overflow stays visible because the
+   store picker's menu has to escape; only the keyword list scrolls. */
 .app-workspace .panel {
+  --w-ink:  #f4efe9;
+  --w-dim:  rgba(244, 239, 233, .62);
+  --w-mute: rgba(244, 239, 233, .44);
+  --w-line: rgba(255, 255, 255, .09);
+
   overflow: visible;
-  border-color: rgba(197, 208, 193, .9);
-  background: rgba(255, 254, 251, .88);
-  box-shadow: 0 22px 64px rgba(42, 54, 45, .10);
+  border-color: rgba(73, 55, 45, .3);
+  background:
+    radial-gradient(circle at 88% 2%, rgba(255, 207, 188, .14), transparent 34%),
+    linear-gradient(140deg, #2d241f, #151713 60%, #232a25);
+  box-shadow: 0 26px 74px rgba(30, 24, 20, .3);
+  color: var(--w-ink);
+
+  display: flex; flex-direction: column;
+  max-height: calc(100dvh - 34px);
 }
+.app-workspace .panel .head { position: sticky; top: 0; z-index: 4; }
+.app-workspace .panel > .bar-load, .app-workspace .panel .cols { flex: none; }
+.app-workspace .panel .list {
+  flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  border-radius: 0 0 calc(var(--r-card) - 1px) calc(var(--r-card) - 1px);
+}
+
+.app-workspace .panel .cols { color: var(--w-mute); border-bottom-color: var(--w-line); }
+.app-workspace .panel .cols .srt:hover { color: var(--w-dim) }
+.app-workspace .panel .cols .srt.on { color: #f0a382 }
+
+.app-workspace .panel .krow:hover,
+.app-workspace .panel .krow[data-open="1"] { background: rgba(255, 255, 255, .05); }
+.app-workspace .panel .krow[data-picked="1"] {
+  background: rgba(201, 100, 67, .18); box-shadow: inset 0 0 0 1.5px rgba(201, 100, 67, .36);
+}
+.app-workspace .panel .krow[data-picked="1"]:hover { background: rgba(201, 100, 67, .24); }
+.app-workspace .panel .kw b { color: var(--w-ink); }
+.app-workspace .panel .krow .apps,
+.app-workspace .panel .krow .added { color: var(--w-dim); }
+.app-workspace .panel .chev { color: var(--w-mute); }
+.app-workspace .panel .krow[data-open="1"] .chev { color: #f0a382 }
+.app-workspace .panel .stcell .cc { color: var(--w-dim); }
+
+/* meters need a light track once the surface goes dark */
+.app-workspace .panel .cell .track { background: rgba(255, 255, 255, .13); }
+.app-workspace .panel .cell .n { color: rgba(244, 239, 233, .92); }
+
+.app-workspace .panel .cb { background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .22); }
+.app-workspace .panel .cb[data-state="on"],
+.app-workspace .panel .cb[data-state="some"] { background: var(--accent); border-color: transparent; }
+.app-workspace .panel .pickcol:hover .cb { border-color: #f0a382 }
+
+.app-workspace .panel .kill { color: var(--w-mute); }
+.app-workspace .panel .kill:hover:not(:disabled) { color: #ff9b90; background: rgba(255, 255, 255, .09); }
+
+.app-workspace .panel .center h3 { color: var(--w-ink); }
+.app-workspace .panel .center p,
+.app-workspace .panel .hint { color: var(--w-dim); }
+.app-workspace .panel .ghosts span { background: rgba(255, 255, 255, .07); }
 .app-workspace .panel .head {
   padding: 16px;
   border-bottom: 1px solid rgba(169, 78, 55, .28);
@@ -631,13 +687,16 @@ a.btn { text-decoration: none; }
   margin: 0 18px;
   border-radius: var(--pill);
 }
-.app-workspace .cols {
+.app-workspace .panel .cols {
   margin-top: 0;
   padding: 14px 18px 12px;
-  border-bottom-color: var(--line);
-  background: var(--sunken);
+  /* sits between the coral bar and the scrolling list, so it needs an opaque
+     fill of its own — the panel gradient alone would let rows show through */
+  background: #191b17;
+  border-bottom-color: var(--w-line);
+  color: var(--w-mute);
 }
-.app-workspace .list {
+.app-workspace .panel .list {
   padding: 8px 10px 12px;
 }
 .app-workspace .krow {
@@ -908,19 +967,69 @@ a.btn { text-decoration: none; }
   line-height: 1.35;
 }
 
+/* Mirrors the real workspace, which is dark — the hero should show the product
+   as it actually looks, not a lighter idea of it. */
 .product-shot {
+  --shot-ink:  #f4efe9;
+  --shot-dim:  rgba(244, 239, 233, .62);
+  --shot-mute: rgba(244, 239, 233, .44);
+  --shot-line: rgba(255, 255, 255, .1);
+
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(136, 150, 132, .45);
+  border: 1px solid rgba(73, 55, 45, .3);
   border-radius: var(--r-card);
   background:
-    linear-gradient(180deg, rgba(255, 254, 251, .98), rgba(245, 248, 240, .96)),
-    var(--land-panel);
+    radial-gradient(circle at 88% 3%, rgba(255, 207, 188, .16), transparent 34%),
+    linear-gradient(140deg, #2d241f, #151713 60%, #232a25);
   box-shadow:
-    0 24px 70px rgba(42, 54, 45, .16),
-    inset 0 1px 0 rgba(255, 255, 255, .8);
+    0 26px 74px rgba(30, 24, 20, .32),
+    inset 0 1px 0 rgba(255, 255, 255, .06);
   padding: 14px;
+  color: var(--shot-ink);
 }
+/* the coral bar, exactly as the workspace wears it */
+.shot-head {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin: -14px -14px 0; padding: 14px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-radius: calc(var(--r-card) - 1px) calc(var(--r-card) - 1px) 0 0;
+  color: #fff;
+}
+.shot-titlegroup { flex: 1; min-width: 128px; display: grid; gap: 2px; }
+.shot-titlegroup b { font-size: 14px; font-weight: 730; }
+.shot-titlegroup em { font-style: normal; font-size: 12px; color: rgba(255, 255, 255, .72); }
+.shot-pill {
+  background: #fff; color: var(--accent-2); border-radius: 999px;
+  padding: 7px 13px; font-size: 12px; font-weight: 550; white-space: nowrap;
+}
+.shot-pill.wide { flex: 1; min-width: 150px; color: rgba(169, 78, 55, .72); }
+@media (max-width: 1100px) { .shot-pill.narrow { display: none } }
+
+.shot-cols, .shot-row {
+  display: grid; grid-template-columns: 20px minmax(0, 1fr) 84px 84px 40px 44px;
+  gap: 11px; align-items: center;
+}
+.shot-cols {
+  margin: 0 -14px; padding: 12px 16px;
+  background: #191b17; border-bottom: 1px solid var(--shot-line);
+  color: var(--shot-mute);
+  font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+}
+.shot-rows { margin: 0 -14px; padding: 4px 6px 2px; }
+.shot-row {
+  padding: 11px 10px; border-radius: 12px;
+  animation: fade .55s var(--ease) backwards;
+}
+.shot-row + .shot-row { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06); }
+.shot-box {
+  width: 16px; height: 16px; border-radius: 5px;
+  border: 1.5px solid rgba(255, 255, 255, .22); background: rgba(255, 255, 255, .07);
+}
+.shot-kw { color: var(--shot-ink); font-size: 13.5px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shot-cols .num, .shot-row .num { text-align: right; }
+.shot-row .num { font-family: var(--mono); font-size: 12px; color: var(--shot-dim); }
+
 .product-shot::before {
   content: "";
   position: absolute;
@@ -1064,8 +1173,8 @@ a.btn { text-decoration: none; }
   font-weight: 650;
 }
 .product-shot .cell { min-width: 0; }
-.product-shot .cell .n { width: 22px; color: var(--land-ink); }
-.product-shot .cell .track { background: #edf1e8; }
+.product-shot .cell .n { width: 22px; color: rgba(244, 239, 233, .92); }
+.product-shot .cell .track { background: rgba(255, 255, 255, .13); }
 .decision {
   justify-self: start;
   border-radius: var(--r-md);
@@ -1125,6 +1234,8 @@ a.btn { text-decoration: none; }
   display: block;
   max-width: 720px;
 }
+/* the compact header was built heading-only; give it room when it carries copy */
+.section-copy.compact p { margin-top: 18px; }
 .section-copy h2,
 .closing-cta h2 {
   margin-top: 15px;
@@ -1784,28 +1895,42 @@ a.btn { text-decoration: none; }
 
 /* ======================================================= keyword sheet */
 .ksheet {
-  position: relative; width: 100%; max-width: 520px; max-height: 84vh;
+  /* same footprint as the spy modal — both show a list of apps, so they should
+     not be two different sizes */
+  position: relative; width: min(760px, 94vw); max-width: none; max-height: 86vh;
   display: flex; flex-direction: column;
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card);
   box-shadow: var(--sh-3); animation: lift .26s var(--ease); overflow: hidden;
 }
-.ksheet header { display: flex; align-items: flex-start; gap: 12px; padding: 22px 22px 16px; }
+/* Coral header over light content, so the modals echo the workspace bar. */
+.ksheet header {
+  display: flex; align-items: flex-start; gap: 12px; padding: 18px 20px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-bottom: 1px solid rgba(169, 78, 55, .28);
+  color: #fff;
+}
 .ksheet .who { flex: 1; min-width: 0 }
 .ksheet h2 {
   font-size: 21px; font-weight: 700; letter-spacing: 0;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.ksheet .where { display: block; margin-top: 5px; font-size: 12.5px; color: var(--muted) }
+/* store and freshness belong with the numbers they describe, not in the bar */
+.ksheet .scores .where {
+  grid-column: 1 / -1;
+  margin-top: 12px; padding-top: 11px;
+  border-top: 1px solid var(--line);
+  font-size: 12.5px; color: var(--muted);
+}
 .ksheet .shut {
   display: flex; padding: 8px; border: 0; border-radius: 50%; flex: none;
-  background: transparent; color: var(--faint); cursor: pointer;
+  background: rgba(255, 255, 255, .14); color: rgba(255, 255, 255, .88); cursor: pointer;
   transition: background .16s, color .16s;
 }
-.ksheet .shut:hover { background: var(--hover); color: var(--ink) }
+.ksheet .shut:hover { background: rgba(255, 255, 255, .26); color: #fff }
 
 .ksheet .scores {
   display: grid; grid-template-columns: 1fr 1fr auto; align-items: center; gap: 10px 18px;
-  padding: 14px 18px; margin: 0 22px; background: var(--sunken); border: 1px solid var(--line); border-radius: var(--r-md);
+  padding: 14px 18px; margin: 18px 22px 0; background: var(--sunken); border: 1px solid var(--line); border-radius: var(--r-md);
 }
 @media (max-width: 520px) { .ksheet .scores { grid-template-columns: 1fr 1fr; } }
 .ksheet .score { display: flex; align-items: center; gap: 9px; min-width: 0 }
@@ -1837,8 +1962,8 @@ a.btn { text-decoration: none; }
 }
 .ksheet .btn.more:hover:not(:disabled) { border-color: transparent; background: var(--accent-2); }
 .ksheet .hint.deep { text-align: center; padding: 12px 0 6px; font-size: 12px; color: var(--faint) }
-.ksheet .shut.delete { color: var(--danger); }
-.ksheet .shut.delete:hover:not(:disabled) { background: rgba(255, 95, 87, .12); color: var(--danger); }
+.ksheet .shut.delete { color: rgba(255, 255, 255, .88); }
+.ksheet .shut.delete:hover:not(:disabled) { background: rgba(255, 255, 255, .26); color: #fff; }
 
 /* ================================================================ account */
 .trigger.acct { padding: 5px 15px 5px 5px; gap: 8px }
@@ -1865,3 +1990,202 @@ a.btn { text-decoration: none; }
 .acctwho .n { font-size: 13.5px; font-weight: 600; letter-spacing: 0 }
 .acctwho .e { margin-top: 2px; font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis }
 .acctpop .opt { justify-content: flex-start }
+
+/* ============================================================ offline note */
+.notice {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0 0 14px; padding: 11px 14px; border-radius: var(--r-md);
+  background: #fdf4e3; color: #8a6216; font-size: 13px;
+  border: 1px solid rgba(214,157,46,.28);
+}
+.notice b { font-weight: 650; }
+.notice .x {
+  margin-left: auto; cursor: pointer; border: 0; background: none;
+  color: inherit; opacity: .55; padding: 2px; display: flex;
+}
+.notice .x:hover { opacity: 1 }
+
+/* ========================================================= competitor words */
+.comp .n small {
+  display: block; margin-top: 1px; font-size: 11.5px; font-weight: 400;
+  color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.words { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 0 4px; }
+.word {
+  display: inline-flex; align-items: center; gap: 7px;
+  border: 1px solid var(--line-2); background: var(--surface); color: var(--ink);
+  font: inherit; font-size: 12.5px; font-weight: 500; cursor: pointer;
+  padding: 5px 6px 5px 11px; border-radius: var(--pill);
+  transition: background .18s var(--ease), border-color .18s, transform .16s var(--ease);
+}
+.word i {
+  font-style: normal; font-size: 11px; font-weight: 600; color: var(--muted);
+  background: var(--sunken); border-radius: var(--pill); padding: 1px 7px;
+}
+.word:hover:not(:disabled) { background: var(--hover); border-color: var(--accent); transform: translateY(-1px); }
+.word:disabled { cursor: default; opacity: .45; }
+.word[data-held="1"] { border-style: dashed; }
+
+/* ============================================================ rival spying */
+.comp .face {
+  display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;
+  text-decoration: none; color: inherit; border-radius: var(--r-sm);
+  padding: 2px 4px; margin: -2px -4px; transition: background .16s var(--ease);
+}
+.comp .face:hover { background: rgba(35,44,53,.05); }
+.comp .face:hover .n { color: var(--accent); }
+
+.comp .eye {
+  flex: none; display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: var(--pill);
+  border: 1px solid transparent; background: transparent; color: var(--faint);
+  cursor: pointer; transition: background .16s, color .16s, border-color .16s;
+}
+.comp .eye:hover:not(:disabled) { background: var(--surface); color: var(--accent); border-color: var(--line-2); }
+.comp .eye:disabled { opacity: .35; cursor: not-allowed; }
+
+.spyfield { flex: 1 1 260px; min-width: 200px; max-width: 420px; }
+.spyfield input { width: 100%; }
+
+.spy {
+  width: min(760px, 94vw); max-height: 86vh; display: flex; flex-direction: column;
+  background: var(--surface); border-radius: var(--r-lg);
+  box-shadow: var(--sh-3); border: 1px solid var(--line); overflow: hidden;
+  animation: lift .22s var(--ease);
+}
+@keyframes lift { from { opacity: 0; transform: translateY(10px) scale(.99) } to { opacity: 1; transform: none } }
+.spy header {
+  display: flex; align-items: center; gap: 11px; padding: 15px 16px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-bottom: 1px solid rgba(169, 78, 55, .28);
+  color: #fff;
+}
+.spy header img, .spy header .ph { width: 42px; height: 42px; border-radius: 11px; flex: none; object-fit: cover; box-shadow: var(--sh-1); background: var(--track); }
+.spy header .who { flex: 1; min-width: 0; }
+.spy header .who a { display: block; font-size: 14.5px; font-weight: 650; color: inherit; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.spy header .who a { color: #fff; }
+.spy header .who a:hover { color: #ffe4d9; }
+.spy header .who small { display: block; font-size: 12px; color: rgba(255, 255, 255, .74); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.spy header .cnt { font-size: 12.5px; color: rgba(255, 255, 255, .8); white-space: nowrap; font-family: var(--mono); }
+.spy header .btn.icon { background: rgba(255, 255, 255, .16); border-color: transparent; color: #fff; }
+.spy header .btn.icon:hover:not(:disabled) { background: rgba(255, 255, 255, .28); }
+
+.spy .cols { grid-template-columns: 30px 1fr 118px 118px 54px 40px; padding: 9px 16px; margin-top: 0; }
+.spylist { overflow-y: auto; padding: 6px 8px 12px; }
+.spylist .krow {
+  display: grid; grid-template-columns: 30px 1fr 118px 118px 54px 40px;
+  gap: 14px; align-items: center; padding: 9px 8px; border-radius: var(--r-md);
+}
+.spylist .krow[data-picked="1"] { background: var(--tint); box-shadow: inset 0 0 0 1.5px var(--tint-line); }
+.spylist .pickcol { display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.spylist .krow:hover { background: var(--hover); }
+.spylist .apps { text-align: right; font-size: 12.5px; color: var(--faint); font-family: var(--mono); }
+/* one tap to pull a rival's keyword into your own list */
+.spylist .add {
+  display: flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: var(--pill); border: 0;
+  background: var(--accent); color: #fff; cursor: pointer;
+  box-shadow: 0 2px 8px rgba(201,100,67,.3);
+  transition: background .18s var(--ease), transform .16s var(--ease), box-shadow .2s, opacity .2s;
+}
+.spylist .add:hover:not(:disabled) { background: var(--accent-2); transform: translateY(-1px); box-shadow: 0 5px 14px rgba(201,100,67,.36); }
+.spylist .add:active:not(:disabled) { transform: scale(.94); }
+.spylist .add:disabled { background: transparent; color: var(--green); box-shadow: none; cursor: default; }
+
+.spybar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 16px; border-top: 1px solid var(--line); background: var(--sunken);
+}
+.spybar .sp { flex: 1 }
+.spybar .cnt { font-size: 13px; font-weight: 600; }
+.spybar .ghost {
+  border: 0; background: transparent; font: inherit; font-size: 12.5px;
+  color: var(--muted); cursor: pointer; text-decoration: underline; text-underline-offset: 2px;
+}
+.spybar .ghost:hover { color: var(--ink); }
+
+/* when this user added the keyword — the column that surfaces new arrivals.
+   Matches .krow .apps exactly so the two numeric columns read as a pair. */
+.krow .added {
+  text-align: right; font-size: 12.5px; color: var(--faint);
+  font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.cols .added { text-align: right }
+
+/* ====================================================== competitor teardown */
+.rival-board {
+  display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 26px; align-items: start;
+}
+@media (max-width: 900px) { .rival-board { grid-template-columns: 1fr; gap: 20px } }
+
+/* dark, like the opportunity map — the section needs one anchor, not more white */
+.rival-panel {
+  position: relative; overflow: hidden;
+  border: 1px solid rgba(73, 55, 45, .24);
+  border-radius: var(--r-card);
+  background:
+    radial-gradient(circle at 82% 8%, rgba(255, 207, 188, .18), transparent 34%),
+    linear-gradient(135deg, #2d241f, #151713 62%, #232a25);
+  box-shadow: 0 24px 70px rgba(44, 35, 29, .18);
+  padding: 8px 8px 12px;
+}
+.rival-head { display: flex; align-items: center; gap: 12px; padding: 14px 14px 16px; }
+.rival-icon { width: 40px; height: 40px; border-radius: 11px; flex: none; object-fit: cover; box-shadow: 0 2px 10px rgba(0,0,0,.35); }
+.rival-who { flex: 1; min-width: 0 }
+.rival-who b { display: block; font-size: 14.5px; font-weight: 650; color: #f4efe9; }
+.rival-who em { display: block; font-style: normal; font-size: 12.5px; color: rgba(244,239,233,.6); }
+.rival-count { font-size: 12.5px; color: rgba(244,239,233,.6); white-space: nowrap; font-family: var(--mono); }
+
+.rival-cols, .rival-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) 96px 96px 26px;
+  gap: 12px; align-items: center; padding: 0 14px;
+}
+.rival-cols {
+  padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,.1);
+  font-size: 10.5px; font-weight: 600; letter-spacing: .05em;
+  text-transform: uppercase; color: rgba(244,239,233,.45);
+}
+.rival-row { padding-top: 12px; padding-bottom: 12px; }
+.rival-row + .rival-row { border-top: 1px solid rgba(255,255,255,.06); }
+.rival-kw { font-size: 13.5px; font-weight: 500; color: #f4efe9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rival-panel .cell .track { background: rgba(255,255,255,.12); }
+.rival-panel .cell .n { color: rgba(244,239,233,.9); }
+.rival-add {
+  display: flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 999px;
+  background: var(--accent); color: #fff; font-size: 15px; line-height: 1;
+  box-shadow: 0 2px 9px rgba(201,100,67,.45);
+}
+@media (max-width: 560px) {
+  .rival-cols, .rival-row { grid-template-columns: minmax(0, 1fr) 62px 62px 24px; gap: 8px }
+}
+
+/* same treatment as the advantage cards, so the section reads as one family */
+.rival-notes { display: grid; gap: 14px; }
+.rival-notes article {
+  position: relative; overflow: hidden;
+  border: 1px solid var(--land-line); border-radius: var(--r-card);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .86), rgba(255, 247, 241, .84)),
+    var(--land-panel);
+  box-shadow: 0 14px 44px rgba(42, 54, 45, .07);
+  padding: 20px 22px 22px;
+}
+.rival-notes article::after {
+  content: ""; position: absolute; inset: auto 0 0 0; height: 7px;
+  background: linear-gradient(90deg, var(--accent), rgba(201, 100, 67, .2));
+}
+.rival-notes article:nth-child(2) {
+  background:
+    linear-gradient(135deg, rgba(226, 237, 242, .88), rgba(255, 254, 251, .82)),
+    var(--land-blue-soft);
+}
+.rival-notes article:nth-child(3) {
+  background:
+    linear-gradient(135deg, rgba(255, 244, 222, .9), rgba(255, 254, 251, .82)),
+    #fff8eb;
+}
+.rival-notes b { display: block; font-size: 14px; font-weight: 650; color: var(--land-ink); margin-bottom: 5px; }
+.rival-notes p { font-size: 13.5px; line-height: 1.6; color: var(--land-muted); }

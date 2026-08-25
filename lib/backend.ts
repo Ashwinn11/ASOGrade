@@ -9,6 +9,24 @@ const ASTRO_URL = process.env.ASTRO_URL ?? "http://127.0.0.1:8089/mcp";
 const RATE_PER_MIN = Number(process.env.ASTRO_RATE_PER_MIN ?? 40);
 const CALL_TIMEOUT_MS = Number(process.env.ASTRO_TIMEOUT_MS ?? 30_000);
 
+/**
+ * Set once the provider is reached over a tunnel rather than loopback. The MCP
+ * server has no auth of its own, so anyone who found the hostname could read
+ * and modify our apps — this bearer is what stops that.
+ */
+const PROVIDER_TOKEN = process.env.PROVIDER_TOKEN;
+
+const baseHeaders = (): Record<string, string> => ({
+  "Content-Type": "application/json",
+  Accept: "application/json, text/event-stream",
+  ...(PROVIDER_TOKEN ? { Authorization: `Bearer ${PROVIDER_TOKEN}` } : {}),
+});
+
+/** True when the provider is simply not running, as opposed to erroring. */
+export const isOffline = (err: unknown) =>
+  /fetch failed|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|abort|initialize failed|HTTP 5\d\d/i
+    .test(err instanceof Error ? err.message : String(err));
+
 /** Continuous-refill token bucket, keeps us clear of the provider's 60/min cap. */
 class TokenBucket {
   private tokens: number;
@@ -57,7 +75,7 @@ let handshake: Promise<string> | null = null;
 async function initSession(): Promise<string> {
   const res = await fetch(ASTRO_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json, text/event-stream" },
+    headers: baseHeaders(),
     body: JSON.stringify({
       jsonrpc: "2.0",
       id: 1,
@@ -76,11 +94,7 @@ async function initSession(): Promise<string> {
 
   await fetch(ASTRO_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json, text/event-stream",
-      "Mcp-Session-Id": sid,
-    },
+    headers: { ...baseHeaders(), "Mcp-Session-Id": sid },
     body: JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" }),
   });
 
@@ -107,11 +121,7 @@ async function rawCall(tool: string, args: Record<string, unknown>, sid: string)
   try {
     const res = await fetch(ASTRO_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json, text/event-stream",
-        "Mcp-Session-Id": sid,
-      },
+      headers: { ...baseHeaders(), "Mcp-Session-Id": sid },
       body: JSON.stringify({
         jsonrpc: "2.0",
         id: ++reqId,

@@ -2,11 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Refresh, Search, Trash, Close } from "../components/icons";
+import { Refresh, Search, Trash, Close, Eye, Plus } from "../components/icons";
 import StorePicker from "../components/StorePicker";
 import AccountChip from "../components/AccountChip";
 import { useUser } from "../components/useUser";
-import { api, rows_ } from "@/lib/client";
 import { ALL_STORES, flagOf, storeName, timeAgo, type KeywordRow, type RankingApp } from "@/lib/types";
 
 /* ------------------------------------------------------------------ utils */
@@ -47,18 +46,41 @@ const keyOf = (r: { keyword: string; store: string }) => `${r.store}|${r.keyword
 /** How deep the leaderboard opens, then expands. 50 is the provider's ceiling. */
 const TIERS = [10, 50];
 
-type SortKey = "keyword" | "popularity" | "difficulty" | "store";
+/** Where a competitor's store page lives. */
+const storeUrl = (id: string, store: string) =>
+  `https://apps.apple.com/${store === ALL_STORES ? "us" : store}/app/id${id}`;
+
+/** Compact enough for a table cell: "3m", "2h", "5d", "Aug 12". */
+function shortAgo(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const secs = (Date.now() - Date.parse(iso)) / 1000;
+  if (!Number.isFinite(secs)) return "—";
+  if (secs < 60) return "now";
+  if (secs < 3600) return `${Math.floor(secs / 60)}m`;
+  if (secs < 86_400) return `${Math.floor(secs / 3600)}h`;
+  if (secs < 7 * 86_400) return `${Math.floor(secs / 86_400)}d`;
+  return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+type SortKey = "keyword" | "popularity" | "difficulty" | "store" | "addedAt";
 
 /* ------------------------------------------------------------------- page */
 
 export default function Page() {
   const router = useRouter();
   const { user, ready: authReady } = useUser();
-  const [appId, setAppId] = useState<string | null>(null);
   const [store, setStore] = useState("us");
+  const [offline, setOffline] = useState(false);
+  const [pending, setPending] = useState<string[]>([]);
 
   const [rows, setRows] = useState<KeywordRow[]>([]);
   const [icons, setIcons] = useState<Record<string, RankingApp[]>>({});
+  const [spy, setSpy] = useState<{
+    app: { appStoreId: string; name: string | null; subtitle: string | null; developer: string | null; iconUrl: string | null };
+    keywords: { keyword: string; popularity: number | null; difficulty: number | null; appsCount: number | null }[];
+  } | null>(null);
+  const [spyQuery, setSpyQuery] = useState("");
+  const [spyPicked, setSpyPicked] = useState<Set<string>>(new Set());
 
   const [chips, setChips] = useState<string[]>([]);
   const [draft, setDraft] = useState("");
@@ -77,6 +99,7 @@ export default function Page() {
   const asked = useRef<Set<string>>(new Set());
   const field = useRef<HTMLInputElement>(null);
   const anchor = useRef<number | null>(null); // for shift-click ranges
+  const backfilled = useRef<Set<string>>(new Set()); // one retry per keyword per session
 
   /* ------------------------------------------------------------ loaders */
 
@@ -84,41 +107,75 @@ export default function Page() {
     if (authReady && !user) router.replace("/");
   }, [authReady, user, router]);
 
-  useEffect(() => {
-    fetch("/api/workspace")
-      .then((r) => r.json())
-      .then((j) => (j.ok ? setAppId(j.data.appId) : setError(j.error)))
-      .catch(() => setError("Keyword service is not reachable"));
-  }, []);
-
-  const loadKeywords = useCallback(async (id: string, st: string, force = false) => {
+  /** Reads straight from our database, so it works with the provider asleep. */
+  const loadKeywords = useCallback(async (st: string, force = false) => {
     const cached = kwCache.current.get(st);
     if (cached && !force) { setRows(cached); setError(null); return; }
     if (force) kwCache.current.clear(); // a write in one store also changes "all"
 
     setLoadingRows(true); setError(null);
     try {
-      const { data } = await api("get_app_keywords",
-        st === ALL_STORES ? { appId: id } : { appId: id, store: st });
-      const list = rows_(data).map((r): KeywordRow => ({
+      const url = st === ALL_STORES ? "/api/my-keywords" : `/api/my-keywords?store=${st}`;
+      const j = await fetch(url).then((r) => r.json());
+      if (!j.ok) throw new Error(j.error ?? "could not load your keywords");
+      const list = (j.results as any[]).map((r): KeywordRow => ({
         keyword: String(r.keyword ?? ""),
         store: String(r.store ?? st),
         popularity: r.popularity ?? null,
         difficulty: r.difficulty ?? null,
         appsCount: r.appsCount ?? null,
-        lastUpdate: r.lastUpdate ?? null,
+        lastUpdate: r.fetchedAt ?? null,
+        addedAt: r.addedAt ?? null,
       }));
       kwCache.current.set(st, list);
       setRows(list);
+      return (j.missing ?? []) as { keyword: string; store: string }[];
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
       setRows([]);
+      return [];
     } finally {
       setLoadingRows(false);
     }
   }, []);
 
-  useEffect(() => { if (appId) loadKeywords(appId, store); }, [appId, store, loadKeywords]);
+  /**
+   * Anything saved but never scored gets one more attempt per session — which
+   * is what makes the "filled in shortly" promise true. The work list is just
+   * the gap between the two tables, so a failed attempt is simply retried on
+   * the next visit rather than needing a queue of its own.
+   */
+  const backfill = useCallback(async (owed: { keyword: string; store: string }[]) => {
+    const todo = owed.filter((r) => !backfilled.current.has(`${r.store}|${r.keyword}`));
+    if (!todo.length) return;
+    todo.forEach((r) => backfilled.current.add(`${r.store}|${r.keyword}`));
+
+    const byStore = new Map<string, string[]>();
+    for (const r of todo) byStore.set(r.store, [...(byStore.get(r.store) ?? []), r.keyword]);
+
+    let filled = false;
+    for (const [st, keywords] of byStore) {
+      try {
+        const j = await fetch("/api/lookup", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ keywords, store: st, save: false }),
+        }).then((r) => r.json());
+        if (j.ok) {
+          setOffline(!!j.offline);
+          setPending(j.pending ?? []);
+          if (j.fetched > 0) filled = true;
+          // still unreachable, so let a later visit try these again
+          if (j.offline) todo.forEach((r) => backfilled.current.delete(`${r.store}|${r.keyword}`));
+        }
+      } catch { /* the next visit retries */ }
+    }
+    if (filled) await loadKeywords(store, true);
+  }, [store, loadKeywords]);
+
+  useEffect(() => {
+    if (!user) return;
+    loadKeywords(store).then((owed) => { if (owed?.length) backfill(owed); });
+  }, [user, store, loadKeywords, backfill]);
   useEffect(() => { setOpen(null); setPicked(new Set()); anchor.current = null; }, [store]);
 
   const run = useCallback(async (what: string, fn: () => Promise<void>) => {
@@ -151,32 +208,106 @@ export default function Page() {
   const check = () =>
     run("Checking", async () => {
       const list = draft.trim() ? [...chips, ...split(draft)] : chips;
-      if (!appId || !list.length || store === ALL_STORES) return;
-      await api("add_keywords", { appId, store, keywords: list.slice(0, 100), platform: "iphone" });
+      if (!list.length || store === ALL_STORES) return;
+      const j = await fetch("/api/lookup", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ keywords: list.slice(0, 100), store }),
+      }).then((r) => r.json());
+      if (!j.ok) throw new Error(j.error ?? "lookup failed");
+      setOffline(!!j.offline);
+      setPending(j.pending ?? []);
       setChips([]); setDraft("");
-      await loadKeywords(appId, store, true);
+      await loadKeywords(store, true);
+    });
+
+  /**
+   * Read a rival's keyword profile. The provider will describe any App Store
+   * id without tracking it, so this leaves nothing behind on their side.
+   */
+  const spyOn = (body: { appStoreId?: string; query?: string; app?: Partial<RankingApp> }) =>
+    run("Reading", async () => {
+      const j = await fetch("/api/rival-keywords", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...body, store: store === ALL_STORES ? "us" : store }),
+      }).then((r) => r.json());
+      if (!j.ok) { setOffline(!!j.offline); throw new Error(j.error ?? "could not read that app"); }
+      setSpy({ app: j.app, keywords: j.keywords ?? [] });
+      setSpyPicked(new Set());
+      setSpyQuery("");
+    });
+
+  /**
+   * Adopt a rival's keywords.
+   *
+   * Claiming and scoring are split deliberately. Scoring a hundred unseen
+   * keywords costs the provider about a minute, so we take the list first —
+   * which is instant — and let the rows appear unscored, then fill them in
+   * small batches so the table populates as it goes instead of freezing.
+   */
+  const adopt = (list: string[]) =>
+    run("Adding", async () => {
+      if (!list.length) return;
+      const target = store === ALL_STORES ? "us" : store;
+
+      // 1. claim them. Pure database work, so the rows show up immediately.
+      for (let i = 0; i < list.length; i += 100) {
+        await fetch("/api/lookup", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ keywords: list.slice(i, i + 100), store: target, skipFetch: true }),
+        });
+      }
+      setSpyPicked(new Set());
+      setSpy(null);
+      await loadKeywords(store, true);
+
+      // 2. score them a chunk at a time, refreshing between, so progress shows.
+      const CHUNK = 20;
+      for (let i = 0; i < list.length; i += CHUNK) {
+        const done = Math.min(i + CHUNK, list.length);
+        setBusy(list.length > CHUNK ? `Scoring ${done} of ${list.length}` : "Scoring");
+        const j = await fetch("/api/lookup", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ keywords: list.slice(i, done), store: target, save: false }),
+        }).then((r) => r.json());
+        if (j.ok) { setOffline(!!j.offline); setPending(j.pending ?? []); }
+        await loadKeywords(store, true);
+        if (j.ok && j.offline) break;   // nothing more will land; the backfill retries later
+      }
+    });
+
+  /** Pulls the provider's current numbers, ignoring our TTL. */
+  const recheck = () =>
+    run("Rechecking", async () => {
+      if (!rows.length) return;
+      const byStore = new Map<string, string[]>();
+      for (const r of rows) byStore.set(r.store, [...(byStore.get(r.store) ?? []), r.keyword]);
+      for (const [st, keywords] of byStore) {
+        for (let i = 0; i < keywords.length; i += 100) {
+          const j = await fetch("/api/lookup", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ keywords: keywords.slice(i, i + 100), store: st, save: false, force: true }),
+          }).then((r) => r.json());
+          if (j.ok) { setOffline(!!j.offline); setPending(j.pending ?? []); }
+        }
+      }
+      await loadKeywords(store, true);
     });
 
   const removeKeywords = (items: { keyword: string; store: string }[]) =>
     run(items.length > 1 ? `Removing ${items.length}` : "Removing", async () => {
-      if (!appId || !items.length) return;
-      // the provider needs a store whenever a keyword exists in more than one,
-      // so delete store by store, chunked — one oversized call is the
-      // difference between a partial and a clean delete
-      const byStore = new Map<string, string[]>();
-      for (const it of items) {
-        byStore.set(it.store, [...(byStore.get(it.store) ?? []), it.keyword]);
-      }
-      for (const [st, keywords] of byStore) {
-        for (let i = 0; i < keywords.length; i += 50) {
-          await api("remove_keywords", { appId, store: st, keywords: keywords.slice(i, i + 50) });
-        }
-      }
+      if (!items.length) return;
+      // Drops this user's pointer only. The cached metrics stay put for
+      // everyone else, and nothing reaches the provider.
+      await Promise.all(items.map((it) =>
+        fetch("/api/my-keywords", {
+          method: "DELETE", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ keyword: it.keyword, store: it.store }),
+        })));
       const gone = new Set(items.map(keyOf));
       setOpen((cur) => (cur && gone.has(cur) ? null : cur));
       setPicked(new Set());
       anchor.current = null;
-      await loadKeywords(appId, store, true);
+      await loadKeywords(store, true);
     });
 
   /* -------------------------------------------------------------- table */
@@ -187,6 +318,11 @@ export default function Page() {
     const { key, dir } = sort;
     return [...list].sort((a, b) => {
       if (key === "keyword") return a.keyword.localeCompare(b.keyword) * dir;
+      if (key === "addedAt") {
+        const at = a.addedAt ? Date.parse(a.addedAt) : 0;
+        const bt = b.addedAt ? Date.parse(b.addedAt) : 0;
+        return (at - bt) * dir || a.keyword.localeCompare(b.keyword);
+      }
       if (key === "store") {
         return (storeName(a.store).localeCompare(storeName(b.store))
           || a.keyword.localeCompare(b.keyword)) * dir;
@@ -264,8 +400,8 @@ export default function Page() {
     return () => window.removeEventListener("keydown", key);
   }, [open]);
 
-  const th = (key: SortKey, label: string) => (
-    <span className={`srt ${sort.key === key ? "on" : ""}`}
+  const th = (key: SortKey, label: string, extra = "") => (
+    <span className={`srt ${extra} ${sort.key === key ? "on" : ""}`}
       onClick={() => setSort((s) => ({ key, dir: s.key === key ? (s.dir === 1 ? -1 : 1) : -1 }))}>
       {label}{sort.key === key && <span className="caret">{sort.dir === 1 ? "▲" : "▼"}</span>}
     </span>
@@ -273,6 +409,7 @@ export default function Page() {
 
   const openRow = open ? rows.find((r) => keyOf(r) === open) ?? null : null;
   const openApps = open ? icons[open] : undefined;
+
   const nextTier = TIERS.find((t) => t > shown) ?? TIERS[TIERS.length - 1];
 
   const showStore = store === ALL_STORES;
@@ -326,7 +463,7 @@ export default function Page() {
             </div>
 
             <button className="go" onClick={(e) => { e.stopPropagation(); check(); }}
-              disabled={!appId || !staged || !!busy || showStore}>
+              disabled={!staged || !!busy || showStore}>
               {busy === "Checking" ? "Checking..." : staged ? `Check ${staged}` : "Check"}
             </button>
           </div>
@@ -344,6 +481,18 @@ export default function Page() {
 
       {error && <div className="error">{error}</div>}
 
+      {offline && (
+        <div className="notice">
+          <b>Fresh checks are paused.</b> Everything already looked up still works
+          {pending.length
+            ? `, and ${pending.length} new keyword${pending.length === 1 ? "" : "s"} will be scored automatically once checks resume.`
+            : ", and new keywords will be scored automatically once checks resume."}
+          <button className="x" onClick={() => { setOffline(false); setPending([]); }} aria-label="Dismiss">
+            <Close size={13} />
+          </button>
+        </div>
+      )}
+
       <section className="panel">
         <div className="head">
           <div className="panel-titlegroup">
@@ -358,12 +507,22 @@ export default function Page() {
           </div>
           <span className="sp" />
           <StorePicker value={store} onChange={setStore} />
+          <div className="search spyfield">
+            <Eye size={14} />
+            <input value={spyQuery} placeholder="Spy on a competitor — paste their App Store link"
+              autoCapitalize="off" autoCorrect="off" spellCheck={false} autoComplete="off"
+              onChange={(e) => setSpyQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && spyQuery.trim()) spyOn({ query: spyQuery.trim() });
+              }} />
+          </div>
+
           <div className="search">
             <Search size={14} />
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filter" />
           </div>
           <button className="btn icon" title="Recheck all"
-            onClick={() => appId && loadKeywords(appId, store, true)} disabled={!appId || !!busy}>
+            onClick={recheck} disabled={!!busy || !rows.length}>
             <Refresh />
           </button>
         </div>
@@ -387,6 +546,7 @@ export default function Page() {
               {th("popularity", "Pop")}
               {th("difficulty", "Diff")}
               <span className="apps">Apps</span>
+              {th("addedAt", "Added", "added")}
               <span />
               <span />
             </div>
@@ -424,6 +584,7 @@ export default function Page() {
                       <Meter value={r.popularity} band={popBand(r.popularity)} />
                       <Meter value={r.difficulty} band={diffBand(r.difficulty)} />
                       <span className="apps tnum">{r.appsCount ?? "—"}</span>
+                      <span className="added" title={r.addedAt ?? ""}>{shortAgo(r.addedAt)}</span>
 
                       <button className="kill" disabled={!!busy}
                         title={`Delete “${r.keyword}” from ${storeName(r.store)}`}
@@ -459,9 +620,6 @@ export default function Page() {
             <header>
               <div className="who">
                 <h2>{openRow.keyword}</h2>
-                <span className="where">
-                  {flagOf(openRow.store)} {storeName(openRow.store)} · checked {timeAgo(openRow.lastUpdate)}
-                </span>
               </div>
                 <button className="shut delete" disabled={!!busy}
                   onClick={() => removeKeywords([openRow])} aria-label={`Delete ${openRow.keyword}`}
@@ -486,6 +644,9 @@ export default function Page() {
                 <span className="sk">Apps</span>
                 <b className="tnum">{openRow.appsCount ?? "—"}</b>
               </span>
+              <span className="where">
+                {flagOf(openRow.store)} {storeName(openRow.store)} · checked {timeAgo(openRow.lastUpdate)}
+              </span>
             </div>
 
             <div className="board">
@@ -499,13 +660,24 @@ export default function Page() {
                   ? openApps.slice(0, shown).map((c, k) => (
                       <div className="comp" key={c.appStoreId ?? k}>
                         <span className="pos tnum">{k + 1}</span>
-                        {c.iconUrl ? <img src={c.iconUrl} alt="" /> : <span className="ph" />}
-                        <span className="n">{c.name}</span>
+                        <a className="face" href={storeUrl(c.appStoreId, openRow?.store ?? store)}
+                          target="_blank" rel="noreferrer" title="Open in the App Store">
+                          {c.iconUrl ? <img src={c.iconUrl} alt="" /> : <span className="ph" />}
+                          <span className="n">
+                            {c.name}
+                            {c.subtitle && <small>{c.subtitle}</small>}
+                          </span>
+                        </a>
                         <span className="s tnum">
                           {c.ratingCount
                             ? `${(c.ratingCount / 1000).toFixed(c.ratingCount > 99999 ? 0 : 1)}K ★`
                             : "—"}
                         </span>
+                        <button className="eye" title="See this app's keywords"
+                          disabled={!!busy}
+                          onClick={() => spyOn({ appStoreId: c.appStoreId, app: c })}>
+                          <Eye size={15} />
+                        </button>
                       </div>
                     ))
                   : <div className="skel">{Array.from({ length: 6 }, (_, k) => <span key={k} />)}</div>}
@@ -514,7 +686,7 @@ export default function Page() {
 
               {openApps && shown < openApps.length && (
                 <button className="btn more" onClick={() => setShown(nextTier)}>
-                  Show {Math.min(nextTier, openApps.length) - shown} more
+                  Show more
                 </button>
               )}
               {openApps && openApps.length > 0 && shown >= openApps.length && (
@@ -522,6 +694,78 @@ export default function Page() {
               )}
             </div>
 
+
+          </div>
+        </div>
+      )}
+
+      {spy && (
+        <div className="scrim" onClick={() => setSpy(null)}>
+          <div className="spy" onClick={(e) => e.stopPropagation()}>
+            <header>
+              {spy.app.iconUrl ? <img src={spy.app.iconUrl} alt="" /> : <span className="ph" />}
+              <span className="who">
+                <a href={storeUrl(spy.app.appStoreId, store)} target="_blank" rel="noreferrer">
+                  {spy.app.name ?? spy.app.appStoreId}
+                </a>
+                <small>{spy.app.subtitle ?? spy.app.developer ?? ""}</small>
+              </span>
+              <span className="cnt tnum">{spy.keywords.length} keywords</span>
+              <button className="btn icon" onClick={() => setSpy(null)}><Close /></button>
+            </header>
+
+            <div className="cols">
+              <span className="pickcol" title="Select all"
+                onClick={() => setSpyPicked((cur) =>
+                  cur.size === spy.keywords.length ? new Set() : new Set(spy.keywords.map((r) => r.keyword)))}>
+                <Check state={
+                  spyPicked.size === 0 ? "off"
+                    : spyPicked.size === spy.keywords.length ? "on" : "some"} />
+              </span>
+              <span>Keyword</span><span>Pop</span><span>Diff</span><span className="apps">Apps</span><span />
+            </div>
+
+            <div className="spylist">
+              {spy.keywords.map((r) => {
+                const held = rows.some((x) => x.keyword === r.keyword && x.store === store);
+                const on = spyPicked.has(r.keyword);
+                return (
+                  <div className="krow" key={r.keyword} data-picked={on ? 1 : 0}>
+                    <span className="pickcol"
+                      onClick={() => setSpyPicked((cur) => {
+                        const next = new Set(cur);
+                        next.has(r.keyword) ? next.delete(r.keyword) : next.add(r.keyword);
+                        return next;
+                      })}>
+                      <Check state={on ? "on" : "off"} />
+                    </span>
+                    <span className="kw">{r.keyword}</span>
+                    <Meter value={r.popularity} band={popBand(r.popularity)} />
+                    <Meter value={r.difficulty} band={diffBand(r.difficulty)} />
+                    <span className="apps tnum">{r.appsCount ?? "\u2014"}</span>
+                    <button className="add" disabled={held || !!busy}
+                      title={held ? "already in your list" : `Add \u201c${r.keyword}\u201d`}
+                      onClick={() => adopt([r.keyword])}>
+                      {held ? <Check state="on" /> : <Plus size={15} />}
+                    </button>
+                  </div>
+                );
+              })}
+              {!spy.keywords.length && <p className="hint">Nothing came back for this app.</p>}
+            </div>
+
+            {spyPicked.size > 0 && (
+              <footer className="spybar">
+                <span className="cnt tnum">{spyPicked.size} selected</span>
+                <button className="ghost" onClick={() => setSpyPicked(new Set())}>Clear</button>
+                <span className="sp" />
+                <button className="btn primary" disabled={!!busy}
+                  onClick={() => adopt([...spyPicked].filter((k) =>
+                    !rows.some((x) => x.keyword === k && x.store === store)))}>
+                  <Plus size={14} /> Add {spyPicked.size}
+                </button>
+              </footer>
+            )}
           </div>
         </div>
       )}

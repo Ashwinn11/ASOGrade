@@ -41,3 +41,9 @@ export const FolderPlus = ({ size = 15 }: { size?: number }) => (
     <path d="M12 11.5v5M9.5 14h5" />
   </svg>
 );
+
+export const Eye = ({ size = 15 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" />
+  </svg>
+);
