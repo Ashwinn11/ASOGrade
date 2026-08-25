@@ -1,0 +1,32 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.*
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# production
+/build
+/dist
+
+# env
+.env
+.env*.local
+
+# logs & scratch
+*.log
+dev.log
+kw.json
+.attic/
+
+# editor / os
+.DS_Store
+.vscode/
+.idea/
+
+# vercel
+.vercel
