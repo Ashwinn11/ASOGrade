@@ -281,72 +281,81 @@ export default function Page() {
   /* ------------------------------------------------------------- render */
 
   return (
-    <div className="page">
+    <div className="page app-workspace">
       <div className="glow" />
 
       <header className="top">
         <span className="mark">aso<b>kit</b></span>
+        <span className="workspace-label">Keyword workspace</span>
         <span className="sp" />
         <AccountChip onSignIn={() => router.push("/")} />
       </header>
 
       <section className="hero">
-        <span className="eyebrow">Apple Search Ads data</span>
-        <h1>Is this keyword<br />worth it?</h1>
-        <p>How many people search for it, and how hard the top spots are to take.</p>
-
-        <div className="bar" onClick={() => field.current?.focus()}>
-          <span className="lead"><Search size={17} /></span>
-
-          <div className="field">
-            {chips.map((c) => (
-              <span className="chip" key={c}>
-                {c}
-                <button aria-label={`Remove ${c}`}
-                  onClick={(e) => { e.stopPropagation(); setChips((cur) => cur.filter((k) => k !== c)); }}>
-                  <Close size={11} />
-                </button>
-              </span>
-            ))}
-            <input
-              ref={field}
-              value={draft}
-              placeholder={chips.length ? "Add another…" : "habit tracker"}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={onKeyDown}
-              onPaste={(e) => {
-                const t = e.clipboardData.getData("text");
-                if (/[\n,]/.test(t)) { e.preventDefault(); addChips(t); }
-              }}
-            />
-          </div>
-
-          <button className="go" onClick={(e) => { e.stopPropagation(); check(); }}
-            disabled={!appId || !staged || !!busy || showStore}>
-            {busy === "Checking" ? "Checking…" : staged ? `Check ${staged}` : "Check"}
-          </button>
+        <div className="hero-text">
+          <span className="eyebrow">Apple Search Ads data</span>
+          <h1>Build the keyword set you can actually rank for.</h1>
+          <p>Paste messy ideas, score them by storefront, and keep the terms with demand and a realistic path into the ranking set.</p>
         </div>
 
-        <p className="under">
-          {showStore
-            ? <>Viewing every store at once. Pick one country to add keywords.</>
-            : staged
-              ? <>Press <kbd>↵</kbd> again to run · <kbd>⌫</kbd> removes the last one</>
-              : <>Type a keyword and press <kbd>↵</kbd>. Pasting a list works too.</>}
-        </p>
+        <div className="command-card">
+          <div className="bar" onClick={() => field.current?.focus()}>
+            <span className="lead"><Search size={17} /></span>
+
+            <div className="field">
+              {chips.map((c) => (
+                <span className="chip" key={c}>
+                  {c}
+                  <button aria-label={`Remove ${c}`}
+                    onClick={(e) => { e.stopPropagation(); setChips((cur) => cur.filter((k) => k !== c)); }}>
+                    <Close size={11} />
+                  </button>
+                </span>
+              ))}
+              <input
+                ref={field}
+                value={draft}
+                placeholder={chips.length ? "Add another..." : "habit tracker"}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={onKeyDown}
+                onPaste={(e) => {
+                  const t = e.clipboardData.getData("text");
+                  if (/[\n,]/.test(t)) { e.preventDefault(); addChips(t); }
+                }}
+              />
+            </div>
+
+            <button className="go" onClick={(e) => { e.stopPropagation(); check(); }}
+              disabled={!appId || !staged || !!busy || showStore}>
+              {busy === "Checking" ? "Checking..." : staged ? `Check ${staged}` : "Check"}
+            </button>
+          </div>
+
+          <p className="under">
+            {showStore
+              ? <>Viewing every store at once. Pick one country to add keywords.</>
+              : staged
+                ? <>Press <kbd>Enter</kbd> again to run. <kbd>Backspace</kbd> removes the last one.</>
+                : <>Type a keyword and press <kbd>Enter</kbd>. Pasting a list works too.</>}
+          </p>
+        </div>
+
       </section>
 
       {error && <div className="error">{error}</div>}
 
       <section className="panel">
         <div className="head">
-          <span className="title">
-            {rows.length
-              ? showStore
-                ? `${rows.length} across ${new Set(rows.map((r) => r.store)).size} stores`
-                : `${rows.length} keywords`
-              : "Results"}
-          </span>
+          <div className="panel-titlegroup">
+            <span className="title">
+              {rows.length
+                ? showStore
+                  ? `${rows.length} across ${new Set(rows.map((r) => r.store)).size} stores`
+                  : `${rows.length} keywords`
+                : "Results"}
+            </span>
+            <span className="subtitle">{showStore ? "Comparing every saved storefront" : `Researching ${storeName(store)}`}</span>
+          </div>
           <span className="sp" />
           <StorePicker value={store} onChange={setStore} />
           <div className="search">
@@ -454,6 +463,11 @@ export default function Page() {
                   {flagOf(openRow.store)} {storeName(openRow.store)} · checked {timeAgo(openRow.lastUpdate)}
                 </span>
               </div>
+                <button className="shut delete" disabled={!!busy}
+                  onClick={() => removeKeywords([openRow])} aria-label={`Delete ${openRow.keyword}`}
+                  title={`Delete ${openRow.keyword}`}>
+                  <Trash size={15} />
+                </button>
               <button className="shut" onClick={() => setOpen(null)} aria-label="Close">
                 <Close size={15} />
               </button>
@@ -508,11 +522,6 @@ export default function Page() {
               )}
             </div>
 
-            <footer>
-              <button className="btn danger" disabled={!!busy} onClick={() => removeKeywords([openRow])}>
-                <Trash size={13} /> Delete keyword
-              </button>
-            </footer>
           </div>
         </div>
       )}
