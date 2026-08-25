@@ -6,12 +6,21 @@ import { useUser } from "./components/useUser";
 import SignInModal from "./components/SignInModal";
 import { STORES } from "@/lib/types";
 
+const STOREFRONTS = [
+  { code: "US", name: "United States", pop: 67, diff: 38 },
+  { code: "GB", name: "United Kingdom", pop: 58, diff: 31 },
+  { code: "BR", name: "Brazil", pop: 33, diff: 19 },
+];
+
 const SAMPLE = [
   { kw: "habit tracker", pop: 67, diff: 38, apps: 248, added: "2m" },
-  { kw: "budget planner", pop: 51, diff: 42, apps: 246, added: "2m" },
   { kw: "sleep sounds", pop: 66, diff: 71, apps: 250, added: "14m" },
-  { kw: "gratitude journal", pop: 34, diff: 28, apps: 243, added: "1h" },
+  { kw: "mood tracker", pop: 53, diff: 60, apps: 247, added: "26m" },
+  { kw: "budget planner", pop: 51, diff: 42, apps: 246, added: "1h" },
   { kw: "meal planner", pop: 48, diff: 64, apps: 249, added: "3h" },
+  { kw: "daily planner", pop: 47, diff: 68, apps: 248, added: "5h" },
+  { kw: "gratitude journal", pop: 34, diff: 28, apps: 243, added: "1d" },
+  { kw: "water reminder", pop: 29, diff: 24, apps: 231, added: "2d" },
 ];
 
 const ADVANTAGES = [
@@ -196,36 +205,49 @@ export default function Landing() {
           </div>
 
           <div className="product-shot" aria-label="ASOKit keyword workspace preview">
-            {/* Mirrors the real workspace: coral bar, dark column header, dark rows. */}
-            <div className="shot-head">
-              <span className="shot-titlegroup">
-                <b>{SAMPLE.length * 32} keywords</b>
-                <em>Researching United States</em>
-              </span>
-              <span className="shot-pill">🇺🇸 United States</span>
-              <span className="shot-pill wide">Spy on a competitor</span>
-              <span className="shot-pill narrow">Filter</span>
+            {/* Two separate cards. The panel leads with its coral bar as a hard
+                top edge; the storefront strip sits below as its own row. */}
+            <div className="shot-panel">
+              <div className="shot-head">
+                <span className="shot-titlegroup">
+                  <b>{SAMPLE.length * 32} keywords</b>
+                  <em>Researching United States</em>
+                </span>
+                <span className="shot-pill">🇺🇸 United States</span>
+                <span className="shot-pill wide">Spy on a competitor</span>
+                <span className="shot-pill narrow">Filter</span>
+              </div>
+
+              <div className="shot-cols">
+                <span className="shot-box" aria-hidden="true" />
+                <span>Keyword</span>
+                <span className="num">Pop</span>
+                <span className="num">Diff</span>
+                <span className="num">Apps</span>
+                <span className="num">Added</span>
+              </div>
+
+              <div className="shot-rows" role="table" aria-label="Sample keyword scores">
+                {SAMPLE.map((row, i) => (
+                  <div className="shot-row" role="row" key={row.kw}
+                    style={{ animationDelay: `${140 + i * 70}ms` }}>
+                    <span className="shot-box" aria-hidden="true" />
+                    <span className="shot-kw">{row.kw}</span>
+                    <ScoreCell value={row.pop} band={popBand(row.pop)} />
+                    <ScoreCell value={row.diff} band={diffBand(row.diff)} />
+                    <span className="num">{row.apps}</span>
+                    <span className="num">{row.added}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="shot-cols">
-              <span className="shot-box" aria-hidden="true" />
-              <span>Keyword</span>
-              <span className="num">Pop</span>
-              <span className="num">Diff</span>
-              <span className="num">Apps</span>
-              <span className="num">Added</span>
-            </div>
-
-            <div className="shot-rows" role="table" aria-label="Sample keyword scores">
-              {SAMPLE.map((row, i) => (
-                <div className="shot-row" role="row" key={row.kw}
-                  style={{ animationDelay: `${140 + i * 70}ms` }}>
-                  <span className="shot-box" aria-hidden="true" />
-                  <span className="shot-kw">{row.kw}</span>
-                  <ScoreCell value={row.pop} band={popBand(row.pop)} />
-                  <ScoreCell value={row.diff} band={diffBand(row.diff)} />
-                  <span className="num">{row.apps}</span>
-                  <span className="num">{row.added}</span>
+            <div className="shot-markets" aria-label="Same keyword across storefronts">
+              {STOREFRONTS.map((store) => (
+                <div key={store.code}>
+                  <span>{store.code}</span>
+                  <b>{store.name}</b>
+                  <small>{store.pop} pop / {store.diff} diff</small>
                 </div>
               ))}
             </div>

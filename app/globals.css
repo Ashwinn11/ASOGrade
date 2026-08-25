@@ -98,14 +98,29 @@ kbd {
 .bar {
   display: flex; align-items: flex-start; gap: 10px; cursor: text;
   margin: 28px auto 0; text-align: left;
-  background: var(--surface); border: 1px solid var(--line-2);
-  border-radius: var(--pill); padding: 9px 9px 9px 19px; box-shadow: var(--sh-2);
+  border: 1px solid rgba(73, 55, 45, .3);
+  background:
+    radial-gradient(circle at 92% 0%, rgba(255, 207, 188, .14), transparent 40%),
+    linear-gradient(140deg, #2d241f, #151713 60%, #232a25);
+  border-radius: var(--pill); padding: 9px 9px 9px 19px;
+  box-shadow: 0 18px 46px rgba(30, 24, 20, .26);
+  color: #f4efe9;
   transition: border-color .22s var(--ease), box-shadow .28s var(--ease);
 }
-.bar:hover { border-color: var(--line-2); }
-.bar:focus-within { border-color: var(--accent); box-shadow: var(--ring); }
-.bar .lead { color: var(--faint); display: flex; padding-top: 12px; flex: none; transition: color .2s; }
-.bar:focus-within .lead { color: var(--accent); }
+.bar:hover { border-color: rgba(201, 100, 67, .5); }
+.bar:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 18px 46px rgba(30, 24, 20, .3), 0 0 0 4px rgba(201, 100, 67, .22);
+}
+.bar .lead { color: rgba(244, 239, 233, .5); display: flex; padding-top: 12px; flex: none; transition: color .2s; }
+.bar:focus-within .lead { color: #f0a382; }
+.bar .field input { color: #f4efe9; }
+.bar .field input::placeholder { color: rgba(244, 239, 233, .45); }
+.bar .chip {
+  background: rgba(255, 255, 255, .1); border-color: rgba(255, 255, 255, .18); color: #f4efe9;
+}
+.bar .chip button { color: rgba(244, 239, 233, .6); }
+.bar .chip button:hover { color: #fff; }
 
 .field {
   flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 7px;
@@ -516,32 +531,21 @@ a.btn { text-decoration: none; }
   line-height: 1.75;
   text-wrap: pretty;
 }
+/* No card around the composer any more — the bar itself is the surface, and it
+   carries the same dark skin as the panel below it. */
 .command-card {
   position: relative;
   overflow: visible;
-  border: 1px solid rgba(197, 208, 193, .9);
-  border-radius: var(--r-card);
-  background:
-    linear-gradient(135deg, rgba(255, 254, 251, .94), rgba(255, 245, 238, .82)),
-    var(--surface);
-  box-shadow: 0 22px 64px rgba(42, 54, 45, .12);
-  padding: 14px;
-}
-.command-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(90deg, rgba(201, 100, 67, .12), transparent 42%);
-  pointer-events: none;
 }
 .app-workspace .bar {
   position: relative;
   margin: 0;
-  border-color: var(--line);
+  border-color: rgba(73, 55, 45, .3);
   border-radius: var(--r-lg);
-  background: rgba(255, 254, 251, .96);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9);
+  background:
+    radial-gradient(circle at 92% 0%, rgba(255, 207, 188, .14), transparent 40%),
+    linear-gradient(140deg, #2d241f, #151713 60%, #232a25);
+  box-shadow: 0 18px 46px rgba(30, 24, 20, .26), inset 0 1px 0 rgba(255, 255, 255, .06);
 }
 .app-workspace .bar .lead {
   display: grid;
@@ -551,8 +555,10 @@ a.btn { text-decoration: none; }
   margin-top: 2px;
   padding: 0;
   border-radius: var(--r-md);
-  background: var(--sunken);
+  background: rgba(255, 255, 255, .08);
+  color: rgba(244, 239, 233, .55);
 }
+.app-workspace .bar:focus-within .lead { background: rgba(201, 100, 67, .22); color: #f0a382; }
 .app-workspace .under {
   position: relative;
   width: 100%;
@@ -974,24 +980,45 @@ a.btn { text-decoration: none; }
   --shot-dim:  rgba(244, 239, 233, .62);
   --shot-mute: rgba(244, 239, 233, .44);
   --shot-line: rgba(255, 255, 255, .1);
-
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(73, 55, 45, .3);
-  border-radius: var(--r-card);
-  background:
+  --shot-skin:
     radial-gradient(circle at 88% 3%, rgba(255, 207, 188, .16), transparent 34%),
     linear-gradient(140deg, #2d241f, #151713 60%, #232a25);
-  box-shadow:
-    0 26px 74px rgba(30, 24, 20, .32),
-    inset 0 1px 0 rgba(255, 255, 255, .06);
-  padding: 14px;
+
+  position: relative;
+  display: grid; gap: 14px;
   color: var(--shot-ink);
 }
+
+/* card two: what comes back — the coral bar is its top edge, not a middle band */
+.shot-panel {
+  overflow: hidden;
+  border: 1px solid rgba(73, 55, 45, .3); border-radius: var(--r-card);
+  background: var(--shot-skin);
+  box-shadow: 0 26px 74px rgba(30, 24, 20, .32), inset 0 1px 0 rgba(255, 255, 255, .06);
+}
+/* the same keyword read across storefronts, which is the all-stores view */
+.shot-markets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.shot-markets div {
+  border: 1px solid rgba(73, 55, 45, .3); border-radius: 16px;
+  background: var(--shot-skin);
+  box-shadow: 0 12px 32px rgba(30, 24, 20, .2), inset 0 1px 0 rgba(255, 255, 255, .06);
+  padding: 13px 15px; min-width: 0;
+}
+.shot-markets span {
+  display: block; font-family: var(--mono); font-size: 10px;
+  letter-spacing: .06em; color: var(--shot-mute);
+}
+.shot-markets b {
+  display: block; margin-top: 3px; font-size: 12.5px; font-weight: 600;
+  color: var(--shot-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.shot-markets small { display: block; margin-top: 3px; font-size: 11px; color: var(--shot-dim); }
+@media (max-width: 620px) { .shot-markets { grid-template-columns: repeat(2, minmax(0, 1fr)) } .shot-markets div:nth-child(3) { display: none } }
+
 /* the coral bar, exactly as the workspace wears it */
 .shot-head {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  margin: -14px -14px 0; padding: 14px;
+  padding: 14px;
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
   border-radius: calc(var(--r-card) - 1px) calc(var(--r-card) - 1px) 0 0;
   color: #fff;
@@ -1011,12 +1038,12 @@ a.btn { text-decoration: none; }
   gap: 11px; align-items: center;
 }
 .shot-cols {
-  margin: 0 -14px; padding: 12px 16px;
+  padding: 12px 16px;
   background: #191b17; border-bottom: 1px solid var(--shot-line);
   color: var(--shot-mute);
   font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
 }
-.shot-rows { margin: 0 -14px; padding: 4px 6px 2px; }
+.shot-rows { padding: 5px 8px 8px; }
 .shot-row {
   padding: 11px 10px; border-radius: 12px;
   animation: fade .55s var(--ease) backwards;
