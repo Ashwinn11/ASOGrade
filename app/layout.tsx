@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  // Scrapers need absolute URLs for the icons and share card, and the domain is
+  // still temporary — so it moves with an env var rather than a code change.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://asokit.mascotmaker.io"),
   title: "ASOKit - App Store keyword research in your browser",
   description: "Find App Store keywords with Apple Search Ads popularity, ranking difficulty, and storefront-by-storefront context.",
   openGraph: {
@@ -10,7 +13,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "ASOKit - App Store keyword research in your browser",
     description: "Score App Store keyword ideas before they reach your next metadata update.",
   },

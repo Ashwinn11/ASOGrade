@@ -79,6 +79,23 @@ kbd {
 }
 .top .mark b { font-weight: 700; color: var(--accent) }
 
+
+/* the brand is a link home in both shells: icon, then wordmark */
+.top .mark,
+.brand-mark {
+  display: inline-flex; align-items: center; gap: 9px;
+  text-decoration: none;
+}
+.top .mark img,
+.brand-mark img {
+  display: block; width: 26px; height: 26px; border-radius: 7px; flex: none;
+}
+.foot .brand-mark img { width: 22px; height: 22px; border-radius: 6px; }
+.top .mark:hover,
+.brand-mark:hover { opacity: .82; }
+.top .mark:focus-visible,
+.brand-mark:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
 /* ================================================================== hero */
 .hero { text-align: center; margin-bottom: 46px; }
 .eyebrow {
@@ -258,8 +275,10 @@ kbd {
 .exp .fact .fv.sm { font-size: 13.5px; font-weight: 600; letter-spacing: 0; font-family: var(--sans) }
 
 .comp { display: flex; align-items: center; gap: 11px; padding: 5px 0; }
-.comp img { width: 32px; height: 32px; border-radius: 9px; flex: none; box-shadow: var(--sh-1); object-fit: cover; }
-.comp .ph { width: 32px; height: 32px; border-radius: 9px; flex: none; background: var(--track); }
+.comp img { width: 32px; height: 32px; border-radius: 9px; flex: none; object-fit: cover;
+  box-shadow: 0 0 0 1px rgba(24, 26, 23, .16), var(--sh-1); }
+.comp .ph { width: 32px; height: 32px; border-radius: 9px; flex: none; background: var(--track);
+  box-shadow: 0 0 0 1px rgba(24, 26, 23, .16); }
 .comp .n { flex: 1; font-size: 13px; font-weight: 550; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .comp .s { font-size: 12px; color: var(--faint); font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .comp .pos { font-size: 11.5px; color: var(--faint); width: 12px; font-family: var(--mono); font-variant-numeric: tabular-nums; }
@@ -417,7 +436,6 @@ a.btn { text-decoration: none; }
 .btn.primary:hover:not(:disabled) { background: var(--accent-2); border-color: transparent; }
 .btn.quiet { background: var(--surface); color: var(--ink-2); }
 .btn.sm { padding: 7px 13px; font-size: 12.5px; }
-
 
 .search {
   display: flex; align-items: center; gap: 8px;
@@ -625,7 +643,12 @@ a.btn { text-decoration: none; }
 .app-workspace .panel .center h3 { color: var(--w-ink); }
 .app-workspace .panel .center p,
 .app-workspace .panel .hint { color: var(--w-dim); }
-.app-workspace .panel .ghosts span { background: rgba(255, 255, 255, .07); }
+/* flat fill would leave the shimmer animating nothing */
+.app-workspace .panel .ghosts span {
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, .05), rgba(255, 255, 255, .12), rgba(255, 255, 255, .05));
+  background-size: 200% 100%;
+}
 .app-workspace .panel .head {
   padding: 16px;
   border-bottom: 1px solid rgba(169, 78, 55, .28);
@@ -720,12 +743,14 @@ a.btn { text-decoration: none; }
   background: var(--tint);
   box-shadow: inset 0 0 0 1.5px var(--tint-line);
 }
+/* Sits inside the dark panel, so the inset has to be a lift off the dark
+   surface rather than the pale card the rest of the page uses — otherwise it
+   renders as a white slab under text that was already switched to light. */
 .app-workspace .center {
   margin: 10px;
   border-radius: var(--r-card);
-  background:
-    linear-gradient(135deg, rgba(255, 244, 238, .9), rgba(248, 250, 244, .9)),
-    var(--sunken);
+  background: rgba(255, 255, 255, .035);
+  box-shadow: inset 0 0 0 1px var(--w-line);
 }
 .app-workspace .legend {
   justify-content: center;
@@ -1057,148 +1082,13 @@ a.btn { text-decoration: none; }
 .shot-cols .num, .shot-row .num { text-align: right; }
 .shot-row .num { font-family: var(--mono); font-size: 12px; color: var(--shot-dim); }
 
-.product-shot::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, rgba(49, 95, 120, .07), transparent 42%),
-    repeating-linear-gradient(0deg, transparent 0 38px, rgba(24, 26, 23, .025) 38px 39px);
-  pointer-events: none;
-}
-.shot-top,
-.query-strip,
-.market-snap,
-.keyword-table { position: relative; z-index: 1; }
-.shot-top {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 12px;
-  padding: 4px 2px 14px;
-}
-.window-dots { display: inline-flex; gap: 8px; }
-.window-dots i {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--land-line-2);
-}
-.window-dots i:nth-child(1) { background: #ff5f57; }
-.window-dots i:nth-child(2) { background: #febc2e; }
-.window-dots i:nth-child(3) { background: #28c840; }
-.shot-title {
-  color: var(--land-muted);
-  font-size: 12.5px;
-  font-weight: 650;
-}
-.shot-status {
-  border-radius: var(--pill);
-  background: rgba(201, 100, 67, .12);
-  color: var(--accent-2);
-  padding: 5px 9px;
-  font-size: 11px;
-  font-weight: 700;
-}
-.query-strip {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-  border: 1px solid var(--land-line);
-  border-radius: var(--r-md);
-  background: #fff;
-  padding: 13px 14px;
-  color: var(--land-muted);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, .9);
-}
-.query-strip span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.query-strip b,
-.store-code {
-  font-family: var(--mono);
-  font-weight: 650;
-  font-size: 12px;
-  color: var(--land-blue);
-}
-.market-snap {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.market-snap div {
-  border: 1px solid rgba(49, 95, 120, .18);
-  border-radius: var(--r-lg);
-  background: var(--land-blue-soft);
-  padding: 10px;
-}
-.market-snap span {
-  display: block;
-  font-family: var(--mono);
-  color: var(--land-blue);
-  font-size: 11px;
-  font-weight: 700;
-}
-.market-snap b {
-  display: block;
-  margin-top: 5px;
-  color: var(--land-ink);
-  font-size: 12.5px;
-  font-weight: 700;
-}
-.market-snap small {
-  display: block;
-  margin-top: 5px;
-  color: var(--land-muted);
-  font-size: 11.5px;
-}
-.keyword-table {
-  overflow: hidden;
-  border: 1px solid var(--land-line);
-  border-radius: var(--r-md);
-  background: #fff;
-}
-.keyword-head,
-.keyword-row {
-  display: grid;
-  grid-template-columns: minmax(140px, 1fr) 48px 104px 104px 84px;
-  align-items: center;
-  gap: 12px;
-}
-.keyword-head {
-  border-bottom: 1px solid var(--land-line);
-  background: #f8faf4;
-  color: var(--land-faint);
-  padding: 11px 14px;
-  font-size: 10.5px;
-  font-weight: 760;
-  letter-spacing: .05em;
-  text-transform: uppercase;
-}
-.keyword-row {
-  min-height: 58px;
-  padding: 11px 14px;
-  animation: fade .55s var(--ease) backwards;
-}
-.keyword-row + .keyword-row { border-top: 1px solid rgba(215, 223, 208, .72); }
-.keyword-row:hover { background: #f9fbf6; }
-.keyword-name {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.keyword-name b {
-  color: var(--land-ink);
-  font-size: 14px;
-  font-weight: 650;
-}
+/* A texture overlay used to live here, lifted above the shot by giving the old
+   .shot-top / .query-strip / .market-snap / .keyword-table wrappers a z-index.
+   All of those rules are gone now too.
+   Those wrappers are gone; .shot-panel and .shot-markets replaced them and are
+   unpositioned, so the overlay painted on top of the cards instead of behind
+   them — and its 90deg tint ended at 42% as a hard vertical seam across the
+   hero. Removed with the markup it belonged to. */
 .product-shot .cell { min-width: 0; }
 .product-shot .cell .n { width: 22px; color: rgba(244, 239, 233, .92); }
 .product-shot .cell .track { background: rgba(255, 255, 255, .13); }
@@ -1695,19 +1585,21 @@ a.btn { text-decoration: none; }
 }
 
 .foot {
-  display: grid;
-  grid-template-columns: auto auto 1fr;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 18px;
+  gap: 10px 20px;
   width: min(1180px, calc(100% - 48px));
   margin: 0 auto;
   padding: 34px 0 44px;
   color: var(--land-faint);
+  border-top: 1px solid var(--land-line);
 }
+.foot .brand-mark { margin-right: 6px; }
 .foot .brand-mark { font-size: 16px; }
 .foot a { font-size: 12.5px; font-weight: 650; }
 .foot .fine {
-  justify-self: end;
+  margin-left: auto;
   color: var(--land-faint);
   font-size: 12px;
   line-height: 1.5;
@@ -1791,13 +1683,10 @@ a.btn { text-decoration: none; }
     width: 36px;
     height: 36px;
   }
-  .foot {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
   .foot .fine {
-    justify-self: start;
+    margin-left: 0;
     text-align: left;
+    flex-basis: 100%;
   }
 }
 @media (max-width: 560px) {
@@ -1808,16 +1697,6 @@ a.btn { text-decoration: none; }
   .hero-actions .btn { width: 100%; justify-content: center; }
   .proof-list { grid-template-columns: 1fr; }
   .product-shot { padding: 10px; }
-  .market-snap { grid-template-columns: 1fr; }
-  .keyword-head { display: none; }
-  .keyword-row {
-    grid-template-columns: minmax(0, 1fr) 42px;
-    gap: 8px 12px;
-    padding: 13px;
-  }
-  .keyword-row .cell {
-    grid-column: span 1;
-  }
   .decision {
     grid-column: 1 / -1;
   }
@@ -1888,7 +1767,7 @@ a.btn { text-decoration: none; }
 @keyframes fadein { from { opacity: 0 } to { opacity: 1 } }
 .sheet {
   position: relative; width: 100%; max-width: 392px; text-align: center;
-  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card);
+  background: var(--surface); border: 1px solid rgba(24, 26, 23, .22); border-radius: var(--r-card);
   padding: 34px 30px 26px; box-shadow: var(--sh-3); animation: lift .26s var(--ease);
 }
 @keyframes lift { from { opacity: 0; transform: translateY(12px) scale(.985) } to { opacity: 1; transform: none } }
@@ -1926,7 +1805,7 @@ a.btn { text-decoration: none; }
      not be two different sizes */
   position: relative; width: min(760px, 94vw); max-width: none; max-height: 86vh;
   display: flex; flex-direction: column;
-  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card);
+  background: var(--surface); border: 1px solid rgba(24, 26, 23, .22); border-radius: var(--r-card);
   box-shadow: var(--sh-3); animation: lift .26s var(--ease); overflow: hidden;
 }
 /* Coral header over light content, so the modals echo the workspace bar. */
@@ -2025,6 +1904,14 @@ a.btn { text-decoration: none; }
   background: #fdf4e3; color: #8a6216; font-size: 13px;
   border: 1px solid rgba(214,157,46,.28);
 }
+/* Not a warning — the numbers are on their way. Quieter than the amber .notice
+   so an ordinary check does not read as something having gone wrong. */
+.notice.working {
+  background: rgba(255, 255, 255, .045);
+  color: var(--w-dim);
+  border-color: var(--w-line);
+}
+
 .notice b { font-weight: 650; }
 .notice .x {
   margin-left: auto; cursor: pointer; border: 0; background: none;
@@ -2078,7 +1965,7 @@ a.btn { text-decoration: none; }
 .spy {
   width: min(760px, 94vw); max-height: 86vh; display: flex; flex-direction: column;
   background: var(--surface); border-radius: var(--r-lg);
-  box-shadow: var(--sh-3); border: 1px solid var(--line); overflow: hidden;
+  box-shadow: var(--sh-3); border: 1px solid rgba(24, 26, 23, .22); overflow: hidden;
   animation: lift .22s var(--ease);
 }
 @keyframes lift { from { opacity: 0; transform: translateY(10px) scale(.99) } to { opacity: 1; transform: none } }
@@ -2088,7 +1975,8 @@ a.btn { text-decoration: none; }
   border-bottom: 1px solid rgba(169, 78, 55, .28);
   color: #fff;
 }
-.spy header img, .spy header .ph { width: 42px; height: 42px; border-radius: 11px; flex: none; object-fit: cover; box-shadow: var(--sh-1); background: var(--track); }
+.spy header img, .spy header .ph { width: 42px; height: 42px; border-radius: 11px; flex: none;
+  object-fit: cover; background: var(--track); box-shadow: 0 0 0 1px rgba(24, 26, 23, .22); }
 .spy header .who { flex: 1; min-width: 0; }
 .spy header .who a { display: block; font-size: 14.5px; font-weight: 650; color: inherit; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .spy header .who a { color: #fff; }
@@ -2216,3 +2104,89 @@ a.btn { text-decoration: none; }
 }
 .rival-notes b { display: block; font-size: 14px; font-weight: 650; color: var(--land-ink); margin-bottom: 5px; }
 .rival-notes p { font-size: 13.5px; line-height: 1.6; color: var(--land-muted); }
+
+/* ============================================================ legal pages */
+/* Long-form prose, so the measure is narrow and the rhythm is looser than the
+   marketing sections above it. */
+.legal-page .landing-nav .sp { flex: 1; }
+.legal {
+  position: relative;
+  width: min(720px, 92vw);
+  margin: 0 auto;
+  padding: 48px 0 96px;
+  color: var(--ink-2);
+  font-size: 15.5px;
+  line-height: 1.72;
+}
+.legal h1 {
+  font-family: "Outfit", var(--sans);
+  font-size: clamp(32px, 5vw, 44px);
+  font-weight: 760;
+  letter-spacing: -.01em;
+  color: var(--ink);
+  margin: 0;
+}
+.legal-updated {
+  margin: 8px 0 40px;
+  font-size: 13px;
+  color: var(--faint);
+  font-family: var(--mono);
+}
+.legal h2 {
+  font-family: "Outfit", var(--sans);
+  font-size: 19px;
+  font-weight: 720;
+  color: var(--ink);
+  margin: 38px 0 10px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.legal p { margin: 0 0 14px; }
+.legal ul { margin: 0 0 16px; padding-left: 20px; }
+.legal li { margin: 0 0 9px; }
+.legal b { font-weight: 650; color: var(--ink); }
+.legal a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.legal a:hover { color: var(--accent-2); }
+
+/* On a phone the head was a wrapping flex row, and wrap order kept dropping the
+   recheck button onto a line of its own even once the picker stopped growing.
+   Explicit grid placement removes the guesswork: title spans the top, the
+   storefront picker and that 40px button share row two, and each text field
+   gets a full row. Nothing can wrap somewhere it was not put. */
+@media (max-width: 760px) {
+  .app-workspace .panel .head {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) 40px;
+    align-items: center;
+    gap: 10px;
+    padding: 14px;
+  }
+  .app-workspace .panel .head .sp { display: none; }
+  .app-workspace .panel .head .panel-titlegroup {
+    grid-area: 1 / 1 / 2 / 4; min-width: 0;
+  }
+  /* row two reads left to right the way the work does: pick the store, narrow
+     the list, re-check it */
+  .app-workspace .panel .head .picker {
+    grid-area: 2 / 1 / 3 / 2; justify-self: start; max-width: 100%;
+  }
+  .app-workspace .panel .head .search:not(.spyfield) {
+    grid-area: 2 / 2 / 3 / 3; min-width: 0;
+  }
+  .app-workspace .panel .head .btn.icon {
+    grid-area: 2 / 3 / 3 / 4;
+    width: 40px; height: 40px; padding: 0; justify-content: center;
+  }
+  .app-workspace .panel .head .spyfield {
+    grid-area: 3 / 1 / 4 / 4; max-width: none; min-width: 0;
+  }
+  /* The menu hangs off its trigger's right edge, which was fine while the
+     picker sat mid-header. Pinned to the left of the row it would open past the
+     side of the screen, so on a phone it anchors left and gives up any width the
+     viewport cannot spare. */
+  .app-workspace .panel .head .picker .pop {
+    right: auto; left: 0;
+    width: min(288px, calc(100vw - 44px));
+  }
+}
+

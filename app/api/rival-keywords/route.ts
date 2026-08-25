@@ -57,11 +57,12 @@ export async function POST(req: Request) {
   if (hit && Date.now() - new Date(hit.fetched_at).getTime() < TTL_MS) {
     // An entry cached from a bare id has no name or icon. If the caller knows
     // them, fill the gap now rather than showing a raw number forever.
+    const filler = hit.name || given?.name ? null : await appDetails(id, st);
     const merged = {
-      name: hit.name ?? given?.name ?? null,
-      subtitle: hit.subtitle ?? given?.subtitle ?? null,
-      developer: hit.developer ?? given?.developer ?? null,
-      icon_url: hit.icon_url ?? given?.iconUrl ?? null,
+      name: hit.name ?? given?.name ?? filler?.name ?? null,
+      subtitle: hit.subtitle ?? given?.subtitle ?? filler?.subtitle ?? null,
+      developer: hit.developer ?? given?.developer ?? filler?.developer ?? null,
+      icon_url: hit.icon_url ?? given?.iconUrl ?? filler?.iconUrl ?? null,
     };
     const gained = (["name", "subtitle", "developer", "icon_url"] as const)
       .some((k) => !hit[k] && merged[k]);
@@ -79,12 +80,7 @@ export async function POST(req: Request) {
     if (!found && given?.name) found = given;
 
     // Fill in the app's own details when we were handed a bare id.
-    if (!found) {
-      try {
-        const res = await callTool<any>("search_app_store", { keyword: id, store: st, limit: 5 });
-        found = (res?.apps ?? res?.results ?? []).find((a: any) => String(a.appStoreId) === id) ?? null;
-      } catch { /* the profile matters more than the cosmetics */ }
-    }
+    if (!found) found = await appDetails(id, st);
 
     const out = await callTool<any>("get_keyword_suggestions", {
       appId: id, store: st, highPopularity: false,
@@ -128,6 +124,36 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true, cached: true, stale: true, app: shapeApp(id, hit), keywords: hit.keywords as Row[] });
     }
     return offlineOr(err, "could not read that app's keywords");
+  }
+}
+
+/**
+ * Name, developer and artwork for an App Store id.
+ *
+ * The provider's search takes a keyword, not an id — searching for the digits
+ * returns whatever apps happen to match that string, never the app itself, so
+ * the old exact-id `.find()` always came back empty and the header fell back to
+ * showing the raw number. Apple's own lookup resolves an id directly, costs
+ * nothing against the provider's rate limit, and answers while the provider's
+ * machine is asleep.
+ */
+async function appDetails(id: string, store: string) {
+  try {
+    const res = await fetch(
+      `https://itunes.apple.com/lookup?id=${encodeURIComponent(id)}&country=${encodeURIComponent(store)}`,
+      { signal: AbortSignal.timeout(6000) },
+    );
+    if (!res.ok) return null;
+    const hit = (await res.json())?.results?.[0];
+    if (!hit || String(hit.trackId) !== id) return null;
+    return {
+      name: hit.trackName ?? null,
+      subtitle: null,
+      developer: hit.artistName ?? null,
+      iconUrl: hit.artworkUrl512 ?? hit.artworkUrl100 ?? hit.artworkUrl60 ?? null,
+    };
+  } catch {
+    return null;   // cosmetics: never let this fail the keyword payload
   }
 }
 

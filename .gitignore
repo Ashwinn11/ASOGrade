@@ -30,3 +30,4 @@ kw.json
 
 # vercel
 .vercel
+.env*

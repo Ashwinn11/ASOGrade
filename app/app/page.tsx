@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Refresh, Search, Trash, Close, Eye, Plus } from "../components/icons";
 import StorePicker from "../components/StorePicker";
@@ -91,6 +92,7 @@ export default function Page() {
   const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: "popularity", dir: -1 });
 
   const [busy, setBusy] = useState<string | null>(null);
+  const [scoring, setScoring] = useState(0);   // keywords the backfill is filling in right now
   const [loadingRows, setLoadingRows] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -149,6 +151,7 @@ export default function Page() {
     const todo = owed.filter((r) => !backfilled.current.has(`${r.store}|${r.keyword}`));
     if (!todo.length) return;
     todo.forEach((r) => backfilled.current.add(`${r.store}|${r.keyword}`));
+    setScoring(todo.length);
 
     const byStore = new Map<string, string[]>();
     for (const r of todo) byStore.set(r.store, [...(byStore.get(r.store) ?? []), r.keyword]);
@@ -169,6 +172,7 @@ export default function Page() {
         }
       } catch { /* the next visit retries */ }
     }
+    setScoring(0);
     if (filled) await loadKeywords(store, true);
   }, [store, loadKeywords]);
 
@@ -205,19 +209,28 @@ export default function Page() {
 
   /* ------------------------------------------------------------ actions */
 
+  /*
+   * Claiming a keyword and scoring it are separate jobs, and only the first is
+   * fast: the provider spends about three and a half seconds on a keyword it
+   * has never seen, most of it fixed cost it pays whether you asked for one or
+   * fifteen. Waiting on that before showing anything made every check feel
+   * broken. So phase one only writes the keyword down — no provider, back in
+   * roughly half a second — and the rows appear unscored. Phase two is the
+   * existing backfill, deliberately not awaited, so the field is usable again
+   * while the numbers fill themselves in.
+   */
   const check = () =>
     run("Checking", async () => {
       const list = draft.trim() ? [...chips, ...split(draft)] : chips;
       if (!list.length || store === ALL_STORES) return;
       const j = await fetch("/api/lookup", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ keywords: list.slice(0, 100), store }),
+        body: JSON.stringify({ keywords: list.slice(0, 100), store, skipFetch: true }),
       }).then((r) => r.json());
       if (!j.ok) throw new Error(j.error ?? "lookup failed");
-      setOffline(!!j.offline);
-      setPending(j.pending ?? []);
       setChips([]); setDraft("");
-      await loadKeywords(store, true);
+      const owed = await loadKeywords(store, true);
+      if (owed?.length) void backfill(owed);
     });
 
   /**
@@ -422,7 +435,10 @@ export default function Page() {
       <div className="glow" />
 
       <header className="top">
-        <span className="mark">aso<b>kit</b></span>
+        <Link className="mark" href="/" aria-label="ASOKit home">
+          <img src="/mark.png" alt="" width={26} height={26} />
+          <span>aso<b>kit</b></span>
+        </Link>
         <span className="workspace-label">Keyword workspace</span>
         <span className="sp" />
         <AccountChip onSignIn={() => router.push("/")} />
@@ -481,6 +497,12 @@ export default function Page() {
 
       {error && <div className="error">{error}</div>}
 
+      {scoring > 0 && (
+        <div className="notice working">
+          Scoring {scoring} new keyword{scoring === 1 ? "" : "s"} — the dashes fill in shortly.
+        </div>
+      )}
+
       {offline && (
         <div className="notice">
           <b>Fresh checks are paused.</b> Everything already looked up still works
@@ -527,7 +549,7 @@ export default function Page() {
           </button>
         </div>
 
-        <div className="bar-load" data-on={busy || loadingRows ? 1 : 0}><i /></div>
+        <div className="bar-load" data-on={busy || loadingRows || scoring ? 1 : 0}><i /></div>
 
         {!rows.length && !loadingRows ? (
           <div className="center">
@@ -610,7 +632,7 @@ export default function Page() {
 
       <footer className="legend">
         <span><b>Pop</b> how much a keyword is searched in the App Store · aim above 25</span>
-        <span><b>Diff</b> how difficult it is to index for a keyword · aim below 75</span>
+        <span><b>Diff</b> how difficult it is to index for a keyword · aim below 65</span>
       </footer>
 
 

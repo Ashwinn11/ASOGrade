@@ -128,15 +128,19 @@ export async function POST(req: Request) {
       }
 
       /*
-       * Only rows the scratchpad already held come back as 0/0, and the sole
-       * way to read their real values is get_app_keywords — which returns the
-       * entire corpus for the store with no way to narrow it. So pay for that
-       * read only when something was actually skipped, rather than on every
-       * lookup. While we are holding the full list, take appsCount for the
-       * fresh rows too, since it costs nothing extra.
+       * add_keywords answers with popularity and difficulty but never
+       * appsCount, and rows the scratchpad already held come back as 0/0. Both
+       * gaps are only readable through get_app_keywords, which returns the
+       * whole corpus for the store with no way to narrow it.
+       *
+       * This used to run only when something was skipped, on the theory that
+       * the full read was expensive. It is not — 183 keywords come back in
+       * about 140ms — and skipping it meant a brand new keyword was always
+       * saved with a null appsCount, which then filled itself in on the next
+       * visit once the keyword counted as already tracked. That is the
+       * "I had to hit refresh" bug. Always pay the 140ms.
        */
-      const skipped = results.some((r) => r?.skipped);
-      if (skipped || !results.length) {
+      {
         const listed = await callTool<any>("get_app_keywords", { appId: ws, store });
         const rows: any[] = Array.isArray(listed) ? listed : listed?.keywords ?? [];
         for (const r of rows) {

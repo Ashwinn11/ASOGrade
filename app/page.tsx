@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUser } from "./components/useUser";
 import SignInModal from "./components/SignInModal";
@@ -154,7 +155,10 @@ export default function Landing() {
       <div className="land-bg" aria-hidden="true" />
 
       <header className="landing-nav">
-        <span className="brand-mark">aso<b>kit</b></span>
+        <Link className="brand-mark" href="/" aria-label="ASOKit home">
+          <img src="/mark.png" alt="" width={26} height={26} />
+          <span>aso<b>kit</b></span>
+        </Link>
         <nav className="nav-menu" aria-label="Primary">
           <a href="#product">Product</a>
           <a href="#spy">Competitors</a>
@@ -439,7 +443,12 @@ export default function Landing() {
       </main>
 
       <footer className="foot">
-        <span className="brand-mark">aso<b>kit</b></span>
+        <Link className="brand-mark" href="/" aria-label="ASOKit home">
+          <img src="/mark.png" alt="" width={22} height={22} />
+          <span>aso<b>kit</b></span>
+        </Link>
+        <Link href="/privacy">Privacy</Link>
+        <Link href="/terms">Terms</Link>
         <a href="mailto:support@asokit.app">Support</a>
         <span className="fine">Not affiliated with Apple. App Store is a trademark of Apple Inc.</span>
       </footer>
