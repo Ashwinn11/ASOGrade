@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         // All search engines — full access to public pages
         userAgent: "*",
-        allow: ["/", "/privacy", "/terms", "/start"],
+        allow: "/",
         disallow: ["/app", "/billing", "/auth", "/api/"],
       },
       {
