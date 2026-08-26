@@ -80,6 +80,7 @@ export default function GlossaryHub() {
         </div>
 
         <section className="pseo-section">
+          <h2>All glossary terms</h2>
           <ul className="pseo-glossary-grid">
             {sortedGlossary.map((entry) => (
               <li key={entry.slug} className="pseo-glossary-item">
@@ -90,6 +91,46 @@ export default function GlossaryHub() {
               </li>
             ))}
           </ul>
+        </section>
+
+        <section className="pseo-section">
+          <h2>Practical guides applying these concepts</h2>
+          <p className="pseo-section-note">
+            Ready to apply these definitions to real keyword research workflows? Read our in-depth guides:
+          </p>
+          <ul className="pseo-related-list pseo-related-cards">
+            <li>
+              <Link href="/guides/low-competition-app-store-keywords">
+                <strong>Finding Low-Competition Keywords</strong>
+                <span>Step-by-step framework to find high-demand, accessible keyword opportunities.</span>
+                <em>Read guide →</em>
+              </Link>
+            </li>
+            <li>
+              <Link href="/guides/app-store-keyword-research-workflow">
+                <strong>End-to-End Research Workflow</strong>
+                <span>From raw ideation to scoring, filtering, and final metadata deployment.</span>
+                <em>Read guide →</em>
+              </Link>
+            </li>
+            <li>
+              <Link href="/guides/evaluate-keyword-difficulty">
+                <strong>Evaluating Keyword Difficulty</strong>
+                <span>How to read live ranking sets and calibrate difficulty to your app authority.</span>
+                <em>Read guide →</em>
+              </Link>
+            </li>
+            <li>
+              <Link href="/guides/multi-storefront-keyword-research">
+                <strong>Multi-Storefront Research</strong>
+                <span>How to uncover lower competition across 109 App Store markets.</span>
+                <em>Read guide →</em>
+              </Link>
+            </li>
+          </ul>
+          <Link href="/guides" className="pseo-link-more">
+            Browse all in-depth ASO guides →
+          </Link>
         </section>
 
         <section className="pseo-section pseo-cta-section">

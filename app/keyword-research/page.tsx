@@ -134,6 +134,60 @@ export default function KeywordResearchHub() {
           </ul>
         </section>
 
+        <section className="pseo-section">
+          <h2>Storefront strategy & tier classification</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16 }}>
+            <div style={{ padding: "20px 22px", background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "var(--r-card)" }}>
+              <strong style={{ fontSize: 16, display: "block", marginBottom: 8, color: "var(--accent)" }}>Tier 1: Major Markets</strong>
+              <p style={{ fontSize: 13.5, color: "var(--ink-2)", lineHeight: 1.6 }}>
+                Markets with highest search volume and deepest competition (US, GB, DE, JP, CN).
+                Target keywords with difficulty below 55–60 for established apps, or prioritize high-intent long-tail phrases.
+              </p>
+            </div>
+            <div style={{ padding: "20px 22px", background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "var(--r-card)" }}>
+              <strong style={{ fontSize: 16, display: "block", marginBottom: 8, color: "var(--accent)" }}>Tier 2: Mid-Tier Markets</strong>
+              <p style={{ fontSize: 13.5, color: "var(--ink-2)", lineHeight: 1.6 }}>
+                Strong purchasing power with 10–25 point lower keyword difficulty than the US (CA, AU, FR, IT, ES, BR, KR).
+                Highest ROI for secondary English metadata and first-phase local language translations.
+              </p>
+            </div>
+            <div style={{ padding: "20px 22px", background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "var(--r-card)" }}>
+              <strong style={{ fontSize: 16, display: "block", marginBottom: 8, color: "var(--accent)" }}>Tier 3: Emerging Markets</strong>
+              <p style={{ fontSize: 13.5, color: "var(--ink-2)", lineHeight: 1.6 }}>
+                Fast-growing smartphone markets with minimal ranking barriers (IN, ID, VN, NG, MX, TR).
+                Ideal for testing keyword candidate sets and capturing organic volume with early market authority.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="pseo-section">
+          <h2>Related localization & keyword guides</h2>
+          <ul className="pseo-related-list pseo-related-cards">
+            <li>
+              <Link href="/guides/multi-storefront-keyword-research">
+                <strong>Multi-Storefront Keyword Research</strong>
+                <span>How to prioritize markets and find keyword opportunities across 109 App Stores.</span>
+                <em>Read guide →</em>
+              </Link>
+            </li>
+            <li>
+              <Link href="/glossary/localization-aso">
+                <strong>ASO Localization Guide</strong>
+                <span>How local language metadata unlocks lower difficulty in international markets.</span>
+                <em>Read definition →</em>
+              </Link>
+            </li>
+            <li>
+              <Link href="/solutions/international-markets">
+                <strong>Storefront Prioritization Solution</strong>
+                <span>Deciding which countries to target before paying for translation.</span>
+                <em>Read solution →</em>
+              </Link>
+            </li>
+          </ul>
+        </section>
+
         <section className="pseo-section pseo-cta-section">
           <h2>Research keywords across all 109 storefronts</h2>
           <p>

@@ -227,6 +227,33 @@ export default async function StorefrontPage({ params }: Props) {
           </ol>
         </section>
 
+        <section className="pseo-section">
+          <h2>Metadata allocation strategy for {name}</h2>
+          <p>
+            When deploying metadata for the {name} storefront in App Store
+            Connect, allocate your character budget deliberately across the
+            three indexable fields:
+          </p>
+          <ul className="pseo-steps">
+            <li>
+              <strong>App Name (30 characters):</strong> Place your highest-volume
+              primary keyword for {name} alongside your brand name. This field
+              carries the strongest ranking weight in Apple&apos;s algorithm.
+            </li>
+            <li>
+              <strong>Subtitle (30 characters):</strong> Feature 2–3 secondary
+              keywords describing your core value proposition in {info?.lang ?? "the local language"}.
+              The subtitle is visible in search results and directly affects conversion.
+            </li>
+            <li>
+              <strong>Keyword Field (100 characters):</strong> Enter comma-separated
+              single words that extend your reach across {name} search queries.
+              Avoid repeating words already used in your title or subtitle to prevent
+              wasting character budget.
+            </li>
+          </ul>
+        </section>
+
         {faqItems.length > 0 && (
           <section className="pseo-section pseo-faq">
             <h2>Frequently asked questions</h2>

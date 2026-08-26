@@ -75,6 +75,7 @@ export default function GuidesHub() {
         </div>
 
         <section className="pseo-section">
+          <h2>In-depth guides</h2>
           <ul className="pseo-guide-list">
             {GUIDES.map((guide) => (
               <li key={guide.slug} className="pseo-guide-item">
@@ -86,6 +87,80 @@ export default function GuidesHub() {
               </li>
             ))}
           </ul>
+        </section>
+
+        <section className="pseo-section">
+          <h2>Essential ASO glossary concepts</h2>
+          <p className="pseo-section-note">
+            Master the underlying metrics and algorithmic factors covered in these guides:
+          </p>
+          <ul className="pseo-related-list pseo-related-cards">
+            <li>
+              <Link href="/glossary/keyword-popularity">
+                <strong>Keyword Popularity (Pop)</strong>
+                <span>0–100 search demand index derived from Apple Search Ads data.</span>
+                <em>Read definition →</em>
+              </Link>
+            </li>
+            <li>
+              <Link href="/glossary/keyword-difficulty">
+                <strong>Keyword Difficulty (Diff)</strong>
+                <span>0–100 score estimating ranking barrier based on live top-ranking apps.</span>
+                <em>Read definition →</em>
+              </Link>
+            </li>
+            <li>
+              <Link href="/glossary/apple-search-ads">
+                <strong>Apple Search Ads Demand</strong>
+                <span>How ASA demand signals reveal genuine search volume without download guesses.</span>
+                <em>Read definition →</em>
+              </Link>
+            </li>
+            <li>
+              <Link href="/glossary/app-store-search-ranking-factors">
+                <strong>Ranking Factors Hierarchy</strong>
+                <span>Title vs. Subtitle vs. Keyword field weight allocation rules.</span>
+                <em>Read definition →</em>
+              </Link>
+            </li>
+            <li>
+              <Link href="/glossary/localization-aso">
+                <strong>ASO Localization</strong>
+                <span>How local language metadata unlocks lower difficulty in international markets.</span>
+                <em>Read definition →</em>
+              </Link>
+            </li>
+            <li>
+              <Link href="/glossary/competitor-teardown">
+                <strong>Competitor Teardowns</strong>
+                <span>How to reverse-engineer rival ranking footprints to discover keyword gaps.</span>
+                <em>Read definition →</em>
+              </Link>
+            </li>
+          </ul>
+          <Link href="/glossary" className="pseo-link-more">
+            Browse all 26 glossary definitions →
+          </Link>
+        </section>
+
+        <section className="pseo-section">
+          <h2>Storefront keyword research</h2>
+          <p className="pseo-section-note">
+            Keyword difficulty varies significantly by country. Explore market guides for the top App Store storefronts:
+          </p>
+          <ul className="pseo-related-list">
+            <li><Link href="/keyword-research/us">🇺🇸 United States (US) →</Link></li>
+            <li><Link href="/keyword-research/gb">🇬🇧 United Kingdom (GB) →</Link></li>
+            <li><Link href="/keyword-research/ca">🇨🇦 Canada (CA) →</Link></li>
+            <li><Link href="/keyword-research/au">🇦🇺 Australia (AU) →</Link></li>
+            <li><Link href="/keyword-research/de">🇩🇪 Germany (DE) →</Link></li>
+            <li><Link href="/keyword-research/fr">🇫🇷 France (FR) →</Link></li>
+            <li><Link href="/keyword-research/jp">🇯🇵 Japan (JP) →</Link></li>
+            <li><Link href="/keyword-research/br">🇧🇷 Brazil (BR) →</Link></li>
+          </ul>
+          <Link href="/keyword-research" className="pseo-link-more">
+            View all 109 storefront guides →
+          </Link>
         </section>
 
         <section className="pseo-section pseo-cta-section">

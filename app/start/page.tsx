@@ -152,7 +152,103 @@ export default function Start() {
     return (
       <div className="page landing onboard-page">
         <div className="land-bg" aria-hidden="true" />
-        <main className="onboard"><p className="onboard-hint">Getting things ready…</p></main>
+
+        <header className="landing-nav">
+          <Link className="brand-mark" href="/" aria-label="ASOGrade home">
+            <img src="/mark.png" alt="" width={26} height={26} />
+            <span>ASO<b>Grade</b></span>
+          </Link>
+          <nav className="nav-menu" aria-label="Primary">
+            <Link href="/keyword-research">Storefronts</Link>
+            <Link href="/guides">Guides</Link>
+            <Link href="/glossary">Glossary</Link>
+            <Link href="/compare">Compare</Link>
+          </nav>
+        </header>
+
+        <main className="onboard">
+          <section className="onboard-step paywall" style={{ maxWidth: 720, margin: "0 auto" }}>
+            <span className="onboard-count">Get Started</span>
+            <h1>App Store Keyword Research Plans</h1>
+            <p className="onboard-hint">
+              Score keywords by Apple Search Ads demand and ranking difficulty across 109 storefronts. No software to install.
+            </p>
+
+            <div className="plans">
+              <div className="plan">
+                <b>Monthly</b>
+                <div className="plan-price"><strong>$14.99</strong><span>/month</span></div>
+                <p>Full access to all 109 storefronts, billed monthly.</p>
+                <button
+                  className="btn secondary big"
+                  onClick={() => {
+                    const sb = supabase();
+                    sb?.auth.signInWithOAuth({
+                      provider: "google",
+                      options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent("/start")}` },
+                    });
+                  }}
+                >
+                  Continue with Google
+                </button>
+              </div>
+
+              <div className="plan best">
+                <span className="plan-flag">Save 45%</span>
+                <b>Yearly</b>
+                <div className="plan-price"><strong>$99</strong><span>/year</span></div>
+                <p>The same full access at <b>$8.25 a month</b>, billed once annually.</p>
+                <button
+                  className="btn primary big"
+                  onClick={() => {
+                    const sb = supabase();
+                    sb?.auth.signInWithOAuth({
+                      provider: "google",
+                      options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent("/start")}` },
+                    });
+                  }}
+                >
+                  Continue with Google
+                </button>
+              </div>
+            </div>
+
+            <ul className="includes">
+              <li><b>109</b> App Store storefronts, each scored separately</li>
+              <li><b>100</b> keywords in a single check, as often as you like</li>
+              <li><b>50</b> ranked apps readable behind any keyword</li>
+              <li>Competitor teardowns — paste a link, read their whole set</li>
+              <li>Apple Search Ads demand signals, not chart guesses</li>
+              <li>Refreshed daily; anything already checked returns instantly</li>
+            </ul>
+
+            <div className="anchor">
+              A full ASO suite runs $79–$1,500 a month for rank tracking and ad tooling you may never open. ASOGrade covers the keyword research pass and stops there.
+            </div>
+
+            <div style={{ marginTop: 32, textAlign: "left" }}>
+              <h3 style={{ fontSize: 18, marginBottom: 12 }}>Frequently Asked Questions</h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                <div>
+                  <strong style={{ display: "block", marginBottom: 4 }}>Do I need a published app to use ASOGrade?</strong>
+                  <span style={{ fontSize: 13.5, color: "var(--ink-2)" }}>No. Keyword demand and difficulty belong to the keyword and storefront. You can research names, subtitles, and keyword fields before launch.</span>
+                </div>
+                <div>
+                  <strong style={{ display: "block", marginBottom: 4 }}>Can I cancel anytime?</strong>
+                  <span style={{ fontSize: 13.5, color: "var(--ink-2)" }}>Yes. Subscriptions can be canceled at any time with one click. Your access continues until the end of your billing cycle.</span>
+                </div>
+                <div>
+                  <strong style={{ display: "block", marginBottom: 4 }}>How does billing work?</strong>
+                  <span style={{ fontSize: 13.5, color: "var(--ink-2)" }}>Payments are processed securely via Dodo Payments (merchant of record). Local taxes are calculated and added automatically at checkout.</span>
+                </div>
+              </div>
+            </div>
+
+            <p className="pay-fine" style={{ marginTop: 24 }}>
+              Cancel any time. Payments handled securely by Dodo Payments. <Link href="/terms">Terms of Service</Link> and <Link href="/privacy">Privacy Policy</Link>.
+            </p>
+          </section>
+        </main>
       </div>
     );
   }

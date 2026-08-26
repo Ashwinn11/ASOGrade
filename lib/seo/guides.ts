@@ -297,30 +297,32 @@ export const GUIDES: GuideEntry[] = [
   {
     slug: "multi-storefront-keyword-research",
     title: "App Store Keyword Research Across Multiple Storefronts",
-    description: "How to research and prioritize keywords across the 109 App Store storefronts — and why per-storefront scoring reveals opportunities that single-market research misses.",
+    description: "How to research keywords across 109 App Store storefronts — and why per-storefront scoring reveals opportunities that single-market research misses.",
     sections: [
       {
         heading: "Why per-storefront research is necessary, not optional",
         body: [
-          "The App Store is not one market — it is 109 separate markets, each with its own search index, its own keyword popularity scores, and its own competitive landscape. A keyword that is dominant and hard to rank for in the US might be moderately popular and highly accessible in Germany, or have entirely different demand in Japan.",
+          "The App Store is not one global search index — it is 109 separate markets, each with its own search index, its own keyword popularity scores, and its own unique competitive landscape. A keyword that is dominant and hard to rank for in the US might be moderately popular and highly accessible in Germany, or have entirely different demand in Japan.",
           "When you do keyword research only in your primary market, you're optimizing for one market while the other 108 remain unexamined. For an app with any international user base — even an accidental one — this leaves a large share of potential organic installs on the table.",
           "Per-storefront research is also how you find the expansion markets worth localizing into. Rather than guessing which countries to bother with, you can look at where your target keywords have real demand (popularity above 25) and accessible competition (difficulty below your current threshold). That is a data-driven localization decision, not a geography guess.",
         ],
       },
       {
-        heading: "The English-speaking markets: a useful starting cluster",
+        heading: "The English-speaking markets: a high-ROI starting cluster",
         body: [
           "For English-language apps, the five core English-speaking storefronts — US, GB, AU, CA, IE — share the same language and broadly similar user behavior, but have meaningfully different keyword difficulty. The US is consistently the most competitive; the others typically run 5-20 points lower difficulty for the same terms.",
           "This means the UK, Australia, Canada, and Ireland are often accessible secondary targets for keywords that are blocked in the US. An app that can't crack top-5 for 'habit tracker' in the US might achieve top-3 in Australia or Ireland within a single update cycle — generating real organic installs that also contribute to engagement signals.",
           "New Zealand, South Africa, and the Philippines are further English-speaking storefronts worth checking. They have lower search volume per term, but difficulty is correspondingly very low — useful for building a ranking footprint on terms you can later challenge in the larger markets.",
+          "Furthermore, ranking well in secondary English storefronts builds aggregate download velocity and rating volume that can positively influence global app authority across the entire ecosystem.",
         ],
       },
       {
-        heading: "Major non-English markets: the localization case",
+        heading: "Major non-English markets: building the localization case",
         body: [
           "The major non-English storefronts — Germany, France, Japan, Brazil, South Korea, China — each have significant search volume for apps in most categories. Users in these markets search primarily in their local language, not English. An app with only English metadata is largely invisible to these searches.",
           "The localization case comes down to the keyword data: compare the popularity of your core keywords in German, French, or Portuguese (using the local-language equivalent terms) to the equivalent US English scores. If German popularity is above 25 for your core category term and German difficulty is meaningfully below the US equivalent, the ROI on a German localization is positive.",
           "This is a data exercise, not a cultural assumption. Some categories are strong in Germany; others are stronger in Japan or Brazil. The keyword research tells you which markets have real demand for your specific app category, not just which markets are large by population.",
+          "When localizing metadata, avoid direct word-for-word machine translation. Native search idioms often differ from dictionary definitions. Always validate local keyword popularity using native Search Ads demand before publishing.",
         ],
       },
       {
@@ -329,6 +331,7 @@ export const GUIDES: GuideEntry[] = [
           "In the 50+ smaller, emerging storefronts — markets like Nigeria, Pakistan, Vietnam, or the smaller LATAM countries — keyword difficulty is often extremely low. For most app categories, the top-ranking apps in these storefronts are not highly optimized, have low rating counts, and have left significant keyword real estate unclaimed.",
           "The limitation is demand: popularity scores in small storefronts are often also low, because the absolute user base is smaller. The opportunity is apps that are already popular globally but haven't optimized for these markets — they rank by default relevance, but a well-targeted metadata update could displace them and capture the available demand.",
           "Emerging markets are also useful as testing grounds. If you want to test whether a particular keyword set generates installs before committing to it in a competitive major market, ranking for it in a low-difficulty emerging market gives you a real-world signal with minimal competitive pressure.",
+          "Capturing early market share in emerging regions can establish long-term defensibility as smartphone penetration and digital purchasing power continue to expand in these economies.",
         ],
       },
     ],
@@ -350,6 +353,68 @@ export const GUIDES: GuideEntry[] = [
       { slug: "localization-aso", label: "Localization (ASO)", type: "glossary" },
       { slug: "app-store-storefront", label: "App Store Storefronts", type: "glossary" },
       { slug: "apple-search-ads-popularity", label: "Apple Search Ads Popularity Score", type: "guide" },
+    ],
+  },
+  {
+    slug: "competitor-keyword-set",
+    title: "How to Read a Competitor's App Store Keyword Set",
+    description: "A practical guide to reverse-engineering the keywords a competing app ranks for, interpreting results, and discovering winnable keyword gaps.",
+    sections: [
+      {
+        heading: "What a competitor teardown actually reveals",
+        body: [
+          "Every app that appears in App Store search results is there because Apple's algorithm decided it is relevant to the user's query. By looking at which searches bring up a competitor's app, you can indirectly read their targeting strategy — which keywords they've successfully earned relevance for, even though their actual keyword field is private.",
+          "A teardown is not a copy-paste operation. The terms a competitor ranks for tell you which keywords have user intent in your category, what the competition looks like for each, and where you might find gaps — terms they appear for that you don't target, or terms with lower difficulty than their top results suggest.",
+          "The output of a competitor teardown is a list of scored keywords — popularity and difficulty for each term the competitor appears in results for. This list is the starting point for gap analysis and metadata planning, not the end.",
+        ],
+      },
+      {
+        heading: "Choosing which competitors to analyze",
+        body: [
+          "Not all competitors are equally useful to analyze. The most valuable teardowns are for apps that rank in the top 10 for your primary target keywords — these apps have demonstrated they can capture the search intent you're after, and their keyword footprint reveals how.",
+          "Analyze both direct competitors (apps doing exactly what yours does) and indirect competitors (apps solving the same user problem differently). An indirect competitor may rank for terms that are underexploited in the direct category — terms with real demand that the direct competitors have overlooked.",
+          "Analyze 3-5 competitors rather than just one. A single competitor's footprint reveals their strategy; multiple competitors' footprints reveal the overall keyword landscape for your category — which terms are essential (everyone ranks for them), which are differentiated (only some apps target them), and which are gaps (high demand, nobody's claimed them efficiently).",
+          "Pay close attention to recently updated competitors. Apps that frequently revise their subtitles are actively testing new keyword combinations that you can learn from without spending your own release cycles.",
+        ],
+      },
+      {
+        heading: "Interpreting the teardown output",
+        body: [
+          "After running a teardown, you have a list of keywords with popularity and difficulty scores. Sort this list by popularity (high to low) and scan for three distinct groups:",
+          "Core terms: high popularity (50+), high difficulty (65+). These are the category-defining keywords that every app targets. You need them in your metadata for relevance signal, but don't expect to rank top-3 quickly. Put them in the name or subtitle if they fit naturally.",
+          "Opportunity terms: moderate popularity (25-50), moderate difficulty (40-65). These are the terms where real demand exists and the competition is accessible. These belong in your keyword field and are your near-term ranking targets.",
+          "Gap terms: any popularity above 25, difficulty below 40. These are underexploited keywords that the competitor is ranking for — perhaps accidentally, or because they appear in their app name without being their primary target. These are your highest-priority additions.",
+          "Filtering out branded terms of direct rivals that have strict trademark protections ensures you focus only on winnable, commercially safe search phrases.",
+        ],
+      },
+      {
+        heading: "Moving from teardown to metadata update",
+        body: [
+          "A competitor teardown without a metadata update is just interesting information. The true value comes from acting systematically on what you uncover. Take the gap terms and opportunity terms identified in the teardown and integrate them into your next keyword research pass.",
+          "Score the gap terms in your own primary storefront (the teardown may have been run in a different market), check them in your secondary storefronts, and decide how to fit the best ones into your available metadata characters.",
+          "Over time, tracking your competitor's keyword footprint across multiple teardowns reveals how their strategy is evolving — which terms they're gaining on, which they're dropping, and what new terms they're appearing for. This competitive intelligence informs your own strategy over multiple update cycles, not just the immediate next update.",
+          "Document your baseline rank before publishing the update so you can accurately measure ranking improvements across every targeted competitor term.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        q: "Can I see a competitor's actual keyword field?",
+        a: "No. Apple's keyword field is private — only the app's developer (and Apple) can see it. What you can see is the keyword ranking footprint: which searches produce results that include the competitor's app. This indirect read reveals their effective reach, even if not their exact submission.",
+      },
+      {
+        q: "How do I know which keywords a competitor ranks for vs. just appears in?",
+        a: "Ranking data shows you both the keyword and the rank position. A keyword where the competitor appears at position 2 is one they're actively optimizing for. A keyword where they appear at position 25 is one they're only loosely relevant to — less useful as a targeting inspiration.",
+      },
+      {
+        q: "What if my competitor ranks for terms that aren't relevant to my app?",
+        a: "Skip them. A competitor teardown is an input into your research, not a list to copy wholesale. Relevance is a filter you apply on top of the data — target the terms your app genuinely serves, because user intent mismatch hurts conversion and can hurt ranking quality signals over time.",
+      },
+    ],
+    related: [
+      { slug: "competitor-teardown", label: "Competitor Teardown", type: "glossary" },
+      { slug: "keyword-gap-analysis", label: "Keyword Gap Analysis", type: "glossary" },
+      { slug: "app-store-keyword-research-workflow", label: "Research Workflow", type: "guide" },
     ],
   },
   {
@@ -410,65 +475,7 @@ export const GUIDES: GuideEntry[] = [
       { slug: "multi-storefront-keyword-research", label: "Multi-Storefront Research", type: "guide" },
     ],
   },
-  {
-    slug: "competitor-keyword-set",
-    title: "How to Read a Competitor's App Store Keyword Set",
-    description: "A practical guide to reverse-engineering the keywords a competing app ranks for, interpreting what you find, and deciding which terms to target in your own metadata.",
-    sections: [
-      {
-        heading: "What a competitor teardown actually reveals",
-        body: [
-          "Every app that appears in App Store search results is there because Apple's algorithm decided it is relevant to the user's query. By looking at which searches bring up a competitor's app, you can indirectly read their targeting strategy — which keywords they've successfully earned relevance for, even though their actual keyword field is private.",
-          "A teardown is not a copy-paste operation. The terms a competitor ranks for tell you which keywords have user intent in your category, what the competition looks like for each, and where you might find gaps — terms they appear for that you don't target, or terms with lower difficulty than their top results suggest.",
-          "The output of a competitor teardown is a list of scored keywords — popularity and difficulty for each term the competitor appears in results for. This list is the starting point for gap analysis and metadata planning, not the end.",
-        ],
-      },
-      {
-        heading: "Choosing which competitors to analyze",
-        body: [
-          "Not all competitors are equally useful to analyze. The most valuable teardowns are for apps that rank in the top 10 for your primary target keywords — these apps have demonstrated they can capture the search intent you're after, and their keyword footprint reveals how.",
-          "Analyze both direct competitors (apps doing exactly what yours does) and indirect competitors (apps solving the same user problem differently). An indirect competitor may rank for terms that are underexploited in the direct category — terms with real demand that the direct competitors have overlooked.",
-          "Analyze 3-5 competitors rather than just one. A single competitor's footprint reveals their strategy; multiple competitors' footprints reveal the overall keyword landscape for your category — which terms are essential (everyone ranks for them), which are differentiated (only some apps target them), and which are gaps (high demand, nobody's claimed them efficiently).",
-        ],
-      },
-      {
-        heading: "Interpreting the teardown output",
-        body: [
-          "After running a teardown, you have a list of keywords with popularity and difficulty scores. Sort this list by popularity (high to low) and scan for three groups:",
-          "Core terms: high popularity (50+), high difficulty (65+). These are the category-defining keywords that every app targets. You need them in your metadata for relevance signal, but don't expect to rank top-3 quickly. Put them in the name or subtitle if they fit naturally.",
-          "Opportunity terms: moderate popularity (25-50), moderate difficulty (40-65). These are the terms where real demand exists and the competition is accessible. These belong in your keyword field and are your near-term ranking targets.",
-          "Gap terms: any popularity above 25, difficulty below 40. These are underexploited keywords that the competitor is ranking for — perhaps accidentally, or because they appear in their app name without being their primary target. These are your highest-priority additions.",
-        ],
-      },
-      {
-        heading: "Moving from teardown to metadata update",
-        body: [
-          "A competitor teardown without a metadata update is just information. The value comes from acting on what you find. Take the gap terms and opportunity terms identified in the teardown and integrate them into your next keyword research pass.",
-          "Score the gap terms in your own primary storefront (the teardown may have been run in a different market), check them in your secondary storefronts, and decide how to fit the best ones into your available metadata characters.",
-          "Over time, tracking your competitor's keyword footprint across multiple teardowns reveals how their strategy is evolving — which terms they're gaining on, which they're dropping, and what new terms they're appearing for. This competitive intelligence informs your own strategy over multiple update cycles, not just the immediate next update.",
-        ],
-      },
-    ],
-    faq: [
-      {
-        q: "Can I see a competitor's actual keyword field?",
-        a: "No. Apple's keyword field is private — only the app's developer (and Apple) can see it. What you can see is the keyword ranking footprint: which searches produce results that include the competitor's app. This indirect read reveals their effective reach, even if not their exact submission.",
-      },
-      {
-        q: "How do I know which keywords a competitor ranks for vs. just appears in?",
-        a: "Ranking data shows you both the keyword and the rank position. A keyword where the competitor appears at position 2 is one they're actively optimizing for. A keyword where they appear at position 25 is one they're only loosely relevant to — less useful as a targeting inspiration.",
-      },
-      {
-        q: "What if my competitor ranks for terms that aren't relevant to my app?",
-        a: "Skip them. A competitor teardown is an input into your research, not a list to copy wholesale. Relevance is a filter you apply on top of the data — target the terms your app genuinely serves, because user intent mismatch hurts conversion and can hurt ranking quality signals over time.",
-      },
-    ],
-    related: [
-      { slug: "competitor-teardown", label: "Competitor Teardown", type: "glossary" },
-      { slug: "keyword-gap-analysis", label: "Keyword Gap Analysis", type: "glossary" },
-      { slug: "app-store-keyword-research-workflow", label: "Research Workflow", type: "guide" },
-    ],
-  },
+
   {
     slug: "metadata-fields-that-affect-ranking",
     title: "App Store Metadata Fields That Actually Affect Search Ranking",
