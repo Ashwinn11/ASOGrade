@@ -497,7 +497,15 @@ export default function Landing() {
             <a href="#product">Keyword research</a>
             <a href="#spy">Competitor teardown</a>
             <a href="#data">The data</a>
-            <a href="#compare">Compare</a>
+            <Link href="/solutions">Solutions</Link>
+          </nav>
+
+          <nav className="foot-col" aria-label="Resources">
+            <h4>Resources</h4>
+            <Link href="/guides">ASO Guides</Link>
+            <Link href="/glossary">ASO Glossary</Link>
+            <Link href="/keyword-research">109 Storefronts</Link>
+            <Link href="/compare">Compare approaches</Link>
           </nav>
 
           <nav className="foot-col" aria-label="Company">

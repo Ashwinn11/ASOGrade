@@ -2347,3 +2347,614 @@ a.btn { text-decoration: none; }
 @media (max-width: 720px) {
   .lock.standalone { margin-top: 32px; padding: 26px 22px; }
 }
+
+/* ======================================================= pSEO Page System */
+
+.pseo-page {
+  position: relative;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 24px 24px 80px;
+  color: var(--ink);
+}
+@media (max-width: 640px) {
+  .pseo-page { padding: 16px 16px 56px; }
+}
+
+.pseo-header {
+  margin-bottom: 36px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.pseo-nav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.pseo-brand {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+  margin-right: auto;
+}
+.pseo-brand b {
+  color: var(--accent);
+}
+
+.pseo-nav a:not(.pseo-brand):not(.pseo-cta-link) {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+.pseo-nav a:not(.pseo-brand):not(.pseo-cta-link):hover {
+  color: var(--ink);
+}
+
+.pseo-cta-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  background: var(--ink);
+  color: #fff !important;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--pill);
+  text-decoration: none;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.pseo-cta-link:hover {
+  background: var(--accent);
+  transform: translateY(-1px);
+}
+
+.pseo-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--faint);
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.pseo-breadcrumb a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.pseo-breadcrumb a:hover {
+  color: var(--ink);
+}
+.pseo-breadcrumb [aria-current="page"] {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.pseo-hero {
+  margin-bottom: 44px;
+}
+.pseo-hero h1 {
+  font-family: "Outfit", var(--sans);
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 780;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+.pseo-lead {
+  font-size: 16.5px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  max-width: 68ch;
+}
+
+.pseo-eyebrow {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.pseo-store-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.pseo-flag {
+  font-size: 22px;
+}
+.pseo-tier-badge,
+.pseo-proof-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  background: var(--tint);
+  border: 1px solid var(--tint-line);
+  color: var(--accent-2);
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--pill);
+}
+
+.pseo-definition {
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--ink);
+  padding: 16px 20px;
+  background: var(--surface);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  margin-bottom: 24px;
+  box-shadow: var(--sh-1);
+}
+
+.pseo-maturity-line {
+  font-weight: 600;
+  color: var(--accent-2);
+}
+
+.pseo-problem-box {
+  margin-top: 18px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--ink-2);
+}
+.pseo-problem-box strong {
+  color: var(--ink);
+}
+
+.pseo-section {
+  margin-bottom: 48px;
+}
+.pseo-section h2 {
+  font-family: "Outfit", var(--sans);
+  font-size: 22px;
+  font-weight: 720;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+.pseo-section > p {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  margin-bottom: 14px;
+}
+.pseo-section-note {
+  font-size: 13.5px;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+
+.pseo-meta-dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.pseo-meta-dl > div {
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.pseo-meta-dl dt {
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--faint);
+  margin-bottom: 4px;
+}
+.pseo-meta-dl dd {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.pseo-store-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  list-style: none;
+}
+.pseo-store-grid li a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  text-decoration: none;
+  color: var(--ink);
+  transition: all 0.15s ease;
+}
+.pseo-store-grid li a:hover {
+  border-color: var(--accent);
+  background: var(--hover);
+  transform: translateY(-1px);
+}
+.pseo-store-flag {
+  font-size: 18px;
+  flex: none;
+}
+.pseo-store-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pseo-store-code {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--faint);
+  background: var(--sunken);
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+.pseo-glossary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 14px;
+  list-style: none;
+}
+.pseo-glossary-item a {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 20px;
+  height: 100%;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  text-decoration: none;
+  color: var(--ink);
+  transition: all 0.18s ease;
+  box-shadow: var(--sh-1);
+}
+.pseo-glossary-item a:hover {
+  border-color: var(--accent);
+  background: var(--hover);
+  box-shadow: var(--sh-2);
+  transform: translateY(-2px);
+}
+.pseo-glossary-item strong {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.pseo-glossary-item span {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.pseo-guide-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  list-style: none;
+}
+.pseo-guide-item a {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 22px 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  text-decoration: none;
+  color: var(--ink);
+  transition: all 0.18s ease;
+  box-shadow: var(--sh-1);
+}
+.pseo-guide-item a:hover {
+  border-color: var(--accent);
+  background: var(--hover);
+  box-shadow: var(--sh-2);
+  transform: translateY(-2px);
+}
+.pseo-guide-item strong {
+  font-family: "Outfit", var(--sans);
+  font-size: 18px;
+  font-weight: 720;
+  color: var(--ink);
+}
+.pseo-guide-item span {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.pseo-guide-item em {
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.pseo-compare-grid,
+.pseo-solutions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  list-style: none;
+}
+.pseo-compare-card a,
+.pseo-solution-card a {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px 22px;
+  height: 100%;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  text-decoration: none;
+  color: var(--ink);
+  transition: all 0.18s ease;
+  box-shadow: var(--sh-1);
+}
+.pseo-compare-card a:hover,
+.pseo-solution-card a:hover {
+  border-color: var(--accent);
+  background: var(--hover);
+  box-shadow: var(--sh-2);
+  transform: translateY(-2px);
+}
+.pseo-compare-card strong,
+.pseo-solution-card strong {
+  font-family: "Outfit", var(--sans);
+  font-size: 17px;
+  font-weight: 720;
+  color: var(--ink);
+}
+.pseo-tagline {
+  font-style: normal;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-2);
+}
+.pseo-compare-card span,
+.pseo-solution-card p {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.pseo-read-more {
+  margin-top: auto;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent) !important;
+}
+
+.pseo-body {
+  margin-bottom: 40px;
+}
+.pseo-body section {
+  margin-bottom: 32px;
+}
+.pseo-body h2 {
+  font-family: "Outfit", var(--sans);
+  font-size: 21px;
+  font-weight: 720;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+.pseo-body p {
+  font-size: 15.5px;
+  line-height: 1.7;
+  color: var(--ink-2);
+  margin-bottom: 16px;
+}
+
+.pseo-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-left: 0;
+  list-style: none;
+  counter-reset: step-counter;
+}
+.pseo-steps li {
+  position: relative;
+  padding: 16px 20px 16px 56px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  counter-increment: step-counter;
+}
+.pseo-steps li::before {
+  content: counter(step-counter, decimal-leading-zero);
+  position: absolute;
+  left: 18px;
+  top: 16px;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.pseo-steps strong {
+  color: var(--ink);
+}
+
+.pseo-faq {
+  margin-top: 40px;
+}
+.pseo-faq dl {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pseo-faq-item {
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.pseo-faq-item dt {
+  font-family: "Outfit", var(--sans);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.pseo-faq-item dd {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+.pseo-cta-section {
+  padding: 36px 32px;
+  background: linear-gradient(135deg, var(--surface) 0%, var(--hover) 100%);
+  border: 1px solid var(--tint-line);
+  border-radius: var(--r-card);
+  text-align: center;
+  box-shadow: var(--sh-2);
+}
+.pseo-cta-section h2 {
+  font-size: clamp(22px, 3vw, 28px);
+  margin-bottom: 10px;
+}
+.pseo-cta-section p {
+  max-width: 54ch;
+  margin: 0 auto 22px;
+  font-size: 15px;
+}
+
+.pseo-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14.5px;
+  font-weight: 700;
+  border-radius: var(--pill);
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(201, 100, 67, 0.35);
+  transition: all 0.18s ease;
+}
+.pseo-btn-primary:hover {
+  background: var(--accent-2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(201, 100, 67, 0.45);
+}
+
+.pseo-related-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  list-style: none;
+  margin-bottom: 14px;
+}
+.pseo-related-list li a {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.pseo-related-list li a:hover {
+  border-color: var(--accent);
+  background: var(--hover);
+  color: var(--accent-2);
+}
+
+.pseo-related-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+.pseo-related-cards li a {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 16px 18px;
+  width: 100%;
+}
+.pseo-related-cards li a strong {
+  font-size: 14.5px;
+}
+.pseo-related-cards li a span {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.pseo-related-cards li a em {
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-top: 4px;
+}
+
+.pseo-link-more {
+  display: inline-block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  margin-top: 6px;
+}
+.pseo-link-more:hover {
+  text-decoration: underline;
+}
+
+.pseo-footer {
+  margin-top: 60px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+.pseo-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  margin-bottom: 16px;
+}
+.pseo-footer-links a {
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.pseo-footer-links a:hover {
+  color: var(--ink);
+}
+.pseo-footer-copy {
+  font-size: 12px;
+  color: var(--faint);
+  line-height: 1.5;
+}
+
