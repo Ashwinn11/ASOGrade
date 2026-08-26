@@ -48,8 +48,8 @@ export default function SignInModal({ onClose, next = "/app" }: {
       <div className="sheet" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
         <button className="shut" onClick={onClose} aria-label="Close"><Close size={15} /></button>
 
-        <span className="mark">aso<b>kit</b></span>
-        <h2>Sign in to ASOKit</h2>
+        <span className="mark">aso<b>grade</b></span>
+        <h2>Sign in to ASOGrade</h2>
         <p>Sign in and your lists stay put — one workspace per store, on every device.</p>
 
         <div className="ways">

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireSubscription, refuse } from "@/lib/entitlement";
 import { callTool, isOffline } from "@/lib/backend";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import type { RankingApp } from "@/lib/types";
@@ -20,6 +21,10 @@ const DEPTH = 50;        // the provider clamps a single search to 50 results
 const MAX_KEYWORDS = 30; // one request should not fan out further than this
 
 export async function POST(req: Request) {
+  // No free tier: every data route is behind a live subscription.
+  const access = await requireSubscription();
+  if (!access.ok) return refuse(access.reason);
+
   const { keywords = [], store = "us", limit = DEPTH } = await req.json().catch(() => ({}) as any);
   if (!Array.isArray(keywords) || !keywords.length) {
     return NextResponse.json({ ok: false, error: "keywords required" }, { status: 400 });

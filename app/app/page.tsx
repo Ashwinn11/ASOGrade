@@ -95,6 +95,18 @@ export default function Page() {
   const [scoring, setScoring] = useState(0);   // keywords the backfill is filling in right now
   const [loadingRows, setLoadingRows] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [locked, setLocked] = useState(false);   // 402 from any data route
+
+  /**
+   * Every failure goes through here. A missing subscription is not a message to
+   * read, it is a state of the page — so it flips the paywall rather than
+   * printing itself into the error strip.
+   */
+  const fail = (e: unknown) => {
+    const msg = e instanceof Error ? e.message : String(e);
+    if (/subscription/i.test(msg)) { setLocked(true); setError(null); }
+    else setError(msg);
+  };
 
   // keywords already fetched, keyed by store, so switching back is instant
   const kwCache = useRef<Map<string, KeywordRow[]>>(new Map());
@@ -133,7 +145,7 @@ export default function Page() {
       setRows(list);
       return (j.missing ?? []) as { keyword: string; store: string }[];
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      fail(e);
       setRows([]);
       return [];
     } finally {
@@ -185,7 +197,7 @@ export default function Page() {
   const run = useCallback(async (what: string, fn: () => Promise<void>) => {
     setBusy(what); setError(null);
     try { await fn(); }
-    catch (e) { setError(e instanceof Error ? e.message : String(e)); }
+    catch (e) { fail(e); }
     finally { setBusy(null); }
   }, []);
 
@@ -435,15 +447,37 @@ export default function Page() {
       <div className="glow" />
 
       <header className="top">
-        <Link className="mark" href="/" aria-label="ASOKit home">
+        <Link className="mark" href="/" aria-label="ASOGrade home">
           <img src="/mark.png" alt="" width={26} height={26} />
-          <span>aso<b>kit</b></span>
+          <span>ASO<b>Grade</b></span>
         </Link>
         <span className="workspace-label">Keyword workspace</span>
         <span className="sp" />
         <AccountChip onSignIn={() => router.push("/")} />
       </header>
 
+      {locked ? (
+        <section className="lock standalone" aria-live="polite">
+          <div className="lock-copy">
+            <span className="lock-kicker">Subscription needed</span>
+            <h2>Your scoring is switched off.</h2>
+            <p>
+              Your keyword lists are safe exactly as you left them. Turn a plan back on and
+              everything here starts working again immediately.
+            </p>
+            <div className="lock-facts">
+              <span><b>109</b> storefronts</span>
+              <span><b>100</b> keywords per check</span>
+              <span><b>50</b> ranked apps per keyword</span>
+            </div>
+          </div>
+          <div className="lock-act">
+            <a className="btn primary big" href="/start">See the plans</a>
+            <a className="lock-alt" href="/billing">Check billing</a>
+          </div>
+        </section>
+      ) : (
+      <>
       <section className="hero">
         <div className="hero-text">
           <span className="eyebrow">Apple Search Ads data</span>
@@ -494,6 +528,7 @@ export default function Page() {
         </div>
 
       </section>
+
 
       {error && <div className="error">{error}</div>}
 
@@ -790,6 +825,9 @@ export default function Page() {
             )}
           </div>
         </div>
+      )}
+
+      </>
       )}
 
       {picked.size > 0 && (

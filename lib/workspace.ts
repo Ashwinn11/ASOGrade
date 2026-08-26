@@ -7,6 +7,10 @@ import { callTool } from "@/lib/backend";
  * one shared scratchpad serves everybody — and a keyword already on it is
  * re-tracked in milliseconds instead of costing an upstream fetch.
  */
+// Deliberately still says ASOKit: this is the app's name *inside Astro*, and
+// workspaceId() finds the scratchpad by matching it. Renaming it would not
+// rename anything over there — it would fail the lookup, create a second
+// scratchpad, and strand every keyword already tracked on the first.
 const NAME = "ASOKit Scratchpad";
 
 let opening: Promise<string> | null = null;

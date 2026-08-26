@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireSubscription, refuse } from "@/lib/entitlement";
 import { supabaseServer } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
@@ -18,6 +19,10 @@ async function currentUser() {
 }
 
 export async function GET(req: Request) {
+  // No free tier: every data route is behind a live subscription.
+  const access = await requireSubscription();
+  if (!access.ok) return refuse(access.reason);
+
   const user = await currentUser();
   if (!user) return NextResponse.json({ ok: true, results: [] });
 
@@ -75,6 +80,10 @@ export async function GET(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  // No free tier: every data route is behind a live subscription.
+  const access = await requireSubscription();
+  if (!access.ok) return refuse(access.reason);
+
   const user = await currentUser();
   if (!user) return NextResponse.json({ ok: false, error: "sign in first" }, { status: 401 });
 

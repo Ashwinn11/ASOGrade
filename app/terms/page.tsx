@@ -2,21 +2,21 @@ import type { Metadata } from "next";
 import Legal from "../legal";
 
 export const metadata: Metadata = {
-  title: "Terms — ASOKit",
-  description: "The terms you agree to by using ASOKit.",
+  title: "Terms — ASOGrade",
+  description: "The terms you agree to by using ASOGrade.",
 };
 
 export default function Terms() {
   return (
     <Legal title="Terms of Service" updated="26 August 2026">
       <p>
-        By using ASOKit you agree to what follows. If you do not, please do not
+        By using ASOGrade you agree to what follows. If you do not, please do not
         use the service.
       </p>
 
-      <h2>What ASOKit is</h2>
+      <h2>What ASOGrade is</h2>
       <p>
-        ASOKit scores App Store keywords for popularity, ranking difficulty and
+        ASOGrade scores App Store keywords for popularity, ranking difficulty and
         the number of competing apps, storefront by storefront. It is a research
         aid. It does not submit anything to the App Store on your behalf and it
         does not change your app&apos;s metadata.
@@ -65,7 +65,7 @@ export default function Terms() {
 
       <h2>Ending it</h2>
       <p>
-        You may stop using ASOKit and request deletion at any time. We may
+        You may stop using ASOGrade and request deletion at any time. We may
         suspend an account for breach of these terms, non-payment, or abuse of
         the service. Your keyword list can be exported before deletion — just
         ask.
@@ -73,20 +73,20 @@ export default function Terms() {
 
       <h2>Liability</h2>
       <p>
-        To the extent the law allows, ASOKit is not liable for indirect or
+        To the extent the law allows, ASOGrade is not liable for indirect or
         consequential loss, including lost revenue or rankings. Any liability is
         limited to what you paid in the twelve months before the claim.
       </p>
 
       <h2>Not affiliated with Apple</h2>
       <p>
-        ASOKit is an independent product. App Store and Apple are trademarks of
-        Apple Inc. ASOKit is not endorsed by or affiliated with Apple Inc.
+        ASOGrade is an independent product. App Store and Apple are trademarks of
+        Apple Inc. ASOGrade is not endorsed by or affiliated with Apple Inc.
       </p>
 
       <h2>Contact</h2>
       <p>
-        <a href="mailto:support@asokit.app">support@asokit.app</a>
+        <a href="mailto:support@asograde.com">support@asograde.com</a>
       </p>
     </Legal>
   );

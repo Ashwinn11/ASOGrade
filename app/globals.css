@@ -79,7 +79,6 @@ kbd {
 }
 .top .mark b { font-weight: 700; color: var(--accent) }
 
-
 /* the brand is a link home in both shells: icon, then wordmark */
 .top .mark,
 .brand-mark {
@@ -871,6 +870,7 @@ a.btn { text-decoration: none; }
   font-family: "Outfit", var(--sans);
   font-size: 19px;
   font-weight: 760;
+  letter-spacing: -.01em;   /* caps run wide; pull them back to the old rhythm */
   letter-spacing: 0;
   color: var(--land-ink);
   line-height: 1;
@@ -936,7 +936,7 @@ a.btn { text-decoration: none; }
 .hero-copy { min-width: 0; }
 .landing-eyebrow,
 .section-kicker,
-.closing-cta span {
+.closing-cta > span:not(.cta-group) {
   display: inline-flex;
   align-items: center;
   border-radius: 6px;
@@ -966,11 +966,22 @@ a.btn { text-decoration: none; }
   line-height: 1.65;
   text-wrap: pretty;
 }
+
+/* the audience line the standalone section used to carry */
+.hero-who {
+  margin: 18px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--land-faint);
+  max-width: 460px;
+}
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;      /* keep both buttons on one line, same height */
   gap: 10px;
   margin-top: 30px;
+  margin-bottom: 30px;      /* room for the out-of-flow note beneath */
 }
 .proof-list {
   display: grid;
@@ -1107,35 +1118,6 @@ a.btn { text-decoration: none; }
 .decision.watch { background: #fbefd8; color: #865416; }
 .decision.crowded { background: #f5e2dc; color: #93432f; }
 
-.signal-band {
-  background: var(--land-ink);
-  border-top: 1px solid rgba(255, 255, 255, .08);
-  border-bottom: 1px solid rgba(255, 255, 255, .08);
-}
-.signal-inner {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 28px;
-  width: min(1180px, calc(100% - 48px));
-  margin: 0 auto;
-  padding: 28px 0;
-}
-.signal-inner p {
-  max-width: 720px;
-  color: #fff;
-  font-family: "Outfit", var(--sans);
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1.15;
-}
-.signal-inner span {
-  max-width: 280px;
-  color: rgba(255, 255, 255, .68);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
 .section-shell {
   width: min(1180px, calc(100% - 48px));
   margin: 0 auto;
@@ -1145,12 +1127,28 @@ a.btn { text-decoration: none; }
   display: grid;
   grid-template-columns: minmax(0, .86fr) minmax(320px, .64fr);
   align-items: end;
-  gap: 54px;
+  column-gap: 54px;
+  row-gap: 0;
 }
+/* Three children in a two-column grid meant the kicker sat alone in column one
+   and — blockified as a grid item — stretched into a full-width bar with the
+   heading stranded beside it. Place all three explicitly: kicker above the
+   heading on the left, supporting copy on the right. */
+.section-copy > .section-kicker {
+  grid-column: 1; grid-row: 1;
+  justify-self: start; align-self: end;
+  margin-bottom: 14px;
+}
+.section-copy > h2 { grid-column: 1; grid-row: 2; margin-top: 0; }
+.section-copy > p  { grid-column: 2; grid-row: 2; margin: 0; }
 .section-copy.compact {
   display: block;
   max-width: 720px;
 }
+.section-copy.compact > .section-kicker,
+.section-copy.compact > h2,
+.section-copy.compact > p { grid-column: auto; grid-row: auto; margin-bottom: 0; }
+.section-copy.compact > h2 { margin-top: 15px; }
 /* the compact header was built heading-only; give it room when it carries copy */
 .section-copy.compact p { margin-top: 18px; }
 .section-copy h2,
@@ -1172,9 +1170,12 @@ a.btn { text-decoration: none; }
 .advantage-board {
   display: grid;
   grid-template-columns: minmax(0, 1.08fr) minmax(300px, .64fr);
-  gap: 16px;
-  margin-top: 34px;
+  align-items: center;
+  gap: 48px;
+  margin-top: 0;
 }
+.board-copy { max-width: 420px; }
+.board-copy h2 { font-size: 36px; }
 .opportunity-map {
   position: relative;
   overflow: hidden;
@@ -1263,15 +1264,22 @@ a.btn { text-decoration: none; }
 }
 .map-point {
   position: absolute;
-  display: grid;
-  gap: 5px;
-  min-width: 168px;
-  border: 1px solid rgba(255, 255, 255, .18);
-  border-radius: var(--r-md);
-  padding: 12px 13px;
+  transform: translate(-50%, -50%);
+  display: inline-flex; align-items: baseline; gap: 8px;
+  white-space: nowrap;
+  border: 1px solid rgba(255, 255, 255, .2);
+  border-radius: var(--pill);
+  padding: 7px 12px;
   color: #fff;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, .24);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, .3);
   animation: fade .55s var(--ease) backwards;
+}
+/* a dot at the true coordinate, so the pill reads as a label on a point */
+.map-point::before {
+  content: "";
+  width: 7px; height: 7px; border-radius: 50%;
+  background: currentColor; opacity: .9;
+  align-self: center; flex: none;
 }
 .map-point b {
   font-size: 13px;
@@ -1287,188 +1295,6 @@ a.btn { text-decoration: none; }
 .map-point.good { background: rgba(40, 200, 64, .86); }
 .map-point.watch { background: rgba(254, 188, 46, .9); }
 .map-point.hard { background: rgba(255, 95, 87, .86); }
-.point-1 { left: 55%; top: 22%; }
-.point-2 { left: 34%; top: 38%; animation-delay: 80ms; }
-.point-3 { left: 58%; top: 58%; animation-delay: 160ms; }
-.point-4 { left: 22%; top: 16%; animation-delay: 240ms; }
-.advantage-rail {
-  display: grid;
-  gap: 14px;
-}
-.advantage-stat {
-  position: relative;
-  overflow: hidden;
-  min-height: 164px;
-  border: 1px solid var(--land-line);
-  border-radius: var(--r-card);
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, .86), rgba(255, 247, 241, .84)),
-    var(--land-panel);
-  box-shadow: 0 14px 44px rgba(42, 54, 45, .07);
-  padding: 24px;
-}
-.advantage-stat::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0 0;
-  height: 7px;
-  background: linear-gradient(90deg, var(--accent), rgba(201, 100, 67, .2));
-}
-.advantage-stat:nth-child(2) {
-  background:
-    linear-gradient(135deg, rgba(226, 237, 242, .88), rgba(255, 254, 251, .82)),
-    var(--land-blue-soft);
-}
-.advantage-stat:nth-child(3) {
-  background:
-    linear-gradient(135deg, rgba(255, 244, 222, .9), rgba(255, 254, 251, .82)),
-    #fff8eb;
-}
-.advantage-stat span,
-.step-num {
-  color: var(--accent);
-  font-size: 12px;
-  font-weight: 760;
-}
-.advantage-stat b {
-  position: relative;
-  z-index: 1;
-  display: block;
-  margin-top: 16px;
-  color: var(--land-ink);
-  font-family: "Outfit", var(--sans);
-  font-size: 32px;
-  font-weight: 760;
-  line-height: 1;
-}
-.advantage-stat p {
-  position: relative;
-  z-index: 1;
-  max-width: 300px;
-  margin-top: 12px;
-  color: var(--land-muted);
-  font-size: 13.5px;
-  line-height: 1.65;
-}
-
-.workflow-board {
-  position: relative;
-  display: grid;
-  gap: 16px;
-  margin-top: 34px;
-  padding: 18px;
-  border: 1px solid rgba(201, 100, 67, .22);
-  border-radius: var(--r-card);
-  background:
-    linear-gradient(135deg, rgba(255, 236, 225, .82), rgba(247, 250, 243, .88)),
-    var(--land-panel);
-  box-shadow: 0 18px 60px rgba(42, 54, 45, .08);
-}
-.workflow-board::before {
-  content: "";
-  position: absolute;
-  left: 50px;
-  top: 48px;
-  bottom: 48px;
-  width: 2px;
-  border-radius: var(--pill);
-  background: linear-gradient(180deg, var(--accent), rgba(201, 100, 67, .08));
-}
-.workflow-step {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, .86fr) minmax(260px, .56fr);
-  gap: 26px;
-  align-items: center;
-  min-height: 178px;
-  margin-left: 46px;
-  border: 1px solid rgba(215, 223, 208, .9);
-  border-radius: var(--r-card);
-  background:
-    linear-gradient(135deg, rgba(255, 254, 251, .9), rgba(255, 246, 239, .82)),
-    var(--land-panel);
-  box-shadow: 0 12px 38px rgba(42, 54, 45, .06);
-  padding: 22px;
-}
-.workflow-step:nth-child(2) {
-  margin-left: 92px;
-  background:
-    linear-gradient(135deg, rgba(226, 237, 242, .9), rgba(255, 254, 251, .82)),
-    var(--land-blue-soft);
-}
-.workflow-step:nth-child(3) {
-  margin-left: 138px;
-  background:
-    linear-gradient(135deg, rgba(255, 248, 235, .92), rgba(255, 254, 251, .82)),
-    #fff8eb;
-}
-.workflow-copy {
-  position: relative;
-  min-width: 0;
-  padding-left: 54px;
-}
-.workflow-copy .step-num {
-  position: absolute;
-  left: -52px;
-  top: 0;
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: #fff;
-  font-family: var(--mono);
-  font-size: 12px;
-  box-shadow: 0 10px 28px rgba(201, 100, 67, .28);
-}
-.workflow-copy h3 {
-  color: var(--land-ink);
-  font-family: "Outfit", var(--sans);
-  font-size: 24px;
-  font-weight: 760;
-  line-height: 1.12;
-  letter-spacing: 0;
-}
-.workflow-copy p {
-  max-width: 560px;
-  margin-top: 10px;
-  color: var(--land-muted);
-  font-size: 14px;
-  line-height: 1.7;
-}
-.workflow-art {
-  display: flex;
-  min-height: 112px;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 20px;
-  border: 1px solid var(--land-line);
-  border-radius: var(--r-lg);
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, .92), rgba(248, 250, 245, .9)),
-    #fff;
-  padding: 16px;
-}
-.chip-cloud {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.chip-cloud span {
-  border-radius: var(--pill);
-  background: rgba(201, 100, 67, .1);
-  color: var(--accent-2);
-  padding: 6px 10px;
-  font-size: 12px;
-  font-weight: 680;
-}
-.workflow-art strong {
-  color: var(--land-ink);
-  font-family: var(--mono);
-  font-size: 20px;
-  font-weight: 650;
-}
 
 .compare-table {
   overflow: hidden;
@@ -1564,9 +1390,9 @@ a.btn { text-decoration: none; }
     linear-gradient(135deg, rgba(201, 100, 67, .98), rgba(169, 78, 55, .98)),
     var(--accent);
   color: #fff;
-  padding: 56px;
+  padding: 56px 56px 84px;   /* extra below: the CTA note sits out of flow */
 }
-.closing-cta span {
+.closing-cta > span:not(.cta-group) {
   background: rgba(255, 255, 255, .14);
   color: rgba(255, 255, 255, .82);
 }
@@ -1585,21 +1411,43 @@ a.btn { text-decoration: none; }
 }
 
 .foot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px 20px;
   width: min(1180px, calc(100% - 48px));
   margin: 0 auto;
-  padding: 34px 0 44px;
+  padding: 56px 0 40px;
   color: var(--land-faint);
   border-top: 1px solid var(--land-line);
 }
-.foot .brand-mark { margin-right: 6px; }
+.foot-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr));
+  gap: 32px;
+  padding-bottom: 34px;
+}
+.foot-brand p {
+  margin: 12px 0 0;
+  max-width: 260px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--land-faint);
+}
+.foot-col { display: flex; flex-direction: column; align-items: flex-start; gap: 9px; }
+.foot-col h4 {
+  margin: 0 0 3px;
+  font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--land-muted);
+}
+.foot-base {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px;
+  padding-top: 22px;
+  border-top: 1px solid var(--land-line);
+  font-size: 12px;
+}
+.foot-base .fine { margin-left: auto; }
+/* the legal pages carry only the bottom strip, so it needs no divider above it */
+.foot-base.only { border-top: 0; padding-top: 0; }
 .foot .brand-mark { font-size: 16px; }
 .foot a { font-size: 12.5px; font-weight: 650; }
 .foot .fine {
-  margin-left: auto;
   color: var(--land-faint);
   font-size: 12px;
   line-height: 1.5;
@@ -1620,15 +1468,13 @@ a.btn { text-decoration: none; }
     grid-template-columns: 1fr;
     gap: 28px;
   }
+  .section-copy > .section-kicker,
+  .section-copy > h2,
+  .section-copy > p { grid-column: 1; grid-row: auto; }
+  .section-copy > .section-kicker { margin-bottom: 0; }
   .advantage-board { grid-template-columns: 1fr; }
   .opportunity-map { min-height: 480px; }
   .map-canvas { min-height: 412px; }
-  .workflow-step,
-  .workflow-step:nth-child(2),
-  .workflow-step:nth-child(3) {
-    grid-template-columns: 1fr;
-    margin-left: 46px;
-  }
 }
 @media (max-width: 760px) {
   .landing-nav {
@@ -1648,8 +1494,6 @@ a.btn { text-decoration: none; }
   .hero-copy h1 { font-size: 42px; line-height: 1.04; }
   .section-copy h2,
   .closing-cta h2 { font-size: 34px; }
-  .signal-inner { grid-template-columns: 1fr; }
-  .signal-inner p { font-size: 22px; }
   .compare-head { display: none; }
   .compare-row {
     grid-template-columns: 1fr;
@@ -1667,27 +1511,10 @@ a.btn { text-decoration: none; }
     text-transform: uppercase;
   }
   .compare-row span:nth-child(2)::before { content: "Desktop ASO tools"; }
-  .compare-row span:nth-child(3)::before { content: "ASOKit"; }
+  .compare-row span:nth-child(3)::before { content: "ASOGrade"; }
   .closing-cta { padding: 34px 24px; }
-  .advantage-rail { grid-template-columns: 1fr; }
-  .workflow-board::before { left: 40px; }
-  .workflow-step,
-  .workflow-step:nth-child(2),
-  .workflow-step:nth-child(3) {
-    margin-left: 34px;
-    padding: 20px;
-  }
-  .workflow-copy { padding-left: 42px; }
-  .workflow-copy .step-num {
-    left: -44px;
-    width: 36px;
-    height: 36px;
-  }
-  .foot .fine {
-    margin-left: 0;
-    text-align: left;
-    flex-basis: 100%;
-  }
+  .foot-top { grid-template-columns: 1fr 1fr; gap: 26px; }
+  .foot-base .fine { margin-left: 0; flex-basis: 100%; }
 }
 @media (max-width: 560px) {
   .landing-nav .btn { padding: 8px 12px; }
@@ -1718,34 +1545,6 @@ a.btn { text-decoration: none; }
   }
   .map-point b { font-size: 12px; }
   .map-point em { font-size: 10px; }
-  .point-1 { left: 48%; top: 24%; }
-  .point-2 { left: 12%; top: 39%; }
-  .point-3 { left: 46%; top: 62%; }
-  .point-4 { left: 10%; top: 16%; }
-  .advantage-stat,
-  .workflow-step { padding: 22px; }
-  .workflow-board {
-    padding: 14px;
-    gap: 14px;
-  }
-  .workflow-board::before {
-    left: 32px;
-    top: 34px;
-    bottom: 34px;
-  }
-  .workflow-step,
-  .workflow-step:nth-child(2),
-  .workflow-step:nth-child(3) {
-    margin-left: 22px;
-  }
-  .workflow-copy {
-    padding-left: 36px;
-  }
-  .workflow-copy .step-num {
-    left: -40px;
-  }
-  .workflow-copy h3 { font-size: 22px; }
-  .workflow-art strong { font-size: 17px; }
   .faq-item p { padding-right: 4px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1899,22 +1698,31 @@ a.btn { text-decoration: none; }
 
 /* ============================================================ offline note */
 .notice {
-  display: flex; align-items: center; gap: 8px;
-  margin: 0 0 14px; padding: 11px 14px; border-radius: var(--r-md);
-  background: #fdf4e3; color: #8a6216; font-size: 13px;
+  position: relative;
+  margin: 0 0 14px; padding: 12px 44px 12px 15px; border-radius: var(--r-md);
+  background: #fdf4e3; color: #8a6216;
+  font-size: 13.5px; line-height: 1.55;
   border: 1px solid rgba(214,157,46,.28);
 }
-/* Not a warning — the numbers are on their way. Quieter than the amber .notice
-   so an ordinary check does not read as something having gone wrong. */
+.notice a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+/* Informational rather than a warning, so it carries the brand instead of the
+   amber .notice. Solid coral, not a tint: a 9% wash on paper reads as a
+   faintly discoloured box rather than as the brand. */
 .notice.working {
-  background: rgba(255, 255, 255, .045);
-  color: var(--w-dim);
-  border-color: var(--w-line);
+  background:
+    linear-gradient(135deg, rgba(201, 100, 67, .98), rgba(169, 78, 55, .98)),
+    var(--accent);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 10px 26px rgba(140, 62, 42, .18);
 }
+.notice.working b { color: #fff; font-weight: 700; }
+.notice.working a { color: #fff; }
 
 .notice b { font-weight: 650; }
 .notice .x {
-  margin-left: auto; cursor: pointer; border: 0; background: none;
+  position: absolute; top: 10px; right: 12px;
+  cursor: pointer; border: 0; background: none;
   color: inherit; opacity: .55; padding: 2px; display: flex;
 }
 .notice .x:hover { opacity: 1 }
@@ -2190,3 +1998,352 @@ a.btn { text-decoration: none; }
   }
 }
 
+/* ==================================================== data provenance + who */
+.trust-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 18px;
+  margin-top: 34px;
+}
+.trust-card {
+  position: relative;
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--land-line);
+  border-radius: var(--r-card);
+  padding: 26px 24px 26px 26px;
+  overflow: hidden;
+}
+/* a coral spine ties the four cards to the section kicker above them */
+.trust-card::before {
+  content: "";
+  position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: linear-gradient(180deg, var(--accent), rgba(201, 100, 67, .25));
+}
+.trust-card p { margin-top: auto; }
+.trust-card h3,
+.who-card h3 {
+  margin: 0 0 8px;
+  font-family: "Outfit", var(--sans);
+  font-size: 16.5px; font-weight: 720; color: var(--ink);
+}
+.trust-card p,
+.who-card p {
+  margin: 0; font-size: 14px; line-height: 1.68; color: var(--land-muted);
+}
+
+@media (max-width: 980px) {
+  .trust-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .foot-top { grid-template-columns: 1fr; }
+}
+
+/* ===================================================================== cta */
+.cta-group { position: relative; display: inline-flex; align-items: center; }
+.cta-note {
+  position: absolute; top: calc(100% + 9px); left: 0; white-space: nowrap;
+  font-size: 12.5px; color: var(--land-faint); letter-spacing: .01em;
+}
+.closing-cta .cta-note { color: rgba(255, 255, 255, .74); }
+
+/* the highest-intent moment on the page is right after the teardown */
+.mid-cta {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 22px;
+  width: min(1180px, calc(100% - 48px));
+  margin: 92px auto 0;
+  padding: 34px 34px;
+  border: 1px solid var(--land-line);
+  border-radius: var(--r-card);
+  background: var(--surface);
+}
+.mid-cta b {
+  display: block;
+  font-family: "Outfit", var(--sans);
+  font-size: 21px; font-weight: 740; color: var(--ink);
+}
+.mid-cta span {
+  display: block; margin-top: 6px;
+  font-size: 14.5px; color: var(--land-muted);
+}
+
+@media (max-width: 700px) {
+  .mid-cta { padding: 24px 22px; }
+  .mid-cta .cta-group { align-items: stretch; width: 100%; }
+  .mid-cta .btn { justify-content: center; }
+}
+
+/* ========================================================= onboarding + paywall */
+.onboard-page .landing-nav { margin-bottom: 0; }
+.onboard {
+  position: relative;
+  width: min(680px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 30px 0 100px;
+}
+.onboard-bar {
+  height: 3px; border-radius: 3px; background: var(--land-line);
+  overflow: hidden; margin-bottom: 44px;
+}
+.onboard-bar i {
+  display: block; height: 100%; background: var(--accent);
+  transition: width .32s var(--ease);
+}
+.onboard-step { animation: fade .3s var(--ease) backwards; }
+.onboard-count {
+  display: inline-block; margin-bottom: 12px;
+  font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--accent-2);
+}
+.onboard h1 {
+  margin: 0;
+  font-family: "Outfit", var(--sans);
+  font-size: clamp(28px, 4.4vw, 38px); font-weight: 760; line-height: 1.12;
+  letter-spacing: -.01em; color: var(--ink); text-wrap: balance;
+}
+.onboard-hint {
+  margin: 12px 0 0; font-size: 15px; line-height: 1.65; color: var(--land-muted);
+}
+.onboard-opts { display: grid; gap: 10px; margin: 30px 0 0; }
+.onboard-opt {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
+  width: 100%; text-align: left; cursor: pointer;
+  padding: 16px 18px;
+  border: 1px solid var(--land-line); border-radius: var(--r-md);
+  background: var(--surface); color: var(--ink);
+  font-size: 15.5px; font-weight: 560;
+  transition: border-color .16s var(--ease), background .16s var(--ease), transform .16s var(--ease);
+}
+.onboard-opt:hover { border-color: var(--tint-line); transform: translateY(-1px); }
+.onboard-opt[data-on="1"] {
+  border-color: var(--accent); background: var(--tint);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.onboard-opt em { font-style: normal; font-size: 13px; color: var(--land-muted); }
+.onboard-nav { display: flex; gap: 10px; margin-top: 26px; }
+.onboard-nav.single { justify-content: flex-start; }
+
+/* ------------------------------------------------------------------- paywall */
+.pay-email { display: block; margin: 26px 0 0; }
+.pay-email span {
+  display: block; margin-bottom: 7px;
+  font-size: 12.5px; font-weight: 650; color: var(--ink-2);
+}
+.pay-email input {
+  width: 100%; padding: 13px 15px; font-size: 15px;
+  border: 1px solid var(--land-line); border-radius: var(--r-md);
+  background: var(--surface); color: var(--ink);
+}
+.pay-email input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.plans {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px; margin: 22px 0 0; align-items: stretch;
+}
+.plan {
+  position: relative; display: flex; flex-direction: column; gap: 8px;
+  padding: 24px 22px 22px;
+  border: 1px solid var(--land-line); border-radius: var(--r-card);
+  background: var(--surface);
+}
+.plan.best { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.plan-flag {
+  position: absolute; top: -10px; right: 18px;
+  padding: 4px 9px; border-radius: var(--pill);
+  background: var(--accent); color: #fff;
+  font-size: 10.5px; font-weight: 750; letter-spacing: .04em; text-transform: uppercase;
+}
+.plan b {
+  font-family: "Outfit", var(--sans); font-size: 15px; font-weight: 720; color: var(--ink);
+}
+.plan-price { display: flex; align-items: baseline; gap: 5px; }
+.plan-price strong {
+  font-family: "Outfit", var(--sans); font-size: 34px; font-weight: 780; color: var(--ink);
+}
+.plan-price span { font-size: 14px; color: var(--land-muted); }
+.plan p { margin: 0 0 8px; font-size: 13.5px; line-height: 1.55; color: var(--land-muted); flex: 1; }
+.plan .btn { width: 100%; justify-content: center; }
+
+.pay-fine {
+  margin: 20px 0 0; font-size: 12.5px; line-height: 1.6; color: var(--land-faint);
+}
+.pay-fine a { color: var(--land-muted); text-decoration: underline; text-underline-offset: 2px; }
+
+@media (max-width: 620px) {
+  .plans { grid-template-columns: 1fr; }
+}
+
+/* the signed-in address, shown while onboarding so it is obvious what is being
+   billed before a plan is chosen */
+.who-chip {
+  font-size: 12.5px; color: var(--land-muted);
+  padding: 7px 12px; border-radius: var(--pill);
+  border: 1px solid var(--land-line); background: var(--surface);
+}
+.onboard-page .landing-nav .sp { flex: 1; }
+
+/* ================================================================= billing */
+.bill-card {
+  margin: 26px 0 0;
+  border: 1px solid var(--land-line); border-radius: var(--r-card);
+  background: var(--surface); overflow: hidden;
+}
+.bill-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 18px;
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--land-line);
+  font-size: 14.5px;
+}
+.bill-row:last-child { border-bottom: 0; }
+.bill-row span { color: var(--land-muted); }
+.bill-row b { font-weight: 650; color: var(--ink); text-align: right; }
+.bill-status[data-live="1"] { color: #2b7a4b; }
+.bill-status[data-live="0"] { color: var(--accent-2); }
+.pay-fine code {
+  font-family: var(--mono); font-size: 11.5px;
+  padding: 1px 5px; border-radius: 4px; background: var(--sunken);
+}
+
+/* the plan chip beside Billing in the account menu */
+.acctpop .opt { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.acctpop .opt em {
+  font-style: normal; font-size: 11.5px; font-weight: 650;
+  padding: 2px 8px; border-radius: var(--pill);
+  background: var(--tint); color: var(--accent-2);
+}
+.acctpop .opt em[data-live="0"] { background: var(--track); color: var(--faint); }
+
+/* ------------------------------------------------ recap: problem beside fix */
+.fixes { display: grid; gap: 12px; margin: 28px 0 0; }
+.fix {
+  border: 1px solid var(--land-line); border-left: 3px solid var(--accent);
+  border-radius: var(--r-md); background: var(--surface);
+  padding: 16px 18px;
+}
+.fix-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.fix-problem {
+  font-family: "Outfit", var(--sans); font-size: 15px; font-weight: 720; color: var(--ink);
+}
+.fix-head em {
+  font-style: normal; white-space: nowrap;
+  font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: var(--pill);
+  background: var(--tint); color: var(--accent-2);
+}
+.fix p { margin: 7px 0 0; font-size: 14px; line-height: 1.6; color: var(--land-muted); }
+
+/* ------------------------------------------------------- paywall reinforcement */
+.includes {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px 22px; margin: 24px 0 0; padding: 0; list-style: none;
+}
+.includes li {
+  position: relative; padding-left: 22px;
+  font-size: 14px; line-height: 1.5; color: var(--ink-2);
+}
+.includes li::before {
+  content: ""; position: absolute; left: 3px; top: 7px;
+  width: 6px; height: 10px; border: 2px solid var(--accent);
+  border-top: 0; border-left: 0; transform: rotate(40deg);
+}
+.includes b { font-weight: 750; color: var(--ink); }
+
+/* Same treatment as .notice.working — an informational block on a paper page
+   carries the brand rather than another off-white card with an outline. */
+.anchor {
+  margin: 22px 0 0; padding: 15px 18px;
+  border-radius: var(--r-md);
+  background:
+    linear-gradient(135deg, rgba(201, 100, 67, .98), rgba(169, 78, 55, .98)),
+    var(--accent);
+  border: 0;
+  color: rgba(255, 255, 255, .92);
+  font-size: 13.5px; line-height: 1.6;
+  box-shadow: 0 10px 26px rgba(140, 62, 42, .18);
+}
+
+@media (max-width: 620px) {
+  .includes { grid-template-columns: 1fr; }
+}
+
+/* ================================================== workspace paywall block */
+/* Sits between the search bar and the results panel, so it reads as the reason
+   nothing is happening rather than as an error that has gone wrong. */
+.lock {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 26px;
+  margin: 0 0 18px;
+  padding: 26px 28px;
+  border-radius: var(--r-card);
+  color: #fff;
+  background:
+    linear-gradient(135deg, rgba(201, 100, 67, .98), rgba(169, 78, 55, .98)),
+    var(--accent);
+  box-shadow: 0 18px 44px rgba(140, 62, 42, .26);
+  animation: fade .3s var(--ease) backwards;
+}
+.lock-copy { min-width: 0; flex: 1 1 380px; }
+.lock-kicker {
+  display: inline-block; margin-bottom: 10px;
+  padding: 4px 10px; border-radius: 6px;
+  background: rgba(255, 255, 255, .16); color: rgba(255, 255, 255, .92);
+  font-size: 11px; font-weight: 760; letter-spacing: .06em; text-transform: uppercase;
+}
+.lock h2 {
+  margin: 0;
+  font-family: "Outfit", var(--sans);
+  font-size: clamp(21px, 2.6vw, 27px); font-weight: 760; line-height: 1.15;
+}
+.lock p {
+  margin: 9px 0 0; max-width: 52ch;
+  font-size: 14.5px; line-height: 1.6; color: rgba(255, 255, 255, .88);
+}
+.lock-facts { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 14px; }
+.lock-facts span { font-size: 13px; color: rgba(255, 255, 255, .8); }
+.lock-facts b { font-family: "Outfit", var(--sans); font-weight: 780; color: #fff; }
+
+.lock-act { display: flex; flex-direction: column; align-items: stretch; gap: 10px; flex: 0 0 auto; }
+.lock-act .btn.primary { background: #fff; color: var(--accent-2); justify-content: center; }
+.lock-act .btn.primary:hover:not(:disabled) { background: #f1f5eb; }
+.lock-alt {
+  text-align: center; font-size: 13px; font-weight: 600;
+  color: rgba(255, 255, 255, .82); text-decoration: underline; text-underline-offset: 3px;
+}
+.lock-alt:hover { color: #fff; }
+
+@media (max-width: 720px) {
+  .lock { padding: 22px; }
+  .lock-act { width: 100%; }
+}
+
+/* ============================================== spacing for reused callouts */
+/*
+ * .notice, .error and .lock were each written to lead a section, so they carry
+ * bottom margin only. Reused mid-flow — after a card, a list, a table — they
+ * end up flush against whatever precedes them.
+ *
+ * The sibling selector is the fix rather than a plain margin-top: a callout
+ * that genuinely starts its container keeps its original zero, and only one
+ * that follows something gets the gap. Adding margin-top unconditionally would
+ * have opened a hole above every existing use.
+ */
+* + .notice,
+* + .error,
+* + .lock { margin-top: 20px; }
+
+.bill-ref { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--faint); }
+
+/* Standing alone as the whole page rather than sitting above a workspace that
+   cannot work — so it gets room to breathe instead of acting as a strip. */
+.lock.standalone {
+  margin: 60px 0 0;
+  padding: 40px 42px;
+  align-items: center;
+}
+.lock.standalone h2 { font-size: clamp(26px, 3.2vw, 34px); }
+.lock.standalone p { font-size: 15.5px; }
+@media (max-width: 720px) {
+  .lock.standalone { margin-top: 32px; padding: 26px 22px; }
+}

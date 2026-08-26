@@ -2,15 +2,15 @@ import type { Metadata } from "next";
 import Legal from "../legal";
 
 export const metadata: Metadata = {
-  title: "Privacy — ASOKit",
-  description: "What ASOKit stores, why, and how to have it deleted.",
+  title: "Privacy — ASOGrade",
+  description: "What ASOGrade stores, why, and how to have it deleted.",
 };
 
 export default function Privacy() {
   return (
     <Legal title="Privacy" updated="26 August 2026">
       <p>
-        ASOKit is a keyword research tool. This page describes exactly what it
+        ASOGrade is a keyword research tool. This page describes exactly what it
         stores and why. It is written to be read, not to be survived.
       </p>
 
@@ -70,7 +70,7 @@ export default function Privacy() {
       <p>
         You can delete individual keywords from inside the app at any time. For
         a full export or account deletion, email{" "}
-        <a href="mailto:support@asokit.app">support@asokit.app</a> from your
+        <a href="mailto:support@asograde.com">support@asograde.com</a> from your
         account address and it will be handled.
       </p>
 
@@ -82,7 +82,7 @@ export default function Privacy() {
 
       <h2>Contact</h2>
       <p>
-        <a href="mailto:support@asokit.app">support@asokit.app</a>
+        <a href="mailto:support@asograde.com">support@asograde.com</a>
       </p>
     </Legal>
   );

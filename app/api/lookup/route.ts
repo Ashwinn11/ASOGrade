@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireSubscription, refuse } from "@/lib/entitlement";
 import { callTool, isOffline } from "@/lib/backend";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -49,6 +50,10 @@ const shape = (row: any, fresh: boolean): Metric => ({
 });
 
 export async function POST(req: Request) {
+  // No free tier: every data route is behind a live subscription.
+  const access = await requireSubscription();
+  if (!access.ok) return refuse(access.reason);
+
   let body: { keywords?: unknown; store?: unknown; save?: unknown; force?: unknown; skipFetch?: unknown };
   try {
     body = await req.json();

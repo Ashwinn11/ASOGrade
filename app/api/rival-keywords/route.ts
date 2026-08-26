@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireSubscription, refuse } from "@/lib/entitlement";
 import { callTool, isOffline } from "@/lib/backend";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
@@ -20,6 +21,10 @@ const idFromUrl = (v: string) =>
   (v.match(/\/id(\d{6,})/) ?? v.match(/^\s*(\d{6,})\s*$/))?.[1] ?? null;
 
 export async function POST(req: Request) {
+  // No free tier: every data route is behind a live subscription.
+  const access = await requireSubscription();
+  if (!access.ok) return refuse(access.reason);
+
   const { appStoreId, query, store = "us", app: given } = await req.json().catch(() => ({}) as any);
   const st = String(store).toLowerCase();
 

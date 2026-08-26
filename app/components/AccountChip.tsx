@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import { useUser } from "./useUser";
 
@@ -9,6 +10,20 @@ export default function AccountChip({ onSignIn }: { onSignIn: () => void }) {
   const { user, ready } = useUser();
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
+
+  const [plan, setPlan] = useState<string | null>(null);
+  const [live, setLive] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase()?.from("subscriptions").select("status, plan").maybeSingle()
+      .then(({ data }) => {
+        if (!data) { setPlan("No plan"); setLive(false); return; }
+        const on = ["active", "trialing"].includes(String(data.status));
+        setLive(on);
+        setPlan(on ? (data.plan === "yearly" ? "Yearly" : "Monthly") : String(data.status));
+      });
+  }, [user]);
 
   useEffect(() => {
     if (!open) return;
@@ -39,7 +54,17 @@ export default function AccountChip({ onSignIn }: { onSignIn: () => void }) {
             <div className="n">{name}</div>
             {user.email && <div className="e">{user.email}</div>}
           </div>
-          <button className="opt" onClick={() => supabase()?.auth.signOut()}>Sign out</button>
+          <Link className="opt" href="/billing" onClick={() => setOpen(false)}>
+            <span>Billing</span>
+            {plan && <em data-live={live ? 1 : 0}>{plan}</em>}
+          </Link>
+          <button className="opt" onClick={async () => {
+            // Signing out has to take the local answers with it — otherwise the
+            // next person to sign in on this machine sees them pre-filled.
+            try { localStorage.removeItem("asograde.onboarding"); } catch {}
+            await supabase()?.auth.signOut();
+            window.location.href = "/";
+          }}>Sign out</button>
         </div>
       )}
     </div>

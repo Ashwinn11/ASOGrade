@@ -9,13 +9,13 @@ export default function Legal({ title, updated, children }:
       <div className="land-bg" aria-hidden="true" />
 
       <header className="landing-nav">
-        <Link className="brand-mark" href="/" aria-label="ASOKit home">
+        <Link className="brand-mark" href="/" aria-label="ASOGrade home">
           <img src="/mark.png" alt="" width={26} height={26} />
-          <span>aso<b>kit</b></span>
+          <span>ASO<b>Grade</b></span>
         </Link>
         <span className="sp" />
         <div className="nav-actions">
-          <Link className="btn primary" href="/">Back to ASOKit</Link>
+          <Link className="btn primary" href="/">Back to ASOGrade</Link>
         </div>
       </header>
 
@@ -26,14 +26,16 @@ export default function Legal({ title, updated, children }:
       </main>
 
       <footer className="foot">
-        <Link className="brand-mark" href="/" aria-label="ASOKit home">
-          <img src="/mark.png" alt="" width={22} height={22} />
-          <span>aso<b>kit</b></span>
-        </Link>
-        <Link href="/privacy">Privacy</Link>
-        <Link href="/terms">Terms</Link>
-        <a href="mailto:support@asokit.app">Support</a>
-        <span className="fine">Not affiliated with Apple. App Store is a trademark of Apple Inc.</span>
+        <div className="foot-base only">
+          <Link className="brand-mark" href="/" aria-label="ASOGrade home">
+            <img src="/mark.png" alt="" width={22} height={22} />
+            <span>ASO<b>Grade</b></span>
+          </Link>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Terms</Link>
+          <a href="mailto:support@asograde.com">Support</a>
+          <span className="fine">Not affiliated with Apple. App Store is a trademark of Apple Inc.</span>
+        </div>
       </footer>
     </div>
   );
