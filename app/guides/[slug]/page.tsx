@@ -8,6 +8,7 @@ import {
   breadcrumbSchema,
   articleSchema,
 } from "@/lib/seo/schema";
+import { fitTitle, fitDescription, OG_IMAGE } from "@/lib/seo/meta";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://asograde.com";
 // Using a consistent publish date — update when content is significantly revised
@@ -27,13 +28,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const guide = GUIDES.find((g) => g.slug === slug);
   if (!guide) return {};
 
+  const title = fitTitle([
+    `${guide.metaTitle ?? guide.title} | ASOGrade`,
+    guide.metaTitle ?? guide.title,
+  ]);
+  const description = fitDescription(guide.description);
+
   return {
-    title: `${guide.title} | ASOGrade`,
-    description: guide.description,
+    title,
+    description,
     alternates: { canonical: `/guides/${slug}` },
     openGraph: {
-      title: `${guide.title} | ASOGrade`,
-      description: guide.description,
+      images: [OG_IMAGE],
+      title,
+      description,
       url: `${SITE_URL}/guides/${slug}`,
       type: "article",
     },

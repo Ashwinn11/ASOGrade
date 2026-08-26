@@ -2,16 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { GLOSSARY } from "@/lib/seo/glossary";
 import { collectionPageSchema, breadcrumbSchema } from "@/lib/seo/schema";
+import { OG_IMAGE } from "@/lib/seo/meta";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://asograde.com";
 
 export const metadata: Metadata = {
-  title: "ASO Glossary: App Store Optimization Terms Defined | ASOGrade",
+  title: "ASO Glossary: App Store Optimization Terms | ASOGrade",
   description:
     "Clear definitions of App Store Optimization terms — keyword popularity, keyword difficulty, storefronts, metadata fields, competitor teardown, and more.",
   alternates: { canonical: "/glossary" },
   openGraph: {
-    title: "ASO Glossary: App Store Optimization Terms Defined | ASOGrade",
+      images: [OG_IMAGE],
+    title: "ASO Glossary: App Store Optimization Terms | ASOGrade",
     description:
       "Clear definitions of App Store Optimization terms — keyword popularity, keyword difficulty, storefronts, metadata fields, and more.",
     url: `${SITE_URL}/glossary`,

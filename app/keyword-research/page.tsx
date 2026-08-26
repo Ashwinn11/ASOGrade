@@ -2,16 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { STORES, POPULAR } from "@/lib/types";
 import { collectionPageSchema, breadcrumbSchema } from "@/lib/seo/schema";
+import { OG_IMAGE } from "@/lib/seo/meta";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://asograde.com";
 
 export const metadata: Metadata = {
-  title: "App Store Keyword Research by Storefront — All 109 Markets | ASOGrade",
+  title: "App Store Keyword Research: All 109 Storefronts | ASOGrade",
   description:
-    "App Store keyword research guides for all 109 storefronts. Find out which markets have the best demand-to-difficulty ratio for your category — from the US to emerging markets.",
+    "App Store keyword research guides for all 109 storefronts — which markets have the best demand-to-difficulty ratio, from the US to emerging markets.",
   alternates: { canonical: "/keyword-research" },
   openGraph: {
-    title: "App Store Keyword Research by Storefront — All 109 Markets | ASOGrade",
+      images: [OG_IMAGE],
+    title: "App Store Keyword Research: All 109 Storefronts | ASOGrade",
     description:
       "App Store keyword research guides for all 109 storefronts. Find out which markets have the best demand-to-difficulty ratio for your category.",
     url: `${SITE_URL}/keyword-research`,

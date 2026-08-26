@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MATURITY_LINE, MATURITY_NOTE } from "@/app/start/solutions";
 import { faqSchema, breadcrumbSchema, webPageSchema } from "@/lib/seo/schema";
+import { OG_IMAGE } from "@/lib/seo/meta";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://asograde.com";
 
@@ -145,7 +146,7 @@ const COMPARE_DATA: ComparePageData[] = [
     title: "ASOGrade vs. Hiring an ASO Agency",
     subtitle: "When agency-managed ASO makes sense — and when it doesn't",
     description:
-      "ASO agencies offer end-to-end keyword research and metadata management. Here's what you get, what it costs, and when DIY research with good tooling is a better fit.",
+      "ASO agencies handle keyword research and metadata for you. What you get, what it costs, and when DIY research with good tooling is the better fit.",
     intro: [
       "Hiring an ASO agency or freelancer to manage your keyword research means outsourcing the process entirely — they run the research, write the metadata, submit the updates, and report results. For the right situation, this is genuinely valuable. For others, it creates dependency without the corresponding benefit.",
       "The most important thing you can do with agency-managed ASO is understand their work well enough to evaluate it. Being able to check a shortlist they've proposed — looking up the demand and difficulty for each keyword they've recommended — is the minimum viable oversight for a decision that directly affects your app's organic growth.",
@@ -200,6 +201,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: data.description,
     alternates: { canonical: `/compare/${slug}` },
     openGraph: {
+      images: [OG_IMAGE],
       title: `${data.title} | ASOGrade`,
       description: data.description,
       url: `${SITE_URL}/compare/${slug}`,

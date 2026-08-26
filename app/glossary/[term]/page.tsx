@@ -7,6 +7,7 @@ import {
   breadcrumbSchema,
   definedTermSchema,
 } from "@/lib/seo/schema";
+import { fitTitle, fitDescription, OG_IMAGE } from "@/lib/seo/meta";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://asograde.com";
 
@@ -23,13 +24,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const entry = GLOSSARY.find((e) => e.slug === term);
   if (!entry) return {};
 
+  const title = fitTitle([
+    `${entry.term} — ASO Glossary | ASOGrade`,
+    `${entry.term} — ASO Glossary`,
+    `${entry.term} | ASOGrade`,
+    entry.term,
+  ]);
+  const description = fitDescription(entry.definition);
+
   return {
-    title: `${entry.term} — ASO Glossary | ASOGrade`,
-    description: entry.definition.slice(0, 160),
+    title,
+    description,
     alternates: { canonical: `/glossary/${term}` },
     openGraph: {
-      title: `${entry.term} — ASO Glossary | ASOGrade`,
-      description: entry.definition.slice(0, 160),
+      images: [OG_IMAGE],
+      title,
+      description,
       url: `${SITE_URL}/glossary/${term}`,
       type: "article",
     },

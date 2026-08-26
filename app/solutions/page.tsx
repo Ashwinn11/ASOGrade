@@ -2,16 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { STRUGGLE_FIX } from "@/app/start/solutions";
 import { collectionPageSchema, breadcrumbSchema } from "@/lib/seo/schema";
+import { OG_IMAGE } from "@/lib/seo/meta";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://asograde.com";
 
 export const metadata: Metadata = {
-  title: "ASO Solutions for Common App Store Keyword Challenges | ASOGrade",
+  title: "ASO Solutions for Common Keyword Challenges | ASOGrade",
   description:
-    "Solutions to common App Store keyword problems: finding keyword ideas, identifying winnable terms, competitor research, international markets, speed, and tool cost.",
+    "Solutions to common App Store keyword problems: finding ideas, identifying winnable terms, competitor research, international markets, speed, and cost.",
   alternates: { canonical: "/solutions" },
   openGraph: {
-    title: "ASO Solutions for Common App Store Keyword Challenges | ASOGrade",
+      images: [OG_IMAGE],
+    title: "ASO Solutions for Common Keyword Challenges | ASOGrade",
     description:
       "Solutions to common App Store keyword problems: finding ideas, winnable terms, competitor teardowns, localization, speed, and pricing.",
     url: `${SITE_URL}/solutions`,

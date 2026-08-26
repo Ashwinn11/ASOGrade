@@ -3,13 +3,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { STRUGGLE_FIX } from "@/app/start/solutions";
 import { faqSchema, breadcrumbSchema, webPageSchema } from "@/lib/seo/schema";
+import { fitTitle, fitDescription, OG_IMAGE } from "@/lib/seo/meta";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://asograde.com";
 
 interface SolutionDetail {
   slug: string;
   fixKey: keyof typeof STRUGGLE_FIX;
+  /** The H1 and listing headline. */
   title: string;
+  /** Optional shorter <title> when the headline would truncate in a SERP. */
+  metaTitle?: string;
   subtitle: string;
   description: string;
   breakdown: {
@@ -66,6 +70,7 @@ const SOLUTION_DETAILS: SolutionDetail[] = [
     slug: "winnable-keywords",
     fixKey: "winnable",
     title: "Finding Winnable App Store Keywords You Can Actually Rank For",
+    metaTitle: "Finding Winnable App Store Keywords",
     subtitle: "Targeting high demand with low difficulty — the only quadrant worth your characters",
     description:
       "Stop wasting character space on keywords you cannot rank for. Discover how to evaluate ranking difficulty from live competitor sets and find winnable keywords.",
@@ -148,6 +153,7 @@ const SOLUTION_DETAILS: SolutionDetail[] = [
     slug: "international-markets",
     fixKey: "markets",
     title: "International App Store Optimization Across 109 Storefronts",
+    metaTitle: "International ASO Across 109 Storefronts",
     subtitle: "Evaluate keyword demand and difficulty per country before paying for translations",
     description:
       "Deciding which countries to target? Compare App Store keyword difficulty across 109 storefronts and find international markets where competition is a fraction of the US.",
@@ -230,6 +236,7 @@ const SOLUTION_DETAILS: SolutionDetail[] = [
     slug: "tool-cost",
     fixKey: "cost",
     title: "Affordable App Store Keyword Research Without Enterprise Pricing",
+    metaTitle: "Affordable App Store Keyword Research",
     subtitle: "The research pass on its own — no bloated dashboards, no $300/mo agency fees",
     description:
       "Need accurate Apple Search Ads keyword data without paying $100–$500/mo for enterprise ASO suites? Discover how ASOGrade delivers pure research at a fraction of the cost.",
@@ -282,13 +289,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const detail = SOLUTION_DETAILS.find((d) => d.slug === problem);
   if (!detail) return {};
 
+  const title = fitTitle([
+    `${detail.metaTitle ?? detail.title} | ASOGrade`,
+    detail.metaTitle ?? detail.title,
+  ]);
+  const description = fitDescription(detail.description);
+
   return {
-    title: `${detail.title} | ASOGrade`,
-    description: detail.description,
+    title,
+    description,
     alternates: { canonical: `/solutions/${problem}` },
     openGraph: {
-      title: `${detail.title} | ASOGrade`,
-      description: detail.description,
+      images: [OG_IMAGE],
+      title,
+      description,
       url: `${SITE_URL}/solutions/${problem}`,
       type: "article",
     },

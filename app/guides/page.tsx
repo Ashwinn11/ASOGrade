@@ -2,15 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { GUIDES } from "@/lib/seo/guides";
 import { collectionPageSchema, breadcrumbSchema } from "@/lib/seo/schema";
+import { OG_IMAGE } from "@/lib/seo/meta";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://asograde.com";
 
 export const metadata: Metadata = {
   title: "App Store Keyword Research Guides | ASOGrade",
   description:
-    "In-depth guides to App Store keyword research — low-competition keyword strategies, difficulty evaluation, multi-storefront research, competitor teardowns, and more.",
+    "In-depth guides to App Store keyword research: low-competition strategies, difficulty evaluation, multi-storefront research, and competitor teardowns.",
   alternates: { canonical: "/guides" },
   openGraph: {
+      images: [OG_IMAGE],
     title: "App Store Keyword Research Guides | ASOGrade",
     description:
       "In-depth guides to App Store keyword research — low-competition keyword strategies, difficulty evaluation, and multi-storefront research.",

@@ -3,7 +3,7 @@ import Legal from "../legal";
 
 export const metadata: Metadata = {
   title: "Privacy Policy — ASOGrade",
-  description: "ASOGrade's privacy policy. Understand exactly what data we collect, how it's used, who processes it, and how to request deletion — written in plain English.",
+  description: "ASOGrade's privacy policy: what data we collect, how it's used, who processes it, and how to request deletion — written in plain English.",
   alternates: {
     canonical: "/privacy",
   },

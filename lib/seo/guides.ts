@@ -21,7 +21,10 @@ export interface GuideSection {
 
 export interface GuideEntry {
   slug: string;
+  /** The H1 and listing headline. */
   title: string;
+  /** Optional shorter <title> when the headline would truncate in a SERP. */
+  metaTitle?: string;
   description: string;
   sections: GuideSection[];
   faq: { q: string; a: string }[];
@@ -479,6 +482,7 @@ export const GUIDES: GuideEntry[] = [
   {
     slug: "metadata-fields-that-affect-ranking",
     title: "App Store Metadata Fields That Actually Affect Search Ranking",
+    metaTitle: "Metadata Fields That Affect App Store Ranking",
     description: "Which App Store metadata fields Apple indexes for search, what weight each carries, and how to prioritize your limited character budget for maximum keyword coverage.",
     sections: [
       {

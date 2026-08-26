@@ -175,7 +175,7 @@ export function collectionPageSchema({
   };
 }
 
-// Re-export the base schemas from layout.tsx so they can be imported from one place.
+// Site-wide schemas, emitted once from the root layout.
 export function organizationSchema() {
   return {
     "@context": "https://schema.org",
@@ -231,7 +231,10 @@ export function softwareApplicationSchema() {
     operatingSystem: "Web (any modern browser)",
     browserRequirements: "Requires JavaScript. Requires HTML5.",
     inLanguage: "en",
-    isAccessibleForFree: true,
+    // Paid-only: there is no free tier. Claiming otherwise here is structured
+    // data that contradicts the pricing on the page, which is what gets a
+    // SoftwareApplication block ignored or flagged.
+    isAccessibleForFree: false,
     featureList: [
       "Keyword demand scoring based on Apple Search Ads data",
       "Ranking difficulty analysis per storefront",
@@ -246,12 +249,25 @@ export function softwareApplicationSchema() {
       audienceType:
         "Indie developers, small studios, app marketers, ASO professionals",
     },
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "USD",
-      availability: "https://schema.org/InStock",
-    },
+    // The real plans, so the rich result and the pricing section agree.
+    offers: [
+      {
+        "@type": "Offer",
+        name: "Monthly",
+        price: "14.99",
+        priceCurrency: "USD",
+        availability: "https://schema.org/InStock",
+        url: `${SITE_URL}/start`,
+      },
+      {
+        "@type": "Offer",
+        name: "Yearly",
+        price: "99.00",
+        priceCurrency: "USD",
+        availability: "https://schema.org/InStock",
+        url: `${SITE_URL}/start`,
+      },
+    ],
     creator: organization(),
   };
 }

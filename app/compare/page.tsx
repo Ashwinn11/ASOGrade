@@ -2,15 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MATURITY_LINE, MATURITY_NOTE } from "@/app/start/solutions";
 import { collectionPageSchema, breadcrumbSchema } from "@/lib/seo/schema";
+import { OG_IMAGE } from "@/lib/seo/meta";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://asograde.com";
 
 export const metadata: Metadata = {
   title: "ASOGrade vs. Other ASO Approaches — Compare | ASOGrade",
   description:
-    "How ASOGrade compares to guessing on instinct, DIY spreadsheets, full ASO suites, and agencies — honest category-level comparisons, no inflated competitor claims.",
+    "How ASOGrade compares to guessing on instinct, DIY spreadsheets, full ASO suites, and agencies — honest comparisons, no inflated competitor claims.",
   alternates: { canonical: "/compare" },
   openGraph: {
+      images: [OG_IMAGE],
     title: "ASOGrade vs. Other ASO Approaches — Compare | ASOGrade",
     description:
       "How ASOGrade compares to guessing on instinct, DIY spreadsheets, full ASO suites, and agencies.",

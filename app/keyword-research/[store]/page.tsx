@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { STORES, POPULAR, flagOf } from "@/lib/types";
 import { STORE_INFO } from "@/lib/seo/countries";
 import { faqSchema, breadcrumbSchema, webPageSchema } from "@/lib/seo/schema";
+import { fitTitle, fitDescription, OG_IMAGE } from "@/lib/seo/meta";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://asograde.com";
 
@@ -27,18 +28,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? "mid-tier"
     : "emerging";
 
-  const title = `App Store Keyword Research: ${name} (${store.toUpperCase()}) | ASOGrade`;
-  const description = info
-    ? `${info.facts[0]} Research App Store keywords in the ${name} storefront — popularity, difficulty, and strategy for a ${tierLabel} market.`
-    : `App Store keyword research guide for the ${name} (${store.toUpperCase()}) storefront — demand, difficulty, and localization strategy.`;
+  // Country names run from "US" to "Federated States of Micronesia", so the
+  // title is fitted rather than templated once.
+  const title = fitTitle([
+    `App Store Keyword Research: ${name} (${store.toUpperCase()}) | ASOGrade`,
+    `App Store Keyword Research: ${name} | ASOGrade`,
+    `ASO Keyword Research: ${name} | ASOGrade`,
+    `ASO Keyword Research: ${name}`,
+  ]);
+  const description = fitDescription(
+    info
+      ? `${info.facts[0]} Research App Store keywords in the ${name} storefront — popularity, difficulty, and strategy for a ${tierLabel} market.`
+      : `App Store keyword research guide for the ${name} (${store.toUpperCase()}) storefront — demand, difficulty, and localization strategy.`,
+  );
 
   return {
     title,
-    description: description.slice(0, 160),
+    description,
     alternates: { canonical: `/keyword-research/${store}` },
     openGraph: {
+      images: [OG_IMAGE],
       title,
-      description: description.slice(0, 160),
+      description,
       url: `${SITE_URL}/keyword-research/${store}`,
       type: "article",
     },

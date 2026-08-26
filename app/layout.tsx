@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import {
+  organizationSchema,
+  websiteSchema,
+  softwareApplicationSchema,
+} from "@/lib/seo/schema";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://asograde.com";
 
@@ -37,85 +42,6 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const siteUrl = SITE_URL;
-
-  const organizationSchema = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "ASOGrade",
-    url: siteUrl,
-    logo: `${siteUrl}/icon.png`,
-    description:
-      "ASOGrade is a browser-based App Store keyword research tool that scores keywords by Apple Search Ads demand and ranking difficulty across 109 storefronts.",
-    email: "support@asograde.com",
-    knowsAbout: [
-      "App Store Optimization",
-      "App Store Keyword Research",
-      "Apple Search Ads",
-      "ASO Keyword Difficulty",
-      "Mobile App Marketing",
-      "iOS App Store Rankings",
-      "App Store Storefronts",
-      "Keyword Demand Analysis",
-    ],
-  };
-
-  const websiteSchema = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "ASOGrade",
-    url: siteUrl,
-    description:
-      "Score App Store keywords by Apple Search Ads demand and ranking difficulty across 109 storefronts.",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${siteUrl}/app?q={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
-    },
-  };
-
-  const softwareSchema = {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    name: "ASOGrade",
-    url: siteUrl,
-    description:
-      "Browser-based App Store keyword research tool. Score keywords by Apple Search Ads demand and ranking difficulty across 109 storefronts — no install required.",
-    applicationCategory: "BusinessApplication",
-    applicationSubCategory: "App Store Optimization",
-    operatingSystem: "Web (any modern browser)",
-    browserRequirements: "Requires JavaScript. Requires HTML5.",
-    inLanguage: "en",
-    isAccessibleForFree: true,
-    featureList: [
-      "Keyword demand scoring based on Apple Search Ads data",
-      "Ranking difficulty analysis per storefront",
-      "109 App Store storefronts supported",
-      "Bulk keyword analysis — paste up to 100 keywords",
-      "Competitor keyword set analysis",
-      "No software installation required",
-      "Keyword list saved to your account",
-    ],
-    audience: {
-      "@type": "Audience",
-      audienceType: "Indie developers, small studios, app marketers, ASO professionals",
-    },
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "USD",
-      availability: "https://schema.org/InStock",
-    },
-    creator: {
-      "@type": "Organization",
-      name: "ASOGrade",
-      url: siteUrl,
-    },
-  };
-
   return (
     <html lang="en">
       <head>
@@ -125,18 +51,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300..1000&family=Geist+Mono:wght@400..600&family=Outfit:wght@500..800&display=swap"
           rel="stylesheet"
         />
-        {/* JSON-LD Structured Data — fixes AI search visibility warning from SEO audit */}
+        {/* Site-wide JSON-LD. Page-level schema (FAQ, breadcrumbs, articles)
+            is emitted by each route from the same lib/seo/schema builders. */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema()) }}
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema()) }}
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareApplicationSchema()) }}
         />
       </head>
       <body>{children}</body>
