@@ -14,6 +14,8 @@ import { cn } from "./cn";
  */
 
 type Size = "sm" | "md";
+/** `onColor` is for the coral footer card; `ink` is everywhere else. */
+type Tone = "ink" | "onColor";
 
 const TEXT: Record<Size, string> = {
   sm: "text-lg",
@@ -26,6 +28,7 @@ export default function BrandMark({
   size = "md",
   as = "link",
   logo = true,
+  tone = "ink",
   href = "/",
   className,
 }: {
@@ -33,12 +36,22 @@ export default function BrandMark({
   as?: "link" | "span";
   /** The pSEO nav used a text-only mark; everywhere else carries the icon. */
   logo?: boolean;
+  /**
+   * A tone rather than a `className` override, for the same reason `Button`
+   * refuses colour overrides: `cn()` concatenates rather than merges, so which
+   * of two competing `text-*` classes wins comes down to Tailwind's ordering
+   * rather than source order. Coral-on-coral would simply vanish.
+   */
+  tone?: Tone;
   href?: string;
   className?: string;
 }) {
+  const onColor = tone === "onColor";
+
   const cls = cn(
     "inline-flex items-center gap-2 font-display font-extrabold tracking-tight",
-    "text-ink no-underline shrink-0",
+    "no-underline shrink-0",
+    onColor ? "text-white" : "text-ink",
     TEXT[size],
     as === "link" && "hover:opacity-80 transition-opacity duration-150 ease-brand",
     className,
@@ -56,7 +69,9 @@ export default function BrandMark({
         />
       )}
       <span>
-        ASO<b className="text-accent font-extrabold">Grade</b>
+        {/* The two-tone wordmark survives on coral by dropping the second half
+            in opacity instead of in hue — the coral half would be invisible. */}
+        ASO<b className={cn("font-extrabold", onColor ? "text-white/70" : "text-accent")}>Grade</b>
       </span>
     </>
   );

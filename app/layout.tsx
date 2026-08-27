@@ -12,22 +12,22 @@ export const metadata: Metadata = {
   // Scrapers need absolute URLs for the icons and share card, and the domain is
   // still temporary — so it moves with an env var rather than a code change.
   metadataBase: new URL(SITE_URL),
-  title: "ASOGrade - App Store keyword research in your browser",
-  description: "Score App Store keywords by Apple Search Ads demand and ranking difficulty across 109 storefronts. Paste 100 ideas, get answers in seconds — no install.",
+  title: "ASOGrade - ASO Tool for iOS Developers",
+  description: "App Store Optimization for iOS developers. Score keywords by Apple Search Ads demand and ranking difficulty across 109 storefronts. Nothing to install.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "ASOGrade - App Store keyword research in your browser",
-    description: "Paste 100 keyword ideas. Get demand, difficulty and the ranking set behind each one, scored across 109 App Store markets.",
+    title: "ASOGrade: App Store Optimization Tool for iOS Developers",
+    description: "ASOGrade helps you improve the visibility of your app on the App Store. Score any keyword for search demand and ranking difficulty, and compare all 109 markets.",
     type: "website",
     url: SITE_URL,
     siteName: "ASOGrade",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ASOGrade - App Store keyword research in your browser",
-    description: "Paste 100 keyword ideas. Get demand, difficulty and the ranking set behind each one, scored across 109 App Store markets.",
+    title: "ASOGrade: App Store Optimization Tool for iOS Developers",
+    description: "ASOGrade helps you improve the visibility of your app on the App Store. Score any keyword for search demand and ranking difficulty, and compare all 109 markets.",
   },
   robots: {
     index: true,
@@ -43,7 +43,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    /* `data-scroll-behavior` is what lets Next disable the smooth scroll in
+       globals.css during a route transition. Without it every navigation
+       animates the scroll back to the top instead of jumping, which reads as
+       lag on a long page like the landing one. */
+    <html lang="en" data-scroll-behavior="smooth">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />

@@ -57,17 +57,29 @@ export default function CoralHeader({
   title,
   subtitle,
   right,
+  center,
   bleed = true,
   stack,
   size = "md",
   className,
 }: {
   icon?: ReactNode;
-  title: ReactNode;
+  /** Ignored when `center` is given. */
+  title?: ReactNode;
   subtitle?: ReactNode;
   /** Whatever belongs on the header's other side — plain text, a close
    *  button, or a whole cluster of controls. */
   right?: ReactNode;
+  /**
+   * A single centred slot instead of the title/right split.
+   *
+   * The default arrangement puts the title in a `flex-1` block, so anything in
+   * `right` is pushed hard against the far edge — correct for a close button,
+   * wrong for a segmented control, which reads as abandoned in the corner with
+   * a stretch of empty coral beside it. With `center` the bar has one child and
+   * centres it, and `title`/`subtitle`/`right` are not rendered.
+   */
+  center?: ReactNode;
   bleed?: boolean;
   stack?: Stack;
   size?: Size;
@@ -86,18 +98,26 @@ export default function CoralHeader({
         // No `stack`: always one row — right for a modal, whose own width
         // stays narrow regardless of the viewport a `sm:`/`lg:` prefix would
         // key off. With `stack`: column below the given breakpoint, row above.
-        stack ? cn("flex-col gap-3", STACK_CLASS[stack]) : "items-center gap-3",
+        center
+          ? "items-center justify-center"
+          : stack
+            ? cn("flex-col gap-3", STACK_CLASS[stack])
+            : "items-center gap-3",
         className,
       )}
     >
-      <div className="flex min-w-0 flex-1 items-center gap-3">
-        {icon}
-        <span className="min-w-0 flex-1">
-          <span className={cn("block truncate text-white", TITLE_CLASS[size])}>{title}</span>
-          {subtitle && <span className="block truncate text-xs text-white/70">{subtitle}</span>}
-        </span>
-      </div>
-      {right}
+      {center ?? (
+        <>
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            {icon}
+            <span className="min-w-0 flex-1">
+              <span className={cn("block truncate text-white", TITLE_CLASS[size])}>{title}</span>
+              {subtitle && <span className="block truncate text-xs text-white/70">{subtitle}</span>}
+            </span>
+          </div>
+          {right}
+        </>
+      )}
     </div>
   );
 }
