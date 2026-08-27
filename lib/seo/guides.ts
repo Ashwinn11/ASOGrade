@@ -272,7 +272,7 @@ export const GUIDES: GuideEntry[] = [
         body: [
           "ASOGrade is a paid keyword research tool at $14.99/month (or $99/year). It is specifically a research tool, not a suite — it does not include rank tracking, review management, Apple Search Ads campaign management, or reporting dashboards.",
           "What it does: scores keyword popularity and difficulty in real time across all 109 storefronts, runs competitor teardowns (paste an App Store link, read the keyword set), and lets you analyze up to 100 keywords in a single batch. The popularity signal comes from Apple Search Ads demand data, not from estimated download counts.",
-          "What it deliberately does not do: the things that full ASO suites do and charge $79-$1,500/month for. If you need rank tracking dashboards, A/B test management, or review response workflows, ASOGrade is not the right tool. It is the research pass — the step before the metadata update — and stops there.",
+          "What it deliberately does not do: the things that full ASO suites do and charge $79-$300/month for. If you need rank tracking dashboards, A/B test management, or review response workflows, ASOGrade is not the right tool. It is the research pass — the step before the metadata update — and stops there.",
           "We're not going to tell you ASOGrade is the only valid choice. If you want a comprehensive suite that includes research as one of many features, products like AppTweak, Sensor Tower, or MobileAction do that. The tradeoff is that the all-in-one price reflects the full feature set, whether you use it or not. ASOGrade charges only for the research step.",
         ],
       },

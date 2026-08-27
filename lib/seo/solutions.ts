@@ -244,7 +244,7 @@ export const SOLUTION_DETAILS: SolutionDetail[] = [
       {
         heading: "Why legacy ASO suites are so expensive",
         points: [
-          "Enterprise suites bundle rank tracking, ad management, review sentiment analysis, A/B testing, and executive reporting into high-priced tiers ($79 to $1,500+/mo).",
+          "Enterprise suites bundle rank tracking, ad management, review sentiment analysis, A/B testing, and executive reporting into high-priced tiers ($79 to $300/mo).",
           "Most indie developers, bootstrappers, and small agencies only need the keyword research pass before a release — yet they're forced to pay for the entire bundle.",
           "Seat limits and strict keyword lookup quotas artificially inflate the cost for small teams.",
         ],

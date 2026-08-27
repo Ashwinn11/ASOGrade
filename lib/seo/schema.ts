@@ -14,13 +14,20 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://asograde.com";
 // Reusable sub-objects
 // ---------------------------------------------------------------------------
 
+/**
+ * A stable `@id` for the one Organization entity, referenced rather than
+ * restated. Every full Organization object below (site-wide, and the two
+ * inline copies `articleSchema` used for author/publisher) carried the same
+ * name/url/logo with no `@id` connecting them, which is three independent,
+ * unkeyed nodes reading as three different organizations rather than one.
+ * `organization()` now returns a reference to the canonical block that
+ * `organizationSchema()` declares once from the root layout.
+ */
+const ORG_ID = `${SITE_URL}/#organization`;
+const WEBSITE_ID = `${SITE_URL}/#website`;
+
 function organization() {
-  return {
-    "@type": "Organization",
-    name: "ASOGrade",
-    url: SITE_URL,
-    logo: `${SITE_URL}/icon.png`,
-  };
+  return { "@id": ORG_ID };
 }
 
 // ---------------------------------------------------------------------------
@@ -95,17 +102,25 @@ export function definedTermSchema({
 /**
  * Article schema for long-form guide pages.
  * Used by AI search engines and Google Discover for citation attribution.
+ *
+ * `image` is required for Article rich-result eligibility — Google drops the
+ * type silently without it. This was missing entirely; `OG_IMAGE` in
+ * lib/seo/meta.ts is already the absolute, sized asset every page's
+ * `openGraph` block points at, so it is reused here rather than adding a
+ * second image concept.
  */
 export function articleSchema({
   title,
   description,
   url,
+  image,
   datePublished,
   dateModified,
 }: {
   title: string;
   description: string;
   url: string;
+  image: { url: string; width: number; height: number };
   datePublished: string;
   dateModified: string;
 }) {
@@ -115,6 +130,12 @@ export function articleSchema({
     headline: title,
     description,
     url,
+    image: {
+      "@type": "ImageObject",
+      url: image.url,
+      width: image.width,
+      height: image.height,
+    },
     datePublished,
     dateModified,
     author: organization(),
@@ -142,11 +163,7 @@ export function webPageSchema({
     name: title,
     description,
     url,
-    isPartOf: {
-      "@type": "WebSite",
-      name: "ASOGrade",
-      url: SITE_URL,
-    },
+    isPartOf: { "@id": WEBSITE_ID },
     publisher: organization(),
     inLanguage: "en",
   };
@@ -180,6 +197,7 @@ export function organizationSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": ORG_ID,
     name: "ASOGrade",
     url: SITE_URL,
     logo: `${SITE_URL}/icon.png`,
@@ -203,6 +221,7 @@ export function websiteSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": WEBSITE_ID,
     name: "ASOGrade",
     url: SITE_URL,
     description:

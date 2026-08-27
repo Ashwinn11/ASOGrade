@@ -79,7 +79,7 @@ const FAQ = [
   },
   {
     q: "How does this compare to a full ASO suite?",
-    a: "Suites run $79 to $1,500 a month and most of what you pay for is rank tracking, review analysis, ad campaign management and reporting. ASOGrade does the keyword research pass and stops there. If you need the tracking and campaign tooling, a suite is the better buy and priced accordingly.",
+    a: "Suites run $79 to $300 a month and most of what you pay for is rank tracking, review analysis, ad campaign management and reporting. ASOGrade does the keyword research pass and stops there. If you need the tracking and campaign tooling, a suite is the better buy and priced accordingly.",
   },
   {
     q: "Can I cancel?",
@@ -147,7 +147,7 @@ export default function Pricing() {
           </p>
           <p className="mt-4 max-w-[62ch] text-md leading-relaxed text-muted">
             The alternative most people weigh this against is a full ASO suite at
-            $79 to $1,500 a month. Those are better tools if you need rank tracking,
+            $79 to $300 a month. Those are better tools if you need rank tracking,
             review analysis or campaign management, and most of their price is those
             things. This does the research pass and stops.
           </p>

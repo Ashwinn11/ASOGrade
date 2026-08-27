@@ -12,9 +12,20 @@ import Prose from "@/app/ui/Prose";
 import Faq from "@/app/ui/Faq";
 import { LinkCardGrid } from "@/app/ui/LinkCard";
 
-// A fixed publish date; bump when a guide is materially revised.
-const PUBLISHED = "2024-11-01T00:00:00Z";
-const MODIFIED = new Date().toISOString();
+/**
+ * Fixed dates, not `new Date()`. That was the bug here before: `MODIFIED` was
+ * computed at build time, so every deploy — including one that touched a
+ * README and nothing in this file — silently republished "updated today" on
+ * all 8 guides. Google discounts trust in dateModified once it stops
+ * correlating with real changes, so a value that moves on every build is
+ * worse than a static one that occasionally lags.
+ *
+ * Anchored to this file's own git history rather than invented: `guides.ts`
+ * was added 2026-08-26 and last substantively touched 2026-08-27. Bump
+ * MODIFIED by hand the next time a guide's content actually changes.
+ */
+const PUBLISHED = "2026-08-26T00:00:00Z";
+const MODIFIED = "2026-08-27T00:00:00Z";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -86,6 +97,7 @@ export default async function GuidePage({ params }: Props) {
           title: guide.title,
           description: guide.description,
           url: `${SITE_URL}/guides/${guide.slug}`,
+          image: { ...OG_IMAGE, url: `${SITE_URL}${OG_IMAGE.url}` },
           datePublished: PUBLISHED,
           dateModified: MODIFIED,
         }),

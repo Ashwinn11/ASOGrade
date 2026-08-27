@@ -33,7 +33,7 @@ export const COMPARE_PAGES = [
 const MATRIX: string[][] = [
   ["Instinct", "Write words that describe the app", "5 minutes", "None (guesswork)", "$0 (high opportunity cost)"],
   ["Spreadsheet", "Manual lookup in App Store", "2–4 hours", "Manual / free limits", "$0 (significant time)"],
-  ["Full suite", "App setup, verification, tracker config", "30–60 minutes", "Mixed / estimated models", "$79–$1,500/mo"],
+  ["Full suite", "App setup, verification, tracker config", "30–60 minutes", "Mixed / estimated models", "$79–$300/mo"],
   ["Agency", "Discovery call & retainer contract", "1–2 weeks turnaround", "Agency tooling suite", "$500–$5,000/mo"],
   ["ASOGrade", "Paste 100 keywords & read scores", "Under 10 seconds", "Apple Search Ads demand", "$8.25–$14.99/mo"],
 ];

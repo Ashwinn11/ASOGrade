@@ -118,7 +118,7 @@ export const COMPARE_DATA: ComparePageData[] = [
       "For agencies managing multiple clients, the multi-app management, white-label reporting, and team seat features of a full suite are practical necessities, not luxuries.",
     ],
     whereItFalls: [
-      "Full suites start at roughly $79/month and run to $1,500+/month for enterprise tiers. If you primarily need the keyword research pass — scoring candidates before a metadata update — you're paying for rank tracking, review management, ad analytics, and reporting features you may not use.",
+      "Full suites start at roughly $79/month and run to about $300/month at the top tiers. If you primarily need the keyword research pass — scoring candidates before a metadata update — you're paying for rank tracking, review management, ad analytics, and reporting features you may not use.",
       "The comprehensiveness of a full suite can also create overhead. Onboarding requires setting up your app, verifying it, configuring storefronts, and learning the dashboard before you can run your first keyword lookup. For a developer who needs to research keywords for a single update, the setup cost is real.",
       "Full suite keyword data quality varies by provider and is often not directly from Apple's Search Ads demand signal — some use proxy models based on download estimates or third-party panels that introduce noise.",
     ],

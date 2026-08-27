@@ -34,7 +34,7 @@ export const SAVING = Math.round(MONTHLY * 12 - YEARLY);
 export function SuiteAnchor({ tail }: { tail: string }) {
   return (
     <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1 rounded-md border border-line bg-sunken px-5 py-4">
-      <b className="font-display text-base font-extrabold text-ink">$79 – $1,500 a month</b>
+      <b className="font-display text-base font-extrabold text-ink">$79 – $300 a month</b>
       <span className="min-w-0 flex-1 text-sm leading-relaxed text-muted">{tail}</span>
     </div>
   );

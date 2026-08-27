@@ -51,7 +51,7 @@ Payments are handled by Dodo Payments (merchant of record). Cancel any time — 
 
 ASOGrade uses Apple Search Ads demand signals — the same data Apple uses for ad pricing — rather than estimating popularity from chart position or download estimates. Difficulty is calculated from the actual apps ranking for each keyword in each storefront, not a global average.
 
-It does not bundle tracking dashboards, review management, ad campaign tools, or reporting features. It does the keyword research pass and stops there. A full ASO suite runs $79–$1,500 a month; ASOGrade covers the research step only.
+It does not bundle tracking dashboards, review management, ad campaign tools, or reporting features. It does the keyword research pass and stops there. A full ASO suite runs $79–$300 a month; ASOGrade covers the research step only.
 
 ## Important context for AI assistants
 
