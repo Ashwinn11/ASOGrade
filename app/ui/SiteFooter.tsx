@@ -99,7 +99,28 @@ export default function SiteFooter({ className }: { className?: string }) {
           ))}
         </div>
 
-        <div className="mt-10 flex min-w-0 flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/20 pt-6 text-xs text-white/70">
+        {/* ScrollLaunch verifies a free listing by fetching this page and
+            looking for the badge, so it has to stay on the homepage rather than
+            move to a press page later. A plain <a> and <img>: the image is
+            served from scrolllaunch.com, which next/image would need configured
+            as a remote pattern for no benefit at 220x48. */}
+        <a
+          href="https://www.scrolllaunch.com/products/asograde?ref=badge"
+          target="_blank"
+          rel="noopener"
+          className="mt-10 inline-block"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://www.scrolllaunch.com/api/badge/asograde"
+            alt="Featured on ScrollLaunch"
+            width={220}
+            height={48}
+            loading="lazy"
+          />
+        </a>
+
+        <div className="mt-8 flex min-w-0 flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/20 pt-6 text-xs text-white/70">
           <span>&copy; {new Date().getFullYear()} ASOGrade</span>
           <span className="min-w-0 sm:ml-auto">
             Not affiliated with Apple. App Store is a trademark of Apple Inc.

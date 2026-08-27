@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     `${entry.term} | ASOGrade`,
     entry.term,
   ]);
-  const description = fitDescription(entry.definition);
+  const description = fitDescription(entry.metaDescription ?? entry.definition);
 
   return {
     title,

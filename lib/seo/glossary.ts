@@ -14,6 +14,13 @@ export interface GlossaryEntry {
   slug: string;
   term: string;
   definition: string;
+  /**
+   * Purpose-written meta description, for entries whose `definition` is a
+   * single sentence over 160 characters. Trimming those produced snippets that
+   * ended "…based on the strength of" and "…at the top of search" in the result
+   * a reader actually sees. `definition` stays as the on-page lede.
+   */
+  metaDescription?: string;
   body: string[];
   related: string[];
   faq: { q: string; a: string }[];
@@ -76,6 +83,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "keyword-difficulty",
     term: "Keyword Difficulty",
     definition: "Keyword difficulty is a 0–100 score estimating how hard it is to break into the top-ranking positions for a given App Store keyword, based on the strength of apps currently holding those positions.",
+    metaDescription: "Keyword difficulty is a 0-100 score for how hard it is to reach the top App Store results for a term, based on the apps already holding those spots.",
     body: [
       "Unlike popularity, which measures demand, difficulty measures supply — specifically, how established and well-rated the apps currently ranking for a keyword are. A keyword with difficulty 80 is held by apps with large rating counts, long histories, and likely significant organic installs driving their ranking weight. A keyword with difficulty 30 may be served by apps that are newer, smaller, or only loosely relevant.",
       "Difficulty is read from the live ranking set: the apps currently occupying the top positions for each keyword in each storefront. This matters because chart position alone doesn't tell you how entrenched those apps are — a chart-topper that launched last week is much less entrenched than one that has held the position for two years.",
@@ -102,6 +110,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "apple-search-ads",
     term: "Apple Search Ads",
     definition: "Apple Search Ads is Apple's paid advertising platform for the App Store, allowing developers to bid on keywords to display their app at the top of search results.",
+    metaDescription: "Apple Search Ads is Apple's ad platform for the App Store, where developers bid on keywords. Its demand data is also the best source of keyword popularity.",
     body: [
       "Apple Search Ads (ASA) serves ads at the top of App Store search results pages. When a user searches a keyword, the winning bid for that term gets a sponsored placement above the organic results. Developers set bids per keyword, and Apple runs a second-price auction — the winner pays just above what the second-highest bidder offered.",
       "For ASO purposes, the most valuable thing Apple Search Ads produces is the popularity signal. Apple exposes a 0–100 demand score for each keyword, calibrated to the volume of searches that keyword receives in a given storefront. This is the same signal ASOGrade surfaces — the ASA popularity score is the clearest demand indicator available without reverse-engineering download estimates.",
@@ -128,6 +137,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "app-store-storefront",
     term: "App Store Storefront",
     definition: "An App Store storefront is one country-specific instance of the App Store, each with its own search demand, ranking results, and keyword difficulty — 109 storefronts exist in total.",
+    metaDescription: "An App Store storefront is one country's instance of the App Store. There are 109, and each has its own search demand and its own keyword difficulty.",
     body: [
       "Apple operates a separate App Store in each country where it is available. Each storefront has its own search index, its own keyword popularity scores, and its own set of apps ranking for each term. A keyword that is hard to rank for in the US might be straightforward in a mid-tier market where fewer apps are competing.",
       "This separation matters most in two scenarios. First, when choosing which markets to localise for: the same keyword might have enough demand to justify a translation in Germany but not in a smaller adjacent market. Second, when looking for opportunities: a keyword blocked in your primary market might be winnable in a secondary market that has not yet attracted as many competing apps.",
@@ -154,6 +164,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "competing-apps-count",
     term: "Competing Apps Count",
     definition: "The competing apps count is the number of apps that appear in search results for a given keyword in a specific storefront — a proxy for how saturated that keyword's search results are.",
+    metaDescription: "The competing apps count is how many apps surface for a keyword in one storefront. It is the quickest read on how saturated that keyword already is.",
     body: [
       "When a user searches a keyword in the App Store, Apple returns a list of apps it considers relevant. The competing apps count tells you how many apps are in that pool — a keyword with 12 competing apps is a very different competitive situation from one with 2,000.",
       "A high competing apps count does not automatically mean a keyword is hard to rank for. What matters is the quality of the apps in the ranking set — 50 mediocre apps competing for a keyword might be easier to break into than 20 apps with hundreds of thousands of ratings. Competing apps count is a useful first filter, but difficulty score gives you the more precise answer.",
@@ -175,6 +186,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "long-tail-keywords",
     term: "Long-Tail Keywords",
     definition: "Long-tail keywords are multi-word, specific search phrases that individually have lower search volume than broad terms but collectively cover the majority of App Store searches and often have much lower ranking difficulty.",
+    metaDescription: "Long-tail keywords are specific multi-word searches. Each carries less volume than a broad term, but together they cover most App Store searches.",
     body: [
       "The 'long tail' describes the shape of the keyword demand curve: a small number of broad terms (habit tracker, budget app) capture enormous volume and attract enormous competition, while a very large number of specific phrases (habit tracker for anxiety, daily budget planner no subscription) each attract less volume but are far easier to rank for.",
       "For an app competing against established players on broad terms, the long tail is often the practical path to early organic traffic. A new productivity app is unlikely to crack the top 10 for 'task manager', but it may reach the top 3 for 'task manager for freelancers' much faster.",
@@ -196,6 +208,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "niche-keywords",
     term: "Niche Keywords",
     definition: "Niche keywords are terms specific enough to describe a well-defined subset of App Store users — they have moderate-to-low popularity scores but often dramatically lower difficulty than the broad category terms.",
+    metaDescription: "Niche keywords describe a well-defined subset of App Store users. Popularity is moderate, but difficulty sits far below the broad category terms.",
     body: [
       "A niche keyword describes a specific problem, user type, or use case rather than a broad category. 'Habit tracker' is a broad term; 'sobriety tracker' or 'habit tracker for ADHD' are niche terms. The niche term has fewer searches, but the searcher's intent is precise, conversion tends to be higher, and ranking difficulty is usually much lower.",
       "Niche keywords matter most in competitive categories where the top broad terms are dominated by apps with years of installs and ratings behind them. A new app cannot immediately compete with Headspace for 'meditation'; it might rank quickly for 'meditation timer with intervals' or 'breathwork timer'.",
@@ -217,6 +230,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "branded-vs-nonbranded-keywords",
     term: "Branded vs. Non-Branded Keywords",
     definition: "Branded keywords include an app or company name; non-branded keywords describe a problem or category without naming a specific product — the distinction matters for measuring organic discovery versus brand recall.",
+    metaDescription: "Branded keywords name an app or company; non-branded keywords describe a problem or category. The split separates organic discovery from brand recall.",
     body: [
       "A branded keyword is one where users search for a specific app by name: 'Headspace', 'Finch app', 'Notion'. These searches represent users who already know the product and are looking for it. Non-branded searches ('meditation app', 'mood tracker', 'notes app') represent users who have a need and are discovering what exists.",
       "For most apps, the majority of organic installs come from non-branded keywords — users discovering the app, not recalling it. Branded searches are valuable as a retention indicator (users returning after seeing a recommendation) but they tell you little about your discoverability to new users.",
@@ -238,6 +252,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "keyword-cannibalization",
     term: "Keyword Cannibalization",
     definition: "Keyword cannibalization in ASO occurs when an app's multiple metadata fields target the same keyword, wasting limited character space rather than covering additional search terms.",
+    metaDescription: "Keyword cannibalization is repeating a term across your App Store title, subtitle and keyword field, spending characters twice on coverage you already have.",
     body: [
       "The App Store's 100-character keyword field is already indexed alongside whatever terms appear in the app name and subtitle. If your name is 'Habit Tracker — Daily Goals' and your subtitle is 'Habit Tracker & Streaks', both instances of 'habit tracker' are already indexed. Repeating 'habit tracker' in the keyword field wastes 13 characters that could cover an entirely different search term.",
       "The rule is: words already in your title or subtitle do not need to appear in the keyword field. The keyword field is for supplementary terms that extend your reach beyond what's already in the visible metadata.",
@@ -259,6 +274,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "app-store-search-ranking-factors",
     term: "App Store Search Ranking Factors",
     definition: "App Store search ranking factors are the signals Apple's algorithm uses to determine which apps appear at the top of results for a given keyword — primarily metadata relevance, user engagement, and app quality indicators.",
+    metaDescription: "App Store search ranking factors are the signals Apple weighs to order results: metadata relevance, user engagement, and app quality indicators.",
     body: [
       "Apple has not published its ranking algorithm, but developer experience and Apple documentation point to a consistent set of factors: keyword relevance (does the app's metadata include the search term, and in which fields?), engagement signals (conversion rate from search to install, retention after install), and quality indicators (rating, rating count, frequency of updates).",
       "Metadata relevance is the most directly actionable factor. Terms in the app name carry the most weight, followed by the subtitle, followed by the keyword field. Terms that appear only in the description are not indexed for search on iOS (unlike Google Play). This is why title and subtitle character choices are the highest-leverage ASO decisions.",
@@ -285,6 +301,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "title-vs-subtitle-keywords",
     term: "Title vs. Subtitle Keywords",
     definition: "In App Store Optimization, keywords in the app title carry the highest ranking weight; subtitle keywords carry secondary weight — both are more impactful than the keyword field.",
+    metaDescription: "App title keywords carry the most ranking weight, subtitle keywords come second, and both outweigh the keyword field. Where a term sits decides its value.",
     body: [
       "Apple gives different weight to keywords based on which metadata field they appear in. The hierarchy is: app name (highest) > subtitle > keyword field. A keyword in your title will help you rank higher for that term than the same keyword appearing only in your subtitle or keyword field.",
       "The title is 30 characters — typically the app name and perhaps one keyword. The subtitle is another 30 characters, positioned just below the app name. These 60 combined characters are the most valuable real estate in all of ASO. The keyword field adds 100 characters, but at lower weight.",
@@ -307,6 +324,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "localization-aso",
     term: "Localization (ASO)",
     definition: "ASO localization is the process of writing separate app metadata (name, subtitle, keyword field) in the local language of each target App Store storefront to capture search demand that English-only metadata misses.",
+    metaDescription: "ASO localization means writing separate metadata in each storefront's language, capturing the search demand that English-only metadata never reaches.",
     body: [
       "When a user in Germany searches the App Store in German, Apple's search results prioritize apps with German-language metadata. An English-only app will appear in German results only if a German speaker happens to search in English, or if the category has no German-language competition. In practice, English-only metadata leaves most of the German storefront's demand invisible to your app.",
       "The case for localization is quantitative: run the same keyword in the US (English) and Germany (German equivalent) and compare popularity scores and difficulty. If German demand is meaningful and German difficulty is lower than the US, localizing delivers more installs per unit of effort than continuing to optimize English metadata that is already well-optimized.",
@@ -333,6 +351,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "competitor-teardown",
     term: "Competitor Teardown",
     definition: "A competitor teardown in ASO is the process of identifying which keywords a competing app ranks for — revealing their strategy and surfacing terms you may have missed.",
+    metaDescription: "A competitor teardown reads the keywords a rival app ranks for, showing their strategy and surfacing the terms your own research missed.",
     body: [
       "Every app in the App Store search results is there because it ranks for the keywords users typed to find it. By looking at which keywords an app appears for (and at what rank), you can read their targeting strategy directly from the results — without access to their keyword field, which Apple doesn't publish.",
       "The competitive intelligence from a teardown works in both directions: finding keywords your competitors rank for that you don't yet target (gap opportunities), and finding keywords you both target where you're outranked (improvement priorities).",
@@ -355,6 +374,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "app-store-algorithm",
     term: "App Store Algorithm",
     definition: "The App Store algorithm is Apple's automated system for ranking apps in search results — combining metadata relevance, user engagement signals, and quality indicators to determine which apps appear for each search query.",
+    metaDescription: "The App Store algorithm ranks apps for each search by weighing metadata relevance, engagement and quality signals. Here is what it reads and what it ignores.",
     body: [
       "Apple does not publish its ranking algorithm, but the consistent developer experience over time reveals its main dimensions. Metadata relevance determines eligibility: if a keyword doesn't appear in your name, subtitle, or keyword field, your app is unlikely to surface for it at all. Engagement and quality signals determine where within the eligible set your app ranks.",
       "Metadata weight hierarchy: name > subtitle > keyword field. Terms that naturally appear in user reviews or in-app copy have been reported to influence ranking in some cases, though this is less consistent and less controllable than explicit metadata fields.",
@@ -377,6 +397,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "aso-keyword-research",
     term: "ASO Keyword Research",
     definition: "ASO keyword research is the systematic process of identifying, scoring, and selecting the App Store keywords most likely to deliver organic installs given your app's current competitive position.",
+    metaDescription: "ASO keyword research is scoring and selecting the App Store keywords most likely to bring organic installs, given where your app can realistically rank.",
     body: [
       "Keyword research for the App Store is a constrained version of the SEO problem: you have 100 keyword field characters plus a 30-character name and 30-character subtitle to work with, versus the unlimited word count of a web page. This constraint makes selection more consequential — every character choice is a tradeoff against something else.",
       "A complete keyword research pass has three stages: ideation (building a list of candidates), scoring (assessing popularity and difficulty for each), and selection (choosing the highest-value terms that fit your metadata constraints). Ideation without scoring is guesswork; scoring without selection wastes the research.",
@@ -399,6 +420,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "metadata-fields",
     term: "App Store Metadata Fields",
     definition: "App Store metadata fields are the text inputs that affect how an app is discovered and presented in the App Store — primarily the name, subtitle, keyword field, and developer name, each with different character limits and ranking weight.",
+    metaDescription: "App Store metadata fields are the text inputs Apple indexes: name, subtitle, keyword field and developer name, each with its own limit and ranking weight.",
     body: [
       "The App Store metadata fields relevant to keyword ranking are: App Name (30 characters, highest ranking weight), Subtitle (30 characters, second-highest weight), Keyword Field (100 characters, lower weight but exclusively for supplementary terms), and Developer Name (sometimes indexed, lower weight).",
       "The Long Description, promotional text, and what's new fields are visible on the product page but are not indexed for search ranking. They affect conversion (users may read them) but not discoverability.",
@@ -421,6 +443,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "aso-audit",
     term: "ASO Audit",
     definition: "An ASO audit is a structured review of an app's current metadata, keyword coverage, competitive position, and store presence to identify gaps and improvement opportunities.",
+    metaDescription: "An ASO audit reviews your metadata, keyword coverage and competitive position to find the gaps worth fixing before your next App Store update.",
     body: [
       "A keyword coverage audit checks whether your current name, subtitle, and keyword field terms have real demand and are being used efficiently — no cannibalization, no low-popularity terms taking up space, no high-competition terms where a winnable alternative exists.",
       "A competitive position audit benchmarks your ranking for your current keyword set against key competitors. For each keyword you're targeting, who holds the top spots? What is their difficulty score? Are there terms in their footprint that you aren't targeting?",
@@ -472,6 +495,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "aso-ab-testing",
     term: "ASO A/B Testing",
     definition: "ASO A/B testing (also called product page optimization) is the practice of testing alternative versions of app store creative elements — icons, screenshots, descriptions — to improve conversion from search impression to install.",
+    metaDescription: "ASO A/B testing compares versions of your icon, screenshots and description to raise the share of searchers who install after seeing your app.",
     body: [
       "Apple's Product Page Optimization feature (available in App Store Connect) allows developers to test up to three alternative versions of their icon, screenshots, and preview video against the default. Apple splits traffic and reports conversion results, letting you identify which creative performs better.",
       "A/B testing addresses the conversion half of ASO (getting users who see your app to install it), separate from the discoverability half (getting the app to appear in search results). Keyword research drives discoverability; product page optimization drives conversion.",
@@ -489,6 +513,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "app-store-categories",
     term: "App Store Categories",
     definition: "App Store categories are the classifications Apple uses to group apps in browse and featured views — category selection affects both discoverability in browse and how the search algorithm interprets keyword relevance.",
+    metaDescription: "App Store categories group apps for browsing, and the category you pick also shapes how the search algorithm reads your keyword relevance.",
     body: [
       "Choosing the right primary category affects more than browse visibility — it sets the competitive context for search ranking. An app in the Productivity category competing against other productivity apps for 'task manager' is in a different algorithmic context than the same app miscategorized as a Utilities app.",
       "Secondary category selection adds an additional browse context without affecting the primary ranking classification. Apps that genuinely fit two categories (a journaling app that is both Lifestyle and Productivity, for example) benefit from the secondary category for browse discovery.",
@@ -506,6 +531,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "in-app-purchase-keywords",
     term: "In-App Purchase Keywords",
     definition: "In-App Purchase (IAP) names and descriptions are indexed by Apple for search — giving apps an additional, often overlooked, source of keyword coverage beyond the main metadata fields.",
+    metaDescription: "Apple indexes In-App Purchase names and descriptions for search, giving you keyword coverage beyond the title, subtitle and keyword field.",
     body: [
       "Apple indexes the names and descriptions of an app's in-app purchases and subscriptions for App Store search. A subscription named 'Premium: Habit Tracker Pro Features' contributes the terms 'premium', 'habit', 'tracker', 'pro', and 'features' to the app's search footprint — without using any keyword field characters.",
       "This means naming IAPs thoughtfully for both conversion (what does the user get?) and keyword coverage (what terms do I want to rank for that I haven't fit into the name, subtitle, or keyword field?) is a legitimate optimization layer.",
@@ -523,6 +549,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "ratings-and-reviews-aso",
     term: "Ratings and Reviews (ASO Impact)",
     definition: "App Store ratings and review count are quality signals that influence search ranking — higher rating counts correlate with higher ranking for competitive keywords, independent of rating score alone.",
+    metaDescription: "App Store rating count is a ranking signal, and a high count correlates with better positions on competitive keywords independent of the score itself.",
     body: [
       "Apple uses ratings as a quality proxy in its ranking algorithm. A high volume of ratings signals genuine user engagement — many users installed, used, and bothered to rate the app. This engagement signal contributes to ranking weight across the app's keyword set.",
       "Rating score matters less than rating count at the algorithm level. An app with 50,000 ratings at 4.1 stars will typically outrank one with 200 ratings at 4.9 stars for the same keyword. The volume of ratings is evidence of at-scale user satisfaction in a way a perfect score from a tiny sample is not.",
@@ -540,6 +567,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "burst-campaigns",
     term: "Burst Campaigns",
     definition: "A burst campaign is a short, high-intensity user acquisition push designed to generate enough installs in a brief window to boost an app's ranking for target keywords, leveraging the ranking algorithm's sensitivity to install velocity.",
+    metaDescription: "A burst campaign drives heavy install volume in a short window to lift keyword rankings, exploiting how sensitive the algorithm is to install velocity.",
     body: [
       "The App Store ranking algorithm is sensitive to install velocity — a rapid influx of installs for a keyword signals to Apple that the app is satisfying that search intent, which can temporarily or permanently boost ranking. Burst campaigns exploit this by concentrating paid installs in a short window.",
       "Burst campaigns are typically run via Apple Search Ads or third-party ad networks targeting the keywords you want to rank for organically. The theory is that paid installs generate organic ranking lift that outlasts the campaign spend.",
@@ -557,6 +585,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     slug: "feature-graphic-aso",
     term: "Feature Graphic / Preview Assets (ASO)",
     definition: "Preview assets — screenshots and app preview videos — are the visual elements that appear in search results and product pages, directly affecting the conversion rate from impression to install.",
+    metaDescription: "Screenshots and preview videos appear directly in App Store search results, and they decide how many of the people who see your app go on to install it.",
     body: [
       "The first one or two screenshots (or the preview video, if present) are visible in search results without the user tapping to see the full product page. These are the most conversion-critical assets in the store — users decide whether to tap or scroll past largely on the basis of these thumbnails.",
       "Screenshot best practice for search results: treat the first screenshot as a headline. Show the app's most compelling value proposition in large text, not just a generic UI screenshot. 'Track habits in 30 seconds' over a relevant UI is more effective than the UI alone.",

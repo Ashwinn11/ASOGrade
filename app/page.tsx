@@ -16,6 +16,8 @@ import Notice from "./ui/Notice";
 import Meter, { popBand, diffBand } from "./ui/Meter";
 import Pill, { Kicker } from "./ui/Pill";
 import { LinkCardGrid } from "./ui/LinkCard";
+import JsonLd from "./ui/JsonLd";
+import { faqSchema } from "@/lib/seo/schema";
 import { cn } from "./ui/cn";
 
 /*
@@ -713,15 +715,20 @@ export default function Landing() {
             page. The tint that carried the announcement now carries this. */}
         <section className="min-w-0 border-b border-line">
           <div className={cn(WRAP, "py-16 text-center sm:py-24")}>
-            {/* Title case and a typographic apostrophe, both deliberate: this
-                string is set copy, so it does not follow the sentence case the
-                rest of the page uses for headings.
+            {/* Title case is deliberate: this string is set copy, so it does
+                not follow the sentence case the rest of the page uses.
 
-                One thing to watch. "Keyword Rankings" reads to a developer as
-                their own position per keyword, tracked over time, and that is
-                the one thing this product does not do — the FAQ below sends
-                people to a suite for it. If signups start arriving and leaving
-                over rank tracking, this line is the first place to look. */}
+                This line carries the term the whole site is built to rank for,
+                which is why it reads as a category rather than a promise. It
+                replaced "Master Your App’s Visibility and Keyword Rankings",
+                which had two problems. It contained no phrase anybody searches,
+                leaving five weaker sub-pages to fight over "app store keyword
+                research" while the strongest page on the domain sat the query
+                out. And "Keyword Rankings" reads to a developer as their own
+                position per keyword tracked over time, which is the one thing
+                this product does not do; the FAQ below sends those people to a
+                suite. The selling is done by the subhead and the provenance
+                badge underneath, not by the headline. */}
             <h1
               /* 32ch, not 19ch. A 19ch measure forced the headline onto
                  three lines: `text-wrap: balance` balances the lines it is
@@ -730,7 +737,7 @@ export default function Landing() {
               className="mx-auto max-w-[32ch] font-display text-3xl font-extrabold leading-[1.03] tracking-tight text-ink sm:text-4xl"
               style={{ textWrap: "balance" } as React.CSSProperties}
             >
-              Master Your App’s Visibility and Keyword Rankings
+              App Store Keyword Research for iOS Developers
             </h1>
             <p className="mx-auto mt-6 max-w-[56ch] text-md leading-relaxed text-muted">
               Find out what your users are searching for, then put those
@@ -919,6 +926,11 @@ export default function Landing() {
             </h2>
           </div>
           <Faq items={FAQ} collapsible />
+          {/* The same FAQ text the 153 pSEO pages emit, which this page was
+              the only one missing. `Faq collapsible` renders <details>, so the
+              answers are in the HTML either way; this is what makes them
+              eligible as a rich result and quotable by AI search. */}
+          <JsonLd data={faqSchema(FAQ)} />
         </section>
 
         {/* ------------------------------------------------- 10 · closing CTA */}
@@ -1028,9 +1040,13 @@ function ProductSwitcher() {
 
         <div className="order-1 min-w-0 lg:order-2">
           <Kicker>{current.kicker}</Kicker>
-          <h3 className="mt-4 font-display text-xl font-extrabold leading-tight tracking-tight text-ink sm:text-2xl">
+          {/* h2, not h3. This panel is the first heading under the hero, and
+              the section around it has no heading of its own — the tabs are
+              its heading. As an h3 it produced h1 -> h3 -> h2 down the page.
+              Level is semantics; the size still comes from the classes. */}
+          <h2 className="mt-4 font-display text-xl font-extrabold leading-tight tracking-tight text-ink sm:text-2xl">
             {current.title}
-          </h3>
+          </h2>
           <p className="mt-4 text-md leading-relaxed text-muted">{current.body}</p>
           <p className="mt-4 text-md leading-relaxed text-muted">{current.extra}</p>
           <div className="mt-7">

@@ -70,9 +70,14 @@
   --text-3xl: 2.125rem;     /* 34px */
   --text-4xl: 2.625rem;     /* 42px */
 
-  --font-sans: "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: "Outfit", "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* Values come from next/font/google in app/layout.tsx, which sets these
+     three custom properties on <html> and self-hosts the font files. The
+     name strings stay in the fallback stack so a request that somehow skips
+     the loader (a static export of a single component, for instance) still
+     asks the OS for the right family instead of falling through to a serif. */
+  --font-sans: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-outfit), "Outfit", var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* ---------------------------------------------------------------- shape */
 

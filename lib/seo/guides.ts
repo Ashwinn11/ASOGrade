@@ -112,7 +112,7 @@ export const GUIDES: GuideEntry[] = [
   },
   {
     slug: "app-store-keyword-research-workflow",
-    title: "App Store Keyword Research: A Step-by-Step Workflow",
+    title: "How to Do App Store Keyword Research: A 4-Phase Workflow",
     description: "A complete, repeatable workflow for App Store keyword research — from ideation to metadata update — for indie developers and ASO professionals.",
     sections: [
       {
@@ -483,7 +483,7 @@ export const GUIDES: GuideEntry[] = [
     slug: "metadata-fields-that-affect-ranking",
     title: "App Store Metadata Fields That Actually Affect Search Ranking",
     metaTitle: "Metadata Fields That Affect App Store Ranking",
-    description: "Which App Store metadata fields Apple indexes for search, what weight each carries, and how to prioritize your limited character budget for maximum keyword coverage.",
+    description: "Which App Store metadata fields Apple indexes, what weight each carries, and how to spend a limited character budget across title, subtitle and keyword field.",
     sections: [
       {
         heading: "The four fields that matter for search",

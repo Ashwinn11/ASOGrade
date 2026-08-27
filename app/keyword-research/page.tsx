@@ -9,14 +9,19 @@ import Section, { PageHero } from "@/app/ui/Section";
 import Card from "@/app/ui/Card";
 import { LinkCardGrid } from "@/app/ui/LinkCard";
 
+/* Retitled to lead with the modifier rather than the head term.
+   Five pages carried "app store keyword research" in title and H1 while the
+   homepage, which has the most internal links on the domain, carried it in
+   neither. The homepage now owns the bare term; every page below it leads with
+   what makes it different — by storefront, how-to, fast, affordable. */
 export const metadata: Metadata = {
-  title: "App Store Keyword Research: All 109 Storefronts | ASOGrade",
+  title: `App Store Keyword Research by Storefront: ${STORES.length} Markets`,
   description:
     "App Store keyword research guides for all 109 storefronts — which markets have the best demand-to-difficulty ratio, from the US to emerging markets.",
   alternates: { canonical: "/keyword-research" },
   openGraph: {
     images: [OG_IMAGE],
-    title: "App Store Keyword Research: All 109 Storefronts | ASOGrade",
+    title: `App Store Keyword Research by Storefront: ${STORES.length} Markets`,
     description:
       "App Store keyword research guides for all 109 storefronts. Find out which markets have the best demand-to-difficulty ratio for your category.",
     url: `${SITE_URL}/keyword-research`,

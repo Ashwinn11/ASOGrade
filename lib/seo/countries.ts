@@ -544,3 +544,175 @@ export const STORE_INFO: Record<string, StoreInfo> = {
   uz: { name: "Uzbekistan", region: "europe", tier: "emerging", lang: "Russian", langCode: "ru", facts: ["Uzbekistan is largely Russian-dominant in App Store search — Russian localisation covers it.", "Near-zero difficulty."] },
   ye: { name: "Yemen", region: "middle-east-africa", tier: "emerging", lang: "Arabic", langCode: "ar", facts: ["Yemen is an emerging Arabic-language market — Arabic localisation from Saudi Arabia covers it.", "Near-zero difficulty."] },
 };
+
+/* ---------------------------------------------------------------------------
+ * Related storefronts
+ * ------------------------------------------------------------------------ */
+
+/**
+ * Sibling storefronts to link from a `/keyword-research/[store]` page.
+ *
+ * This replaces `STORES.filter(POPULAR.includes).slice(0, 8)`, which looked
+ * like it surfaced the big markets and did not. `filter` preserves the order
+ * of STORES, and STORES is sorted by country *name*, so the slice always
+ * returned the first eight POPULAR entries alphabetically: Australia, Brazil,
+ * Canada, China, France, Germany, India, Italy. "United States" and "United
+ * Kingdom" sort last and never made the cut. The measured result was 110
+ * inbound internal links to /au and /it against two each to /us and /gb, so
+ * the two most valuable pages in the set were the least linked on the site.
+ * It also meant the module rendered the same eight cards on 101 of 109 pages.
+ *
+ * Ordering here is by usefulness to the reader, which spreads the links as a
+ * side effect:
+ *
+ *   1. Same search language. Metadata written once already covers these, so
+ *      it is the comparison a reader can act on.
+ *   2. Same region. Neighbouring markets share release timing and competitor
+ *      sets even when they do not share a language.
+ *   3. The major markets, in POPULAR order, so US and UK lead the fill.
+ *
+ * Each pick carries the reason it was picked, which the card renders. Self is
+ * excluded, and every code is checked against `codes`, so a storefront in
+ * STORE_INFO but absent from STORES can never be linked.
+ */
+const TIER_RANK: Record<StoreInfo["tier"], number> = { major: 0, mid: 1, emerging: 2 };
+
+const TIER_NOTE: Record<StoreInfo["tier"], string> = {
+  major: "Major market, higher difficulty",
+  mid: "Mid-tier market",
+  emerging: "Emerging market, low difficulty",
+};
+
+export interface RelatedStore {
+  code: string;
+  name: string;
+  /** Why this storefront is in the list, shown on the card. */
+  reason: string;
+}
+
+export function relatedStores(
+  code: string,
+  codes: string[],
+  popular: string[],
+  limit = 8,
+): RelatedStore[] {
+  const self = STORE_INFO[code];
+  const available = codes.filter((c) => c !== code && STORE_INFO[c]);
+
+  const rank = (a: string, b: string) => {
+    const t = TIER_RANK[STORE_INFO[a].tier] - TIER_RANK[STORE_INFO[b].tier];
+    if (t !== 0) return t;
+    const pa = popular.indexOf(a);
+    const pb = popular.indexOf(b);
+    if (pa !== pb) return (pa < 0 ? 99 : pa) - (pb < 0 ? 99 : pb);
+    return STORE_INFO[a].name.localeCompare(STORE_INFO[b].name);
+  };
+
+  const picked: RelatedStore[] = [];
+  const take = (list: string[], reason: (c: string) => string) => {
+    for (const c of list) {
+      if (picked.length >= limit) return;
+      if (picked.some((p) => p.code === c)) continue;
+      picked.push({ code: c, name: STORE_INFO[c].name, reason: reason(c) });
+    }
+  };
+
+  if (self) {
+    take(
+      available.filter((c) => STORE_INFO[c].langCode === self.langCode).sort(rank),
+      () => `Also searches in ${self.lang}`,
+    );
+    /* Same tier first inside the region. Ranking the whole region by tier sent
+       every page upward to the same handful of major markets, which left the
+       27 single-language emerging storefronts on one inbound link each. A
+       reader on an emerging market is comparing it against other cheap
+       markets, not against Germany, so this is the more useful order as well
+       as the one that reaches the tail. */
+    const sameRegion = available.filter((c) => STORE_INFO[c].region === self.region);
+    take(
+      sameRegion
+        .filter((c) => STORE_INFO[c].tier === self.tier)
+        .sort(rank),
+      (c) => `${TIER_NOTE[STORE_INFO[c].tier]} nearby`,
+    );
+    take(
+      sameRegion.sort(rank),
+      (c) => `${TIER_NOTE[STORE_INFO[c].tier]} nearby`,
+    );
+  }
+  take(
+    popular.filter((c) => available.includes(c)),
+    (c) => TIER_NOTE[STORE_INFO[c].tier],
+  );
+
+  return picked.slice(0, limit);
+}
+
+/* ---------------------------------------------------------------------------
+ * Language reach and writing system
+ * ------------------------------------------------------------------------ */
+
+/**
+ * The storefronts one set of localised metadata reaches.
+ *
+ * Apple localises metadata by language, not by country, so a single Spanish
+ * keyword field is indexed in fifteen storefronts and a Slovenian one in
+ * exactly one. That ratio is the most useful thing a reader can learn on a
+ * storefront page, and it is different for almost every market: English 25,
+ * Spanish 15, Arabic 14, Russian 6, French 4, German 3, and 38 languages that
+ * reach a single storefront each.
+ */
+export function languageReach(code: string, codes: string[]): string[] {
+  const self = STORE_INFO[code];
+  if (!self) return [];
+  return codes.filter(
+    (c) => c !== code && STORE_INFO[c]?.langCode === self.langCode,
+  );
+}
+
+export type ScriptFamily =
+  | "latin"
+  | "cyrillic"
+  | "arabic"
+  | "han"
+  | "kana"
+  | "hangul"
+  | "other";
+
+const SCRIPT: Record<string, ScriptFamily> = {
+  ar: "arabic",
+  bg: "cyrillic", ru: "cyrillic", uk: "cyrillic", mn: "cyrillic",
+  zh: "han", "zh-HK": "han", "zh-MO": "han", "zh-TW": "han",
+  ja: "kana",
+  ko: "hangul",
+  el: "other", he: "other", hy: "other", km: "other", ne: "other", th: "other",
+};
+
+export function scriptOf(langCode: string): ScriptFamily {
+  return SCRIPT[langCode] ?? "latin";
+}
+
+/**
+ * What the writing system does to the 100-character keyword field.
+ *
+ * The field is 100 characters in every storefront, but a character buys very
+ * different amounts of meaning depending on the script, and that changes how
+ * many terms fit. This is true, specific, and different for six groups of
+ * markets, which is most of what the metadata section needs to say.
+ */
+export const SCRIPT_NOTE: Record<ScriptFamily, string> = {
+  latin:
+    "Latin script, so the 100-character keyword field holds roughly 12 to 16 single words. Drop plurals and stop words: the algorithm matches word stems and builds phrases from the terms you supply, so every repeated word is a wasted character.",
+  cyrillic:
+    "Cyrillic words average longer than their English equivalents, so the same 100-character field holds nearer 10 to 12 terms. Budget for that before translating a keyword list across from a Latin-script market.",
+  arabic:
+    "Arabic is right-to-left and heavily inflected, and search queries are typically shorter than the Latin-script equivalent. Enter unvocalised forms, since that is what people type, and expect 12 to 14 terms in the field.",
+  han:
+    "Chinese characters carry a whole morpheme each, so 100 characters is a great deal of keyword field: 25 to 35 terms is normal. Separate terms with commas rather than spaces, which are not word boundaries here.",
+  kana:
+    "Japanese mixes kanji, hiragana and katakana, and users search in all three for the same concept. Cover the katakana form of loanwords as well as the kanji, and expect 20 to 30 terms in 100 characters.",
+  hangul:
+    "Korean is compact in the keyword field, fitting 20 to 30 terms, but compound nouns are written closed. Include both the joined and the spaced form of any two-word concept, since users type both.",
+  other:
+    "This storefront uses a non-Latin script of its own. Enter keywords in that script rather than transliterating them, and check the character count in App Store Connect rather than assuming Latin-script density.",
+};
