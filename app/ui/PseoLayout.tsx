@@ -44,7 +44,7 @@ export default function PseoLayout({
             <p className="mx-auto mt-3 max-w-[52ch] text-base leading-relaxed text-white/85">
               {cta.body}
             </p>
-            <Button href="/start" size="lg" variant="inverse" className="mt-6">
+            <Button href="/onboarding" size="lg" variant="inverse" className="mt-6">
               {cta.label ?? "Get started"} <span aria-hidden="true">→</span>
             </Button>
           </section>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { MATURITY_LINE, MATURITY_NOTE } from "@/app/start/solutions";
+import { MATURITY_LINE, MATURITY_NOTE } from "@/app/onboarding/solutions";
 import { COMPARE_DATA } from "@/lib/seo/compare";
 import { faqSchema, breadcrumbSchema, webPageSchema } from "@/lib/seo/schema";
 import { fitTitle, fitDescription, OG_IMAGE } from "@/lib/seo/meta";

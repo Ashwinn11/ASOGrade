@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
         // All search engines — full access to public pages
         userAgent: "*",
         allow: "/",
-        disallow: ["/app", "/billing", "/auth", "/api/"],
+        disallow: ["/dashboard", "/billing", "/auth", "/api/", "/onboarding"],
       },
       {
         // AI search bots (ChatGPT, Perplexity, Claude) — allow for citations
@@ -22,7 +22,7 @@ export default function robots(): MetadataRoute.Robots {
           "PerplexityBot",
         ],
         allow: "/",
-        disallow: ["/app", "/billing", "/auth", "/api/"],
+        disallow: ["/dashboard", "/billing", "/auth", "/api/", "/onboarding"],
       },
       {
         // AI training crawlers — block (opt out of training data)

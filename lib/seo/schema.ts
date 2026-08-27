@@ -207,14 +207,11 @@ export function websiteSchema() {
     url: SITE_URL,
     description:
       "Score App Store keywords by Apple Search Ads demand and ranking difficulty across 109 storefronts.",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${SITE_URL}/app?q={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
-    },
+    /* No `potentialAction`/SearchAction. It advertised a sitelinks searchbox
+       pointing at the workspace's `?q=` — a page behind Google sign-in and
+       disallowed in robots.txt, so a crawler could neither reach it nor use it.
+       A searchbox target has to be a public URL, and there isn't one to offer;
+       claiming otherwise is a broken signal rather than a missing feature. */
   };
 }
 
@@ -257,7 +254,7 @@ export function softwareApplicationSchema() {
         price: "14.99",
         priceCurrency: "USD",
         availability: "https://schema.org/InStock",
-        url: `${SITE_URL}/start`,
+        url: `${SITE_URL}/pricing`,
       },
       {
         "@type": "Offer",
@@ -265,7 +262,7 @@ export function softwareApplicationSchema() {
         price: "99.00",
         priceCurrency: "USD",
         availability: "https://schema.org/InStock",
-        url: `${SITE_URL}/start`,
+        url: `${SITE_URL}/pricing`,
       },
     ],
     creator: organization(),

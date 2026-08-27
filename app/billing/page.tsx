@@ -103,7 +103,7 @@ export default function Billing() {
     <div className="flex min-h-screen min-w-0 flex-col">
       <SiteHeader
         links={[]}
-        actions={<Button variant="secondary" size="sm" href="/app">Back to workspace</Button>}
+        actions={<Button variant="secondary" size="sm" href="/dashboard">Back to workspace</Button>}
       />
 
       <main className="mx-auto mt-10 w-[min(100%-1.5rem,42rem)] min-w-0 flex-1">
@@ -118,7 +118,7 @@ export default function Billing() {
               There&apos;s no subscription on this account yet, so keyword scoring is
               switched off.
             </p>
-            <Button href="/start" size="lg" className="mt-6">See the plans</Button>
+            <Button href="/pricing" size="lg" className="mt-6">See the plans</Button>
           </>
         ) : (
           <>
@@ -170,7 +170,7 @@ export default function Billing() {
             )}
 
             <div className="mt-6 flex min-w-0 flex-wrap gap-3">
-              {!live && <Button href="/start">Choose a plan</Button>}
+              {!live && <Button href="/pricing">Choose a plan</Button>}
               <Button variant="secondary" onClick={openPortal} disabled={opening}>
                 {opening ? "Opening…" : "Change or cancel"}
               </Button>

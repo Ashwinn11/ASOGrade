@@ -1,10 +1,10 @@
 /**
  * What each answer means, and the specific thing that answers it.
  *
- * Asking five questions and then showing a price list wastes the answers. The
- * point of asking is to hand the problem back in the visitor's own terms and
- * put the fix next to it — so the paywall reads as the conclusion of what they
- * just told us rather than an unrelated ask.
+ * These started as copy for the onboarding flow itself. The flow is six
+ * questions and nothing else now — it hands the visitor to /pricing rather than
+ * arguing at them — so what survives here is what the public pages use: the
+ * problem/fix pairs behind /solutions and the maturity lines behind /compare.
  *
  * Every claim here has to be literally true of the product. A tailored page
  * that overpromises is worse than a generic one, because it overpromises about
@@ -68,13 +68,4 @@ export const LOCALIZATION_NOTE: Record<string, string> = {
   few: "A handful of storefronts is a start. The same keyword often scores completely differently a border away.",
   many: "Ten or more markets is real coverage — and the reason per-storefront scoring matters rather than one translated list.",
   unsure: "Worth finding out: the same keyword can be twice as winnable in one storefront as another.",
-};
-
-/** Revenue is only used to pick how the price is framed against their stakes. */
-export const PRICE_FRAME: Record<string, string> = {
-  pre: "Before revenue, the keyword field is one of the few levers that costs nothing but attention.",
-  under1k: "At this stage a single keyword that starts converting pays for a year of this several times over.",
-  "1k-10k": "At your revenue, one better-chosen keyword in the title is worth more than the annual price many times over.",
-  over10k: "At your revenue this is a rounding error against what a single well-placed keyword returns.",
-  skip: "One keyword that starts converting pays for a year of this.",
 };

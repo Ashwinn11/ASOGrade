@@ -16,10 +16,15 @@ import { cn } from "./cn";
  * clips the text rather than letting it paint outside.
  */
 
-type Tone = "accent" | "neutral" | "good" | "warn" | "bad" | "onDark";
+type Tone = "accent" | "accentSolid" | "neutral" | "good" | "warn" | "bad" | "onDark";
 
 const TONE: Record<Tone, string> = {
   accent: "bg-tint text-accent-2",
+  // Solid coral rather than a wash of it. `accent` is a pale tint with dark
+  // coral text, which is legible on a light surface and turns to mud on a dark
+  // one — and the badge that has to carry the offer on the paywall's yearly
+  // card sits on exactly that. Same colour, opposite direction.
+  accentSolid: "bg-accent text-white",
   neutral: "bg-sunken text-muted border border-line",
   good: "bg-green/15 text-[#1d684f]",
   warn: "bg-amber/20 text-[#865416]",

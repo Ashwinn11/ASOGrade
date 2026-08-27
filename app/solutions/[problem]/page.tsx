@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { STRUGGLE_FIX } from "@/app/start/solutions";
+import { STRUGGLE_FIX } from "@/app/onboarding/solutions";
 import { SOLUTION_DETAILS } from "@/lib/seo/solutions";
 import { faqSchema, breadcrumbSchema, webPageSchema } from "@/lib/seo/schema";
 import { fitTitle, fitDescription, OG_IMAGE } from "@/lib/seo/meta";

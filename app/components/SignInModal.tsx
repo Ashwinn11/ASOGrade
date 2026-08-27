@@ -15,7 +15,7 @@ const GOOGLE = (
   </svg>
 );
 
-export default function SignInModal({ onClose, next = "/app" }: {
+export default function SignInModal({ onClose, next = "/dashboard" }: {
   onClose: () => void; next?: string;
 }) {
   const [busy, setBusy] = useState(false);

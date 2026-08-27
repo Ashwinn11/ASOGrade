@@ -84,8 +84,13 @@ export default function SiteHeader({
               // island with two large stretches of dead space on either side
               // of it — spreading the links out uses more of that width
               // instead of leaving it empty.
-              "order-last flex w-full min-w-0 flex-wrap items-center gap-x-4 gap-y-1.5",
-              "md:order-none md:w-auto md:flex-1 md:justify-center md:gap-x-8",
+              // justify-center is unqualified, not md-only. Below md this nav is
+              // `w-full order-last` — a row of its own under the brand — and
+              // with centring applied only from md up it fell back to
+              // flex-start there, leaving the links hard against the left edge
+              // while the brand and the CTA sat on the full-width row above.
+              "order-last flex w-full min-w-0 flex-wrap items-center justify-center gap-x-4 gap-y-1.5",
+              "md:order-none md:w-auto md:flex-1 md:gap-x-8",
             )}
           >
             {shown.map((l) => (

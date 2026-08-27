@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
-  const next = url.searchParams.get("next") ?? "/app";
+  const next = url.searchParams.get("next") ?? "/dashboard";
 
   if (code) {
     const sb = await supabaseServer();

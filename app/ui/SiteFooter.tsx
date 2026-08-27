@@ -34,7 +34,7 @@ const COLUMNS: { heading: string; links: { href: string; label: string; external
     heading: "Product",
     links: [
       { href: "/", label: "Keyword research" },
-      { href: "/start", label: "Pricing" },
+      { href: "/pricing", label: "Pricing" },
       { href: "/solutions", label: "Solutions" },
     ],
   },

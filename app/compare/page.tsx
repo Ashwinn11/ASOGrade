@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { MATURITY_LINE, MATURITY_NOTE } from "@/app/start/solutions";
+import { MATURITY_LINE, MATURITY_NOTE } from "@/app/onboarding/solutions";
 import { collectionPageSchema, breadcrumbSchema } from "@/lib/seo/schema";
 import { OG_IMAGE } from "@/lib/seo/meta";
 import { SITE_URL } from "@/lib/seo/site";

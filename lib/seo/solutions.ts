@@ -1,4 +1,4 @@
-import { STRUGGLE_FIX } from "@/app/start/solutions";
+import { STRUGGLE_FIX } from "@/app/onboarding/solutions";
 
 /**
  * The six solution pages, one per struggle in the onboarding questionnaire.

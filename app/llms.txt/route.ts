@@ -63,7 +63,8 @@ It does not bundle tracking dashboards, review management, ad campaign tools, or
 ## Resource Hubs & Documentation
 
 - Homepage: ${siteUrl}
-- Sign up / pricing: ${siteUrl}/start
+- Pricing: ${siteUrl}/pricing
+- Sign up: ${siteUrl}/onboarding
 - App Store Keyword Research by Storefront (109 markets): ${siteUrl}/keyword-research
 - ASO Glossary & Term Definitions: ${siteUrl}/glossary
 - In-depth ASO & Keyword Research Guides: ${siteUrl}/guides

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { STRUGGLE_FIX } from "@/app/start/solutions";
+import { STRUGGLE_FIX } from "@/app/onboarding/solutions";
 import { SOLUTION_DETAILS } from "@/lib/seo/solutions";
 import { collectionPageSchema, breadcrumbSchema } from "@/lib/seo/schema";
 import { OG_IMAGE } from "@/lib/seo/meta";

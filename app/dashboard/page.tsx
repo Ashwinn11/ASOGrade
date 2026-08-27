@@ -1070,22 +1070,14 @@ export default function Page() {
             Subscription needed
           </p>
           <p className="mt-2 text-sm leading-relaxed text-muted">
-            Scoring keywords needs an active plan. Your lists stay exactly as you left
-            them — turn a plan on and everything here starts working immediately.
+            Scoring keywords needs an active plan. Your lists stay exactly as you
+            left them.
           </p>
 
-          <div className="mt-5 flex min-w-0 flex-wrap gap-x-5 gap-y-2 border-t border-line pt-4 text-sm text-muted">
-            <span><b className="font-display font-extrabold text-ink">109</b> storefronts</span>
-            <span><b className="font-display font-extrabold text-ink">100</b> keywords per check</span>
-            <span><b className="font-display font-extrabold text-ink">50</b> ranked apps</span>
-          </div>
-
-          <div className="mt-5 flex flex-col gap-2.5">
-            <Button href="/start" size="lg" block>See the plans</Button>
+          <div className="mt-6 flex flex-col gap-2.5">
+            <Button href="/pricing" size="lg" block>See the plans</Button>
             <Button href="/billing" variant="ghost" size="sm" block>Check billing</Button>
           </div>
-
-          <p className="mt-4 text-center text-xs text-faint">$14.99/mo or $99/yr · cancel anytime</p>
         </Modal>
       )}
 

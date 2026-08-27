@@ -433,7 +433,7 @@ const CLOSING_POINTS = [
 
 const CLOSING_LINKS = [
   { href: "/solutions", label: "What it solves" },
-  { href: "/start", label: "Pricing" },
+  { href: "/pricing", label: "Pricing" },
   { href: "/guides", label: "ASO guides" },
 ];
 
@@ -571,8 +571,16 @@ function TabStrip({
       role="tablist"
       aria-label={label}
       className={cn(
-        "flex min-w-0 flex-wrap justify-center gap-2",
-        coral ? "sm:gap-2.5" : "sm:gap-3",
+        "flex min-w-0 gap-2",
+        coral
+          // One per row on a phone, stretched so every pill is the same width.
+          // Wrapping with `justify-center` centres each row independently, so
+          // three labels of different lengths produced three different left
+          // edges and the icons stepped diagonally down the bar. The `text`
+          // variant keeps wrapping: it has no icons and its labels are short
+          // enough to sit several to a row, where centring is correct.
+          ? "flex-col items-stretch sm:flex-row sm:flex-wrap sm:justify-center sm:gap-2.5"
+          : "flex-wrap justify-center sm:gap-3",
       )}
     >
       {items.map((item) => {
@@ -630,7 +638,7 @@ export default function Landing() {
   const [signIn, setSignIn] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
-  const enter = () => (user ? router.push("/app") : setSignIn(true));
+  const enter = () => (user ? router.push("/dashboard") : setSignIn(true));
 
   useEffect(() => {
     const e = new URLSearchParams(window.location.search).get("authError");
@@ -948,7 +956,7 @@ export default function Landing() {
 
             <div className="mt-9 flex min-w-0 flex-wrap items-center gap-3">
               <Cta />
-              <Button variant="secondary" size="lg" href="/start">
+              <Button variant="secondary" size="lg" href="/pricing">
                 See pricing
               </Button>
             </div>
@@ -963,7 +971,7 @@ export default function Landing() {
 
       <SiteFooter />
 
-      {signIn && <SignInModal onClose={() => setSignIn(false)} next="/start" />}
+      {signIn && <SignInModal onClose={() => setSignIn(false)} next="/onboarding" />}
     </div>
   );
 }

@@ -22,8 +22,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 1.0,
     },
+    /* /pricing, not /onboarding. The funnel is noindex and gated behind Google
+       sign-in, so it had nothing to offer a crawler but a spinner; the price
+       it was ranked for now lives on a server-rendered page of its own. */
     {
-      url: `${siteUrl}/start`,
+      url: `${siteUrl}/pricing`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.8,

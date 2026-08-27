@@ -54,21 +54,11 @@ export async function POST(req: Request) {
     }
   }
 
-  // Filed against the account before checkout, so an abandoned payment still
-  // leaves the answers behind rather than losing them.
-  const answers = body?.answers;
-  if (answers && typeof answers === "object") {
-    const db = supabaseAdmin();
-    await db?.from("onboarding_answers").insert({
-      user_id: user.id,
-      email,
-      has_app: answers.has_app ?? null,
-      revenue: answers.revenue ?? null,
-      struggles: Array.isArray(answers.struggles) ? answers.struggles : null,
-      aso_maturity: answers.aso_maturity ?? null,
-      localization: answers.localization ?? null,
-    }).then(undefined, (e) => console.error("[checkout] answers not saved", e?.message));
-  }
+  /* The onboarding answers used to be written here. They are not any more:
+     filing them at the sale meant nobody who answered the questions and then
+     merely looked at the price was ever recorded, so they were asked all six
+     again next time. /api/onboarding records them the moment the last question
+     is answered — this handler sells, and does nothing else. */
 
   const origin = process.env.NEXT_PUBLIC_SITE_URL ?? new URL(req.url).origin;
 
@@ -79,7 +69,7 @@ export async function POST(req: Request) {
       email,
       name: (user.user_metadata?.full_name as string) ?? null,
       // The account already exists, so checkout returns straight to the work.
-      returnUrl: `${origin}/app?welcome=1`,
+      returnUrl: `${origin}/dashboard?welcome=1`,
     });
     return NextResponse.json({ ok: true, url });
   } catch (err) {

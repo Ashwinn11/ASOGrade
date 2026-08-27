@@ -1,4 +1,4 @@
-import { MATURITY_LINE } from "@/app/start/solutions";
+import { MATURITY_LINE } from "@/app/onboarding/solutions";
 
 /**
  * The four comparison pages.
