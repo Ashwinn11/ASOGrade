@@ -5,6 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { useUser } from "../components/useUser";
+import SiteHeader from "../ui/SiteHeader";
+import SiteFooter from "../ui/SiteFooter";
+import Button from "../ui/Button";
+import Card from "../ui/Card";
+import Notice from "../ui/Notice";
+import { Kicker } from "../ui/Pill";
 
 /**
  * Plan details.
@@ -81,106 +87,108 @@ export default function Billing() {
   const live = sub && ["active", "trialing"].includes(sub.status);
   const yearly = sub?.plan === "yearly";
 
+  /* Identity values — the address and the Dodo reference — are unbreakable
+     strings. They wrap here rather than being clipped by the card, which is
+     what the old fixed-row layout did with no way to read the tail. */
+  const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
+    <div className="flex min-w-0 flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-line px-5 py-4 last:border-b-0">
+      <span className="shrink-0 text-sm text-muted">{label}</span>
+      <b className="min-w-0 text-right text-base font-semibold text-ink [overflow-wrap:anywhere]">
+        {children}
+      </b>
+    </div>
+  );
+
   return (
-    <div className="page landing onboard-page">
-      <div className="land-bg" aria-hidden="true" />
+    <div className="flex min-h-screen min-w-0 flex-col">
+      <SiteHeader
+        links={[]}
+        actions={<Button variant="secondary" size="sm" href="/app">Back to workspace</Button>}
+      />
 
-      <header className="landing-nav">
-        <Link className="brand-mark" href="/" aria-label="ASOGrade home">
-          <img src="/mark.png" alt="" width={26} height={26} />
-          <span>ASO<b>Grade</b></span>
-        </Link>
-        <span className="sp" />
-        <Link className="btn secondary" href="/app">Back to workspace</Link>
-      </header>
-
-      <main className="onboard">
-        <span className="onboard-count">Account</span>
-        <h1>Billing</h1>
+      <main className="mx-auto mt-10 w-[min(100%-1.5rem,42rem)] min-w-0 flex-1">
+        <Kicker>Account</Kicker>
+        <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-ink">Billing</h1>
 
         {sub === undefined ? (
-          <p className="onboard-hint">Loading…</p>
+          <p className="mt-4 text-sm text-muted">Loading…</p>
         ) : !sub ? (
           <>
-            <p className="onboard-hint">
-              There's no subscription on this account yet, so keyword scoring is
+            <p className="mt-4 max-w-[54ch] text-md leading-relaxed text-muted">
+              There&apos;s no subscription on this account yet, so keyword scoring is
               switched off.
             </p>
-            <div className="onboard-nav single">
-              <Link className="btn primary big" href="/start">See the plans</Link>
-            </div>
+            <Button href="/start" size="lg" className="mt-6">See the plans</Button>
           </>
         ) : (
           <>
-            <div className="bill-card">
-              <div className="bill-row">
-                <span>Plan</span>
-                <b>{yearly ? "Yearly — $99/year" : "Monthly — $14.99/month"}</b>
-              </div>
-              <div className="bill-row">
-                <span>Status</span>
-                <b className="bill-status" data-live={live ? 1 : 0}>
+            <Card pad="none" className="mt-6 overflow-hidden">
+              <Row label="Plan">{yearly ? "Yearly — $99/year" : "Monthly — $14.99/month"}</Row>
+              <Row label="Status">
+                <span className={live ? "text-[#2b7a4b]" : "text-accent-2"}>
                   {PRETTY[sub.status] ?? sub.status}
-                </b>
-              </div>
-              <div className="bill-row">
-                <span>Started</span>
-                <b>{when(sub.created_at)}</b>
-              </div>
-              <div className="bill-row">
-                <span>{sub.cancel_at_period_end ? "Access ends" : "Renews"}</span>
-                <b>{when(sub.current_period_end)}</b>
-              </div>
-              <div className="bill-row">
-                <span>Billed to</span>
-                <b>{user.email}</b>
-              </div>
+                </span>
+              </Row>
+              <Row label="Started">{when(sub.created_at)}</Row>
+              <Row label={sub.cancel_at_period_end ? "Access ends" : "Renews"}>
+                {when(sub.current_period_end)}
+              </Row>
+              <Row label="Billed to">{user.email}</Row>
               {sub.dodo_subscription_id && (
-                <div className="bill-row">
-                  <span>Reference</span>
-                  <b className="bill-ref">{sub.dodo_subscription_id}</b>
-                </div>
+                <Row label="Reference">
+                  <span className="font-mono text-xs">{sub.dodo_subscription_id}</span>
+                </Row>
               )}
-            </div>
+            </Card>
 
             {extra > 0 && (
-              <div className="notice">
-                <b>{extra === 1 ? "Another subscription" : `${extra} other subscriptions`}</b>{" "}
-                {extra === 1 ? "is" : "are"} attached to this account and may still
-                be billing. Email <a href="mailto:support@asograde.com">support@asograde.com</a>
-                {" "}and we will close {extra === 1 ? "it" : "them"}.
-              </div>
+              <Notice className="mt-4">
+                <b className="font-semibold text-ink">
+                  {extra === 1 ? "Another subscription" : `${extra} other subscriptions`}
+                </b>{" "}
+                {extra === 1 ? "is" : "are"} attached to this account and may still be
+                billing. Email{" "}
+                <a className="text-accent underline underline-offset-2" href="mailto:support@asograde.com">
+                  support@asograde.com
+                </a>{" "}
+                and we will close {extra === 1 ? "it" : "them"}.
+              </Notice>
             )}
 
             {sub.cancel_at_period_end && (
-              <div className="notice working">
-                This subscription is set to end on {when(sub.current_period_end)}.
-                Scoring keeps working until then.
-              </div>
+              <Notice tone="working" className="mt-4">
+                This subscription is set to end on {when(sub.current_period_end)}. Scoring
+                keeps working until then.
+              </Notice>
             )}
 
             {!live && (
-              <div className="notice">
-                <b>Scoring is switched off.</b> Renew to turn it back on.
-              </div>
+              <Notice className="mt-4">
+                <b className="font-semibold text-ink">Scoring is switched off.</b> Renew to
+                turn it back on.
+              </Notice>
             )}
 
-            <div className="onboard-nav">
-              {!live && <Link className="btn primary" href="/start">Choose a plan</Link>}
-              <button className="btn secondary" onClick={openPortal} disabled={opening}>
+            <div className="mt-6 flex min-w-0 flex-wrap gap-3">
+              {!live && <Button href="/start">Choose a plan</Button>}
+              <Button variant="secondary" onClick={openPortal} disabled={opening}>
                 {opening ? "Opening…" : "Change or cancel"}
-              </button>
+              </Button>
             </div>
 
-            {portalErr && <div className="error">{portalErr}</div>}
+            {portalErr && <Notice tone="error" className="mt-4">{portalErr}</Notice>}
 
-            <p className="pay-fine">
+            <p className="mt-6 text-xs leading-relaxed text-faint">
               Handled by Dodo Payments, our merchant of record.{" "}
-              <a href="mailto:support@asograde.com">Need help?</a>
+              <a className="text-accent underline underline-offset-2" href="mailto:support@asograde.com">
+                Need help?
+              </a>
             </p>
           </>
         )}
       </main>
+
+      <SiteFooter />
     </div>
   );
 }

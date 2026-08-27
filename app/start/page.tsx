@@ -6,6 +6,13 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { useUser } from "../components/useUser";
 import { QUESTIONS } from "./questions";
+import SiteHeader from "../ui/SiteHeader";
+import SiteFooter from "../ui/SiteFooter";
+import Button from "../ui/Button";
+import Card from "../ui/Card";
+import Notice from "../ui/Notice";
+import Faq from "../ui/Faq";
+import Pill, { Kicker } from "../ui/Pill";
 import { STRUGGLE_FIX, MATURITY_LINE, MATURITY_NOTE, LOCALIZATION_NOTE, PRICE_FRAME } from "./solutions";
 
 /**
@@ -148,251 +155,283 @@ export default function Start() {
   const local = String(answers.localization ?? "");
   const revenue = String(answers.revenue ?? "skip");
 
-  if (!ready || !user || !checked) {
-    return (
-      <div className="page landing onboard-page">
-        <div className="land-bg" aria-hidden="true" />
+  /* One definition of the plans, used by both the signed-out pitch and the
+     paywall at the end of the questionnaire. The two were separate copies of
+     the same markup in this file and their feature lists had already drifted
+     apart by a sentence. */
+  const Plans = ({ onPick, busyKey }: {
+    onPick: (plan: "monthly" | "yearly") => void;
+    busyKey: string | null;
+  }) => (
+    <>
+      <div className="mt-6 grid min-w-0 gap-4 sm:grid-cols-2">
+        <Card className="flex flex-col">
+          <b className="text-base font-semibold text-ink">Monthly</b>
+          <div className="mt-2 flex items-baseline gap-1">
+            <strong className="font-display text-3xl font-extrabold text-ink">$14.99</strong>
+            <span className="text-sm text-muted">/month</span>
+          </div>
+          <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">
+            Everything below, billed monthly.
+          </p>
+          <Button variant="secondary" size="lg" block className="mt-5"
+            disabled={!!busyKey} onClick={() => onPick("monthly")}>
+            {busyKey === "monthly" ? "Opening checkout…" : "Choose monthly"}
+          </Button>
+        </Card>
 
-        <header className="landing-nav">
-          <Link className="brand-mark" href="/" aria-label="ASOGrade home">
-            <img src="/mark.png" alt="" width={26} height={26} />
-            <span>ASO<b>Grade</b></span>
-          </Link>
-          <nav className="nav-menu" aria-label="Primary">
-            <Link href="/keyword-research">Storefronts</Link>
-            <Link href="/guides">Guides</Link>
-            <Link href="/glossary">Glossary</Link>
-            <Link href="/compare">Compare</Link>
-          </nav>
-        </header>
-
-        <main className="onboard">
-          <section className="onboard-step paywall" style={{ maxWidth: 720, margin: "0 auto" }}>
-            <span className="onboard-count">Get Started</span>
-            <h1>App Store Keyword Research Plans</h1>
-            <p className="onboard-hint">
-              Score keywords by Apple Search Ads demand and ranking difficulty across 109 storefronts. No software to install.
-            </p>
-
-            <div className="plans">
-              <div className="plan">
-                <b>Monthly</b>
-                <div className="plan-price"><strong>$14.99</strong><span>/month</span></div>
-                <p>Full access to all 109 storefronts, billed monthly.</p>
-                <button
-                  className="btn secondary big"
-                  onClick={() => {
-                    const sb = supabase();
-                    sb?.auth.signInWithOAuth({
-                      provider: "google",
-                      options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent("/start")}` },
-                    });
-                  }}
-                >
-                  Continue with Google
-                </button>
-              </div>
-
-              <div className="plan best">
-                <span className="plan-flag">Save 45%</span>
-                <b>Yearly</b>
-                <div className="plan-price"><strong>$99</strong><span>/year</span></div>
-                <p>The same full access at <b>$8.25 a month</b>, billed once annually.</p>
-                <button
-                  className="btn primary big"
-                  onClick={() => {
-                    const sb = supabase();
-                    sb?.auth.signInWithOAuth({
-                      provider: "google",
-                      options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent("/start")}` },
-                    });
-                  }}
-                >
-                  Continue with Google
-                </button>
-              </div>
-            </div>
-
-            <ul className="includes">
-              <li><b>109</b> App Store storefronts, each scored separately</li>
-              <li><b>100</b> keywords in a single check, as often as you like</li>
-              <li><b>50</b> ranked apps readable behind any keyword</li>
-              <li>Competitor teardowns — paste a link, read their whole set</li>
-              <li>Apple Search Ads demand signals, not chart guesses</li>
-              <li>Refreshed daily; anything already checked returns instantly</li>
-            </ul>
-
-            <div className="anchor">
-              A full ASO suite runs $79–$1,500 a month for rank tracking and ad tooling you may never open. ASOGrade covers the keyword research pass and stops there.
-            </div>
-
-            <div style={{ marginTop: 32, textAlign: "left" }}>
-              <h3 style={{ fontSize: 18, marginBottom: 12 }}>Frequently Asked Questions</h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                <div>
-                  <strong style={{ display: "block", marginBottom: 4 }}>Do I need a published app to use ASOGrade?</strong>
-                  <span style={{ fontSize: 13.5, color: "var(--ink-2)" }}>No. Keyword demand and difficulty belong to the keyword and storefront. You can research names, subtitles, and keyword fields before launch.</span>
-                </div>
-                <div>
-                  <strong style={{ display: "block", marginBottom: 4 }}>Can I cancel anytime?</strong>
-                  <span style={{ fontSize: 13.5, color: "var(--ink-2)" }}>Yes. Subscriptions can be canceled at any time with one click. Your access continues until the end of your billing cycle.</span>
-                </div>
-                <div>
-                  <strong style={{ display: "block", marginBottom: 4 }}>How does billing work?</strong>
-                  <span style={{ fontSize: 13.5, color: "var(--ink-2)" }}>Payments are processed securely via Dodo Payments (merchant of record). Local taxes are calculated and added automatically at checkout.</span>
-                </div>
-              </div>
-            </div>
-
-            <p className="pay-fine" style={{ marginTop: 24 }}>
-              Cancel any time. Payments handled securely by Dodo Payments. <Link href="/terms">Terms of Service</Link> and <Link href="/privacy">Privacy Policy</Link>.
-            </p>
-          </section>
-        </main>
+        <Card className="relative flex flex-col border-tint-line">
+          <span className="absolute -top-2.5 right-5">
+            <Pill className="shadow-1">Save 45%</Pill>
+          </span>
+          <b className="text-base font-semibold text-ink">Yearly</b>
+          <div className="mt-2 flex items-baseline gap-1">
+            <strong className="font-display text-3xl font-extrabold text-ink">$99</strong>
+            <span className="text-sm text-muted">/year</span>
+          </div>
+          <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">
+            The same thing at <b className="font-semibold text-ink">$8.25 a month</b>, billed once.
+          </p>
+          <Button size="lg" block className="mt-5"
+            disabled={!!busyKey} onClick={() => onPick("yearly")}>
+            {busyKey === "yearly" ? "Opening checkout…" : "Choose yearly"}
+          </Button>
+        </Card>
       </div>
+
+      {/* Everything both plans include, stated once rather than duplicated
+          into two columns of ticks that say the same thing. */}
+      <ul className="mt-6 grid min-w-0 list-none gap-2 sm:grid-cols-2">
+        {[
+          <><b className="font-semibold text-ink">109</b> App Store storefronts, each scored separately</>,
+          <><b className="font-semibold text-ink">100</b> keywords in a single check, as often as you like</>,
+          <><b className="font-semibold text-ink">50</b> ranked apps readable behind any keyword</>,
+          <>Competitor teardowns — paste a link, read their whole set</>,
+          <>Apple Search Ads demand, not a guess from chart position</>,
+          <>Refreshed daily; anything already checked returns instantly</>,
+        ].map((item, i) => (
+          <li key={i} className="flex min-w-0 gap-2 text-sm leading-relaxed text-muted">
+            <span aria-hidden="true" className="mt-1.5 size-1.5 shrink-0 rounded-full bg-accent" />
+            <span className="min-w-0">{item}</span>
+          </li>
+        ))}
+      </ul>
+
+      <Card tone="accent" className="mt-6">
+        <p className="text-sm leading-relaxed text-white/90">
+          A full ASO suite runs $79–$1,500 a month for tracking, ad management and
+          reporting you may never open. This does the research pass and stops there.
+        </p>
+      </Card>
+    </>
+  );
+
+  const Shell = ({ children }: { children: React.ReactNode }) => (
+    <div className="flex min-h-screen min-w-0 flex-col">
+      <SiteHeader
+        links={ready && user ? [] : undefined}
+        actions={
+          ready && user ? (
+            <span className="min-w-0 max-w-[12rem] truncate rounded-full border border-line px-3 py-1.5 text-xs text-muted">
+              {user.email}
+            </span>
+          ) : undefined
+        }
+      />
+      <main className="mx-auto mt-10 w-[min(100%-1.5rem,44rem)] min-w-0 flex-1">{children}</main>
+      <SiteFooter />
+    </div>
+  );
+
+  /*
+   * Signed in but we do not yet know where they belong.
+   *
+   * This used to fall through to the pricing block below, so a visitor who had
+   * just signed in saw the plans flash for the length of one round trip before
+   * the questionnaire replaced them — the paywall arriving before the questions
+   * that are supposed to justify it. A signed-in visitor gets a quiet hold
+   * instead; the pricing block still renders for signed-out visitors, who are
+   * on their way to Google and are the ones it is written for.
+   */
+  if (ready && user && !checked) {
+    return (
+      <Shell>
+        <div className="flex min-h-[20rem] items-center justify-center gap-3 text-md text-muted" role="status">
+          <span
+            aria-hidden="true"
+            className="size-4 shrink-0 animate-spin-slow rounded-full border-2 border-line border-t-accent"
+          />
+          <span>Setting up your account…</span>
+        </div>
+      </Shell>
+    );
+  }
+
+  /* Signed out: the plans as a pitch, while the OAuth redirect is in flight.
+     This is also what a crawler sees for /start. */
+  if (!ready || !user) {
+    const signInThenReturn = () => {
+      supabase()?.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent("/start")}` },
+      });
+    };
+
+    return (
+      <Shell>
+        <Kicker>Get started</Kicker>
+        <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-ink">
+          App Store Keyword Research Plans
+        </h1>
+        <p className="mt-3 max-w-[54ch] text-md leading-relaxed text-muted">
+          Score keywords by Apple Search Ads demand and ranking difficulty across 109
+          storefronts. No software to install.
+        </p>
+
+        <Plans onPick={signInThenReturn} busyKey={null} />
+
+        <h2 className="mt-12 font-display text-xl font-extrabold text-ink">
+          Frequently asked questions
+        </h2>
+        <Faq
+          className="mt-4"
+          items={[
+            {
+              q: "Do I need a published app to use ASOGrade?",
+              a: "No. Keyword demand and difficulty belong to the keyword and storefront. You can research names, subtitles, and keyword fields before launch.",
+            },
+            {
+              q: "Can I cancel anytime?",
+              a: "Yes. Subscriptions can be canceled at any time with one click. Your access continues until the end of your billing cycle.",
+            },
+            {
+              q: "How does billing work?",
+              a: "Payments are processed securely via Dodo Payments (merchant of record). Local taxes are calculated and added automatically at checkout.",
+            },
+          ]}
+        />
+
+        <p className="mt-8 text-xs leading-relaxed text-faint">
+          Cancel any time. Payments handled securely by Dodo Payments.{" "}
+          <Link className="text-accent underline underline-offset-2" href="/terms">Terms of Service</Link>{" "}
+          and{" "}
+          <Link className="text-accent underline underline-offset-2" href="/privacy">Privacy Policy</Link>.
+        </p>
+      </Shell>
     );
   }
 
   return (
-    <div className="page landing onboard-page">
-      <div className="land-bg" aria-hidden="true" />
+    <Shell>
+      <div className="h-1 w-full overflow-hidden rounded-full bg-line" aria-hidden="true">
+        <div
+          className="h-full rounded-full bg-accent transition-[width] duration-300 ease-brand"
+          style={{ width: `${onPaywall ? 100 : pct}%` }}
+        />
+      </div>
 
-      <header className="landing-nav">
-        <Link className="brand-mark" href="/" aria-label="ASOGrade home">
-          <img src="/mark.png" alt="" width={26} height={26} />
-          <span>ASO<b>Grade</b></span>
-        </Link>
-        <span className="sp" />
-        <span className="who-chip">{user.email}</span>
-      </header>
+      {current && !onRecap && !onPaywall ? (
+        <section key={current.key} className="mt-8 min-w-0 animate-fade">
+          <Kicker>Question {step + 1} of {total}</Kicker>
+          <h1 className="mt-3 font-display text-2xl font-extrabold leading-tight tracking-tight text-ink">
+            {current.q}
+          </h1>
+          {current.hint && <p className="mt-2 text-sm leading-relaxed text-muted">{current.hint}</p>}
 
-      <main className="onboard">
-        <div className="onboard-bar" aria-hidden="true"><i style={{ width: `${onPaywall ? 100 : pct}%` }} /></div>
-
-        {current && !onRecap && !onPaywall ? (
-          <section className="onboard-step" key={current.key}>
-            <span className="onboard-count">Question {step + 1} of {total}</span>
-            <h1>{current.q}</h1>
-            {current.hint && <p className="onboard-hint">{current.hint}</p>}
-
-            <div className="onboard-opts">
-              {current.options.map((o) => {
-                const on = current.multi
-                  ? Array.isArray(picked) && picked.includes(o.value)
-                  : picked === o.value;
-                return (
-                  <button key={o.value} className="onboard-opt" data-on={on ? 1 : 0}
-                    onClick={() => choose(o.value)}>
-                    <span>{o.label}</span>
-                    {o.note && <em>{o.note}</em>}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="onboard-nav">
-              {step > 0 && <button className="btn secondary" onClick={() => setStep((s) => s - 1)}>Back</button>}
-              {current.multi && (
-                <button className="btn primary" disabled={!canAdvance} onClick={() => setStep((s) => s + 1)}>
-                  Continue
+          <div className="mt-6 grid min-w-0 gap-2.5">
+            {current.options.map((o) => {
+              const on = current.multi
+                ? Array.isArray(picked) && picked.includes(o.value)
+                : picked === o.value;
+              return (
+                <button
+                  key={o.value}
+                  type="button"
+                  onClick={() => choose(o.value)}
+                  className={`min-w-0 cursor-pointer rounded-md border px-5 py-4 text-left transition-colors duration-150 ${
+                    on ? "border-accent bg-tint" : "border-line bg-surface hover:bg-hover"
+                  }`}
+                >
+                  <span className="block text-base font-semibold text-ink">{o.label}</span>
+                  {o.note && <em className="mt-1 block text-sm not-italic text-muted">{o.note}</em>}
                 </button>
-              )}
-            </div>
-          </section>
+              );
+            })}
+          </div>
 
-        ) : onRecap && hasAnswers ? (
-          /* Their answers, handed back with the specific thing that answers each
-             one. This is the argument; the plans page is just the ask. */
-          <section className="onboard-step" key="recap">
-            <span className="onboard-count">Here's where you are</span>
-            <h1>{MATURITY_LINE[maturity] ?? "Here's what you told us."}</h1>
-            <p className="onboard-hint">{MATURITY_NOTE[maturity]}</p>
+          <div className="mt-6 flex min-w-0 flex-wrap gap-3">
+            {step > 0 && (
+              <Button variant="secondary" onClick={() => setStep((s) => s - 1)}>Back</Button>
+            )}
+            {current.multi && (
+              <Button disabled={!canAdvance} onClick={() => setStep((s) => s + 1)}>Continue</Button>
+            )}
+          </div>
+        </section>
+      ) : onRecap && hasAnswers ? (
+        /* Their answers, handed back with the specific thing that answers each
+           one. This is the argument; the plans page is just the ask. */
+        <section key="recap" className="mt-8 min-w-0 animate-fade">
+          <Kicker>Here&apos;s where you are</Kicker>
+          <h1 className="mt-3 font-display text-2xl font-extrabold leading-tight tracking-tight text-ink">
+            {MATURITY_LINE[maturity] ?? "Here's what you told us."}
+          </h1>
+          <p className="mt-2 text-md leading-relaxed text-muted">{MATURITY_NOTE[maturity]}</p>
 
-            {fixes.length > 0 && (
-              <div className="fixes">
-                {fixes.map((f) => (
-                  <div className="fix" key={f.problem}>
-                    <div className="fix-head">
-                      <span className="fix-problem">{f.problem}</span>
-                      {f.proof && <em>{f.proof}</em>}
-                    </div>
-                    <p>{f.fix}</p>
+          {fixes.length > 0 && (
+            <div className="mt-6 grid min-w-0 gap-3">
+              {fixes.map((f) => (
+                <Card key={f.problem} pad="sm" className="border-l-[3px] border-l-accent">
+                  {/* The badge wraps under the problem rather than sitting beside
+                      it: as a nowrap flex sibling with nothing able to shrink, it
+                      used to render outside this card. */}
+                  <div className="flex min-w-0 flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                    <span className="min-w-0 text-base font-semibold text-ink">{f.problem}</span>
+                    {f.proof && <Pill className="shrink-0">{f.proof}</Pill>}
                   </div>
-                ))}
-              </div>
-            )}
-
-            {LOCALIZATION_NOTE[local] && (
-              <div className="notice working">{LOCALIZATION_NOTE[local]}</div>
-            )}
-
-            <div className="onboard-nav">
-              <button className="btn secondary" onClick={() => setStep((s) => s - 1)}>Back</button>
-              <button className="btn primary big" onClick={() => setStep((s) => s + 1)}>
-                See what it costs
-              </button>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">{f.fix}</p>
+                </Card>
+              ))}
             </div>
-          </section>
+          )}
 
-        ) : (
-          <section className="onboard-step paywall" key="paywall">
-            <span className="onboard-count">Last step</span>
-            <h1>One keyword field. Get it right.</h1>
-            <p className="onboard-hint">{PRICE_FRAME[revenue] ?? PRICE_FRAME.skip}</p>
+          {LOCALIZATION_NOTE[local] && (
+            <Notice tone="working" className="mt-4">{LOCALIZATION_NOTE[local]}</Notice>
+          )}
 
-            <div className="plans">
-              <div className="plan">
-                <b>Monthly</b>
-                <div className="plan-price"><strong>$14.99</strong><span>/month</span></div>
-                <p>Everything below, billed monthly.</p>
-                <button className="btn secondary big" disabled={!!busy} onClick={() => buy("monthly")}>
-                  {busy === "monthly" ? "Opening checkout…" : "Choose monthly"}
-                </button>
-              </div>
+          <div className="mt-6 flex min-w-0 flex-wrap gap-3">
+            <Button variant="secondary" onClick={() => setStep((s) => s - 1)}>Back</Button>
+            <Button size="lg" onClick={() => setStep((s) => s + 1)}>See what it costs</Button>
+          </div>
+        </section>
+      ) : (
+        <section key="paywall" className="mt-8 min-w-0 animate-fade">
+          <Kicker>Last step</Kicker>
+          <h1 className="mt-3 font-display text-2xl font-extrabold leading-tight tracking-tight text-ink">
+            One keyword field. Get it right.
+          </h1>
+          <p className="mt-2 text-md leading-relaxed text-muted">
+            {PRICE_FRAME[revenue] ?? PRICE_FRAME.skip}
+          </p>
 
-              <div className="plan best">
-                <span className="plan-flag">Save 45%</span>
-                <b>Yearly</b>
-                <div className="plan-price"><strong>$99</strong><span>/year</span></div>
-                <p>The same thing at <b>$8.25 a month</b>, billed once.</p>
-                <button className="btn primary big" disabled={!!busy} onClick={() => buy("yearly")}>
-                  {busy === "yearly" ? "Opening checkout…" : "Choose yearly"}
-                </button>
-              </div>
-            </div>
+          <Plans onPick={buy} busyKey={busy} />
 
-            {/* Everything both plans include, stated once rather than duplicated
-                into two columns of ticks that say the same thing. */}
-            <ul className="includes">
-              <li><b>109</b> App Store storefronts, each scored separately</li>
-              <li><b>100</b> keywords in a single check, as often as you like</li>
-              <li><b>50</b> ranked apps readable behind any keyword</li>
-              <li>Competitor teardowns — paste a link, read their whole set</li>
-              <li>Apple Search Ads demand, not a guess from chart position</li>
-              <li>Refreshed daily; anything already checked returns instantly</li>
-            </ul>
+          {err && <Notice tone="error" className="mt-4">{err}</Notice>}
 
-            <div className="anchor">
-              A full ASO suite runs $79–$1,500 a month for tracking, ad management
-              and reporting you may never open. This does the research pass and
-              stops there.
-            </div>
+          <p className="mt-6 text-xs leading-relaxed text-faint [overflow-wrap:anywhere]">
+            Billed to <b className="font-semibold text-ink-2">{user.email}</b>. Cancel any
+            time — access runs to the end of the paid period. Prices exclude tax; local tax
+            is added at checkout. Payments handled by Dodo Payments.{" "}
+            <Link className="text-accent underline underline-offset-2" href="/terms">Terms</Link>{" "}
+            and{" "}
+            <Link className="text-accent underline underline-offset-2" href="/privacy">Privacy</Link>.
+          </p>
 
-            {err && <div className="error">{err}</div>}
-
-            <p className="pay-fine">
-              Billed to <b>{user.email}</b>. Cancel any time — access runs to the end
-              of the paid period. Prices exclude tax; local tax is added at checkout.
-              Payments handled by Dodo Payments. <Link href="/terms">Terms</Link> and{" "}
-              <Link href="/privacy">Privacy</Link>.
-            </p>
-
-            <div className="onboard-nav">
-              <button className="btn secondary" onClick={() => setStep(total)}>Back</button>
-            </div>
-          </section>
-        )}
-      </main>
-    </div>
+          <div className="mt-6">
+            <Button variant="secondary" onClick={() => setStep(total)}>Back</Button>
+          </div>
+        </section>
+      )}
+    </Shell>
   );
 }

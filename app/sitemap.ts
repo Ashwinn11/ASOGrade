@@ -2,16 +2,14 @@ import type { MetadataRoute } from "next";
 import { STORES } from "@/lib/types";
 import { GLOSSARY } from "@/lib/seo/glossary";
 import { GUIDES } from "@/lib/seo/guides";
+import { COMPARE_DATA } from "@/lib/seo/compare";
+import { SOLUTION_DETAILS } from "@/lib/seo/solutions";
 
-const COMPARE_SLUGS = ["guessing", "spreadsheets", "aso-suites", "agencies"];
-const SOLUTION_SLUGS = [
-  "finding-keyword-ideas",
-  "winnable-keywords",
-  "competitor-keywords",
-  "international-markets",
-  "research-time",
-  "tool-cost",
-];
+/* Read from the same arrays the routes generate from, so a new page cannot
+   ship without a sitemap entry. These two were hand-listed here while their
+   content still lived inline in the route files. */
+const COMPARE_SLUGS = COMPARE_DATA.map((d) => d.slug);
+const SOLUTION_SLUGS = SOLUTION_DETAILS.map((d) => d.slug);
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://asograde.com";

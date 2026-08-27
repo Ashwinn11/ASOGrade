@@ -5,8 +5,13 @@ import { STORES, POPULAR, flagOf } from "@/lib/types";
 import { STORE_INFO } from "@/lib/seo/countries";
 import { faqSchema, breadcrumbSchema, webPageSchema } from "@/lib/seo/schema";
 import { fitTitle, fitDescription, OG_IMAGE } from "@/lib/seo/meta";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://asograde.com";
+import { SITE_URL } from "@/lib/seo/site";
+import PseoLayout from "@/app/ui/PseoLayout";
+import Section, { PageHero } from "@/app/ui/Section";
+import Prose from "@/app/ui/Prose";
+import Faq from "@/app/ui/Faq";
+import Pill from "@/app/ui/Pill";
+import { LinkCardGrid } from "@/app/ui/LinkCard";
 
 interface Props {
   params: Promise<{ store: string }>;
@@ -101,129 +106,97 @@ export default async function StorefrontPage({ params }: Props) {
       ]
     : [];
 
-  const faq = faqSchema(faqItems);
-  const crumb = breadcrumbSchema([
-    { name: "ASOGrade", url: SITE_URL },
-    { name: "Keyword Research by Storefront", url: `${SITE_URL}/keyword-research` },
-    { name: name, url: `${SITE_URL}/keyword-research/${code}` },
-  ]);
-  const page = webPageSchema({
-    title: `App Store Keyword Research: ${name}`,
-    description: `App Store keyword research guide for the ${name} (${code.toUpperCase()}) storefront.`,
-    url: `${SITE_URL}/keyword-research/${code}`,
-  });
-
   return (
-    <div className="pseo-page">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(page) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faq) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(crumb) }}
-      />
-
-      <header className="pseo-header">
-        <nav className="pseo-nav" aria-label="Site">
-          <Link className="pseo-brand" href="/">
-            ASO<b>Grade</b>
-          </Link>
-          <Link href="/keyword-research">All Storefronts</Link>
-          <Link href="/glossary">Glossary</Link>
-          <Link href="/guides">Guides</Link>
-          <Link href="/start" className="pseo-cta-link">
-            Get started →
-          </Link>
-        </nav>
-      </header>
-
-      <main className="pseo-main pseo-article">
-        <nav className="pseo-breadcrumb" aria-label="Breadcrumb">
-          <Link href="/">ASOGrade</Link>
-          <span aria-hidden="true"> / </span>
-          <Link href="/keyword-research">Keyword Research by Storefront</Link>
-          <span aria-hidden="true"> / </span>
-          <span aria-current="page">{name}</span>
-        </nav>
-
-        <div className="pseo-hero">
-          <div className="pseo-store-badge">
-            {flag && <span className="pseo-flag" aria-hidden="true">{flag}</span>}
-            <span className="pseo-tier-badge">{tierLabel}</span>
-          </div>
-          <h1>App Store Keyword Research: {name}</h1>
-          <p className="pseo-lead">
-            {info
-              ? info.facts[0]
-              : `A guide to App Store keyword research in the ${name} (${code.toUpperCase()}) storefront — what to know about demand, difficulty, and strategy before you localise.`}
-          </p>
-        </div>
-
-        {info && (
+    <PseoLayout
+      current="/keyword-research"
+      trail={[
+        { label: "ASOGrade", href: "/" },
+        { label: "Keyword Research", href: "/keyword-research" },
+        { label: name },
+      ]}
+      schema={[
+        webPageSchema({
+          title: `App Store Keyword Research: ${name}`,
+          description: `App Store keyword research guide for the ${name} (${code.toUpperCase()}) storefront.`,
+          url: `${SITE_URL}/keyword-research/${code}`,
+        }),
+        faqSchema(faqItems),
+        breadcrumbSchema([
+          { name: "ASOGrade", url: SITE_URL },
+          { name: "Keyword Research by Storefront", url: `${SITE_URL}/keyword-research` },
+          { name, url: `${SITE_URL}/keyword-research/${code}` },
+        ]),
+      ]}
+      cta={{
+        heading: `Research ${name} App Store keywords now`,
+        body: `Score keywords in the ${name} storefront — popularity, difficulty, and competing apps count — across 109 markets in one workspace.`,
+        label: "Start researching",
+      }}
+    >
+      <PageHero
+        badges={
           <>
-            <section className="pseo-section">
-              <h2>Market overview</h2>
-              <dl className="pseo-meta-dl">
-                <div>
-                  <dt>Storefront code</dt>
-                  <dd>{code.toUpperCase()}</dd>
-                </div>
-                <div>
-                  <dt>Market tier</dt>
-                  <dd>{tierLabel}</dd>
-                </div>
-                <div>
-                  <dt>Primary search language</dt>
-                  <dd>{info.lang}</dd>
-                </div>
-                <div>
-                  <dt>Region</dt>
-                  <dd>
-                    {info.region
-                      .replace(/-/g, " ")
-                      .replace(/\b\w/g, (c) => c.toUpperCase())}
-                  </dd>
-                </div>
-              </dl>
-            </section>
+            {flag && <span aria-hidden="true" className="text-xl leading-none">{flag}</span>}
+            <Pill tone={info?.tier === "major" ? "accent" : "neutral"}>{tierLabel}</Pill>
+          </>
+        }
+        title={`App Store Keyword Research: ${name}`}
+        lead={
+          info
+            ? info.facts[0]
+            : `A guide to App Store keyword research in the ${name} (${code.toUpperCase()}) storefront — what to know about demand, difficulty, and strategy before you localise.`
+        }
+      />
 
-            <section className="pseo-section">
-              <h2>What to know about this market</h2>
+      {info && (
+        <>
+          <Section title="Market overview">
+            <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                ["Storefront code", code.toUpperCase()],
+                ["Market tier", tierLabel],
+                ["Primary search language", info.lang],
+                ["Region", info.region.replace(/-/g, " ")],
+              ].map(([k, v]) => (
+                <div key={k} className="min-w-0 rounded-md border border-line bg-surface px-4 py-3">
+                  <dt className="text-2xs font-bold uppercase tracking-[0.06em] text-faint">{k}</dt>
+                  <dd className="mt-1 text-base font-semibold text-ink capitalize break-words">{v}</dd>
+                </div>
+              ))}
+            </dl>
+          </Section>
+
+          <Section title="What to know about this market">
+            <Prose>
               {info.facts.map((fact, i) => (
                 <p key={i}>{fact}</p>
               ))}
-            </section>
-          </>
-        )}
+            </Prose>
+          </Section>
+        </>
+      )}
 
-        <section className="pseo-section">
-          <h2>How to research keywords in {name}</h2>
+      <Section title={`How to research keywords in ${name}`}>
+        <Prose>
           <p>
-            App Store keyword research in {name} follows the same process as
-            any other storefront, but the numbers will differ — sometimes
-            dramatically — from what you see in your primary market.
+            App Store keyword research in {name} follows the same process as any other
+            storefront, but the numbers will differ — sometimes dramatically — from what
+            you see in your primary market.
           </p>
-          <ol className="pseo-steps">
+          <ol>
             <li>
-              <strong>Build a candidate list.</strong> Start with your core
-              category keywords in{" "}
-              {info?.langCode === "en" ? "English" : info?.lang ?? "the local language"},{" "}
-              add competitor subtitle terms, and include any local-language
-              search terms relevant to your app category.
+              <strong>Build a candidate list.</strong> Start with your core category
+              keywords in {info?.langCode === "en" ? "English" : info?.lang ?? "the local language"},
+              add competitor subtitle terms, and include any local-language search terms
+              relevant to your app category.
             </li>
             <li>
-              <strong>Score for popularity.</strong> Run each candidate in the{" "}
-              {name} storefront specifically — popularity scores can differ
-              significantly from other markets. Look for terms above 25.
+              <strong>Score for popularity.</strong> Run each candidate in the {name}
+              {" "}storefront specifically — popularity scores can differ significantly from
+              other markets. Look for terms above 25.
             </li>
             <li>
-              <strong>Check difficulty.</strong> Filter to terms with difficulty
-              below{" "}
+              <strong>Check difficulty.</strong> Filter to terms with difficulty below{" "}
               {info?.tier === "major"
                 ? "60 for an established app, below 45 for a newer app."
                 : info?.tier === "mid"
@@ -231,98 +204,64 @@ export default async function StorefrontPage({ params }: Props) {
                 : "40 — in this emerging market, most keyword slots are accessible even for newer apps."}
             </li>
             <li>
-              <strong>Update metadata.</strong> Include the winning terms in
-              your {name} storefront metadata — separate from your primary-market
-              metadata if you have localised versions.
+              <strong>Update metadata.</strong> Include the winning terms in your {name}
+              {" "}storefront metadata — separate from your primary-market metadata if you
+              have localised versions.
             </li>
           </ol>
-        </section>
+        </Prose>
+      </Section>
 
-        <section className="pseo-section">
-          <h2>Metadata allocation strategy for {name}</h2>
+      <Section title={`Metadata allocation strategy for ${name}`}>
+        <Prose>
           <p>
-            When deploying metadata for the {name} storefront in App Store
-            Connect, allocate your character budget deliberately across the
-            three indexable fields:
+            When deploying metadata for the {name} storefront in App Store Connect,
+            allocate your character budget deliberately across the three indexable fields:
           </p>
-          <ul className="pseo-steps">
+          <ul>
             <li>
-              <strong>App Name (30 characters):</strong> Place your highest-volume
-              primary keyword for {name} alongside your brand name. This field
-              carries the strongest ranking weight in Apple&apos;s algorithm.
+              <strong>App Name (30 characters):</strong> Place your highest-volume primary
+              keyword for {name} alongside your brand name. This field carries the
+              strongest ranking weight in Apple&apos;s algorithm.
             </li>
             <li>
-              <strong>Subtitle (30 characters):</strong> Feature 2–3 secondary
-              keywords describing your core value proposition in {info?.lang ?? "the local language"}.
+              <strong>Subtitle (30 characters):</strong> Feature 2–3 secondary keywords
+              describing your core value proposition in {info?.lang ?? "the local language"}.
               The subtitle is visible in search results and directly affects conversion.
             </li>
             <li>
-              <strong>Keyword Field (100 characters):</strong> Enter comma-separated
-              single words that extend your reach across {name} search queries.
-              Avoid repeating words already used in your title or subtitle to prevent
-              wasting character budget.
+              <strong>Keyword Field (100 characters):</strong> Enter comma-separated single
+              words that extend your reach across {name} search queries. Avoid repeating
+              words already used in your title or subtitle to prevent wasting character
+              budget.
             </li>
           </ul>
-        </section>
+        </Prose>
+      </Section>
 
-        {faqItems.length > 0 && (
-          <section className="pseo-section pseo-faq">
-            <h2>Frequently asked questions</h2>
-            <dl>
-              {faqItems.map((item, i) => (
-                <div key={i} className="pseo-faq-item">
-                  <dt>{item.q}</dt>
-                  <dd>{item.a}</dd>
-                </div>
-              ))}
-            </dl>
-          </section>
-        )}
+      {faqItems.length > 0 && (
+        <Section title="Frequently asked questions">
+          <Faq items={faqItems} />
+        </Section>
+      )}
 
-        <section className="pseo-section pseo-cta-section">
-          <h2>Research {name} App Store keywords now</h2>
-          <p>
-            Score keywords in the {name} storefront — popularity, difficulty,
-            and competing apps count — across 109 markets in one workspace.
-          </p>
-          <Link href="/start" className="pseo-btn-primary">
-            Start researching →
-          </Link>
-        </section>
-
-        <section className="pseo-section">
-          <h2>Other storefronts to compare</h2>
-          <ul className="pseo-related-list">
-            {(isMajor ? STORES.filter(([c]) => POPULAR.includes(c) && c !== code) : STORES.filter(([c]) => POPULAR.includes(c)))
-              .slice(0, 8)
-              .map(([c, n]) => (
-                <li key={c}>
-                  <Link href={`/keyword-research/${c}`}>
-                    {flagOf(c)} {n} →
-                  </Link>
-                </li>
-              ))}
-          </ul>
-          <Link href="/keyword-research" className="pseo-link-more">
-            View all 109 storefronts →
-          </Link>
-        </section>
-      </main>
-
-      <footer className="pseo-footer">
-        <div className="pseo-footer-links">
-          <Link href="/">Home</Link>
-          <Link href="/keyword-research">Keyword Research</Link>
-          <Link href="/glossary">Glossary</Link>
-          <Link href="/guides">Guides</Link>
-          <Link href="/privacy">Privacy</Link>
-          <Link href="/terms">Terms</Link>
-        </div>
-        <p className="pseo-footer-copy">
-          © {new Date().getFullYear()} ASOGrade · Not affiliated with Apple
-          Inc. App Store is a trademark of Apple Inc.
-        </p>
-      </footer>
-    </div>
+      <Section title="Other storefronts to compare">
+        <LinkCardGrid
+          min={200}
+          items={STORES.filter(([c]) => POPULAR.includes(c) && c !== code)
+            .slice(0, 8)
+            .map(([c, n]) => ({
+              href: `/keyword-research/${c}`,
+              title: `${flagOf(c)} ${n}`,
+            }))}
+        />
+        <Link
+          href="/keyword-research"
+          className="mt-4 inline-block text-sm font-semibold text-accent no-underline hover:underline"
+        >
+          View all 109 storefronts →
+        </Link>
+      </Section>
+    </PseoLayout>
   );
 }

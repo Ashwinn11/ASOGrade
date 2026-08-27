@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search } from "./icons";
+import { Search, Chevron } from "./icons";
 import { STORES, POPULAR, ALL_STORES, flagOf, storeName } from "@/lib/types";
 
 type Row = { kind: "head"; label: string } | { kind: "opt"; code: string; name: string };
@@ -14,8 +14,12 @@ const Globe = () => (
   </svg>
 )
 
-export default function StorePicker({ value, onChange }: {
+export default function StorePicker({ value, onChange, onDark = true }: {
   value: string; onChange: (code: string) => void;
+  /** Whether the trigger sits on a dark surface (the workspace) or a light/
+   *  coral one (the results panel header). The dropdown panel itself is
+   *  always the light surface — only the closed trigger's colours change. */
+  onDark?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -77,40 +81,73 @@ export default function StorePicker({ value, onChange }: {
   let i = -1;
 
   return (
-    <div className="picker" ref={wrap}>
-      <button className="trigger" data-open={open ? 1 : 0} onClick={() => setOpen((o) => !o)}>
-        <span className="fl">{isAll ? <Globe /> : flagOf(value)}</span>
-        <span className="nm">{storeName(value)}</span>
-        <svg width="9" height="6" viewBox="0 0 9 6" fill="none">
-          <path d="M1 1 4.5 4.5 8 1" stroke="currentColor" strokeWidth="1.5"
-            strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+    <div className="relative min-w-0 shrink-0" ref={wrap}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className={`flex min-w-0 max-w-[11rem] cursor-pointer items-center gap-2 rounded-full px-3 py-2 transition-colors duration-150 ${
+          onDark
+            ? "bg-white/8 text-dark-ink hover:bg-white/12"
+            : "bg-white text-accent-2 hover:bg-white/85"
+        }`}
+      >
+        <span className="shrink-0">{isAll ? <Globe /> : flagOf(value)}</span>
+        <span className="min-w-0 flex-1 truncate text-left text-sm">{storeName(value)}</span>
+        <span className="shrink-0 opacity-60">
+          <Chevron size={9} />
+        </span>
       </button>
 
       {open && (
-        <div className="pop" onKeyDown={onKeyDown}>
-          <div className="q">
+        <div
+          onKeyDown={onKeyDown}
+          className="absolute right-0 top-[calc(100%+0.5rem)] z-30 w-[min(18rem,calc(100vw-2.5rem))] animate-drop rounded-md border border-line bg-surface p-1.5 shadow-3"
+        >
+          <label className="flex min-w-0 items-center gap-2 border-b border-line px-2.5 pb-2">
             <Search size={14} />
-            <input autoFocus value={q} placeholder="Search countries…"
-              onChange={(e) => setQ(e.target.value)} />
-          </div>
+            <input
+              autoFocus
+              value={q}
+              placeholder="Search countries…"
+              onChange={(e) => setQ(e.target.value)}
+              className="min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-faint"
+            />
+          </label>
 
-          <div className="scroll" ref={scroller}>
+          <div className="mt-1 max-h-72 min-w-0 overflow-y-auto" ref={scroller}>
             {rows.map((r, k) => {
-              if (r.kind === "head") return <div className="grp" key={`h${k}`}>{r.label}</div>;
+              if (r.kind === "head") {
+                return (
+                  <div key={`h${k}`} className="px-2.5 pb-1 pt-2.5 text-2xs font-bold uppercase tracking-[0.06em] text-faint">
+                    {r.label}
+                  </div>
+                );
+              }
               i += 1;
               const at = i;
+              const selected = r.code === value;
               return (
-                <button className="opt" key={r.code}
-                  data-on={r.code === value ? 1 : 0} data-cursor={at === cursor ? 1 : 0}
-                  onMouseEnter={() => setCursor(at)} onClick={() => pick(r.code)}>
-                  <span className="fl">{r.code === ALL_STORES ? <Globe /> : flagOf(r.code)}</span>
-                  <span className="nm">{r.name}</span>
-                  <span className="cc">{r.code === ALL_STORES ? `${STORES.length}` : r.code.toUpperCase()}</span>
+                <button
+                  type="button"
+                  key={r.code}
+                  data-cursor={at === cursor ? 1 : 0}
+                  onMouseEnter={() => setCursor(at)}
+                  onClick={() => pick(r.code)}
+                  className={`flex w-full min-w-0 cursor-pointer items-center gap-2.5 rounded-sm px-2.5 py-2 text-left ${
+                    selected ? "bg-tint text-accent-2" : at === cursor ? "bg-hover text-ink" : "text-ink-2"
+                  }`}
+                >
+                  <span className="shrink-0">{r.code === ALL_STORES ? <Globe /> : flagOf(r.code)}</span>
+                  <span className="min-w-0 flex-1 truncate text-sm">{r.name}</span>
+                  <span className="shrink-0 font-mono text-2xs text-faint">
+                    {r.code === ALL_STORES ? `${STORES.length}` : r.code.toUpperCase()}
+                  </span>
                 </button>
               );
             })}
-            {!options.length && <p className="none">No country matches “{q}”.</p>}
+            {!options.length && (
+              <p className="px-3 py-6 text-center text-sm text-faint">No country matches “{q}”.</p>
+            )}
           </div>
         </div>
       )}

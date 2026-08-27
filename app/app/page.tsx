@@ -3,33 +3,35 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Refresh, Search, Trash, Close, Eye, Plus } from "../components/icons";
+import { Refresh, Search, Trash, Close, Eye, Plus, Chevron } from "../components/icons";
 import StorePicker from "../components/StorePicker";
 import AccountChip from "../components/AccountChip";
+import Button from "../ui/Button";
+import Card from "../ui/Card";
+import Modal from "../ui/Modal";
+import CoralHeader from "../ui/CoralHeader";
+import Notice from "../ui/Notice";
+import BrandMark from "../ui/BrandMark";
+import Meter, { popBand, diffBand } from "../ui/Meter";
+import { Kicker } from "../ui/Pill";
 import { useUser } from "../components/useUser";
+import { supabase } from "@/lib/supabase/client";
 import { ALL_STORES, flagOf, storeName, timeAgo, type KeywordRow, type RankingApp } from "@/lib/types";
 
 /* ------------------------------------------------------------------ utils */
 
-// popularity rewards high, difficulty rewards low
-const popBand  = (v: number | null) => (v == null ? "na" : v >= 65 ? "hi" : v >= 20 ? "mid" : "lo");
-const diffBand = (v: number | null) => (v == null ? "na" : v <= 20 ? "hi" : v <= 65 ? "mid" : "lo");
-
 const split = (text: string) =>
   text.split(/[\n,]/).map((k) => k.trim().toLowerCase().replace(/\s+/g, " ")).filter(Boolean);
 
-function Meter({ value, band }: { value: number | null; band: string }) {
-  return (
-    <span className={`cell ${band}`}>
-      <span className="n">{value ?? "–"}</span>
-      <span className="track"><i style={{ width: `${Math.min(100, Math.max(0, value ?? 0))}%` }} /></span>
-    </span>
-  );
-}
-
 function Check({ state }: { state: "on" | "off" | "some" }) {
   return (
-    <span className="cb" data-state={state}>
+    <span
+      className={`grid size-4 shrink-0 place-items-center rounded-sm border transition-colors duration-150 ${
+        state === "off"
+          ? "border-line-2 bg-surface text-transparent"
+          : "border-accent bg-accent text-white"
+      }`}
+    >
       <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
         {state === "some"
           ? <path d="M3 6h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -95,17 +97,25 @@ export default function Page() {
   const [scoring, setScoring] = useState(0);   // keywords the backfill is filling in right now
   const [loadingRows, setLoadingRows] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [locked, setLocked] = useState(false);   // 402 from any data route
+  const [subscribed, setSubscribed] = useState<boolean | null>(null); // null = not yet known
+  const [gate, setGate] = useState(false);   // the "subscription needed" dialog
 
   /**
-   * Every failure goes through here. A missing subscription is not a message to
-   * read, it is a state of the page — so it flips the paywall rather than
-   * printing itself into the error strip.
+   * Every failure goes through here.
+   *
+   * A missing subscription used to replace the whole workspace with a paywall
+   * card, which meant an unsubscribed visitor never saw the thing they were
+   * being asked to pay for. Now it only records the fact; the dialog is raised
+   * by the action that hit it, so loading the page stays quiet and pressing
+   * Check is what explains the wall.
    */
-  const fail = (e: unknown) => {
+  const fail = (e: unknown, byAction = false) => {
     const msg = e instanceof Error ? e.message : String(e);
-    if (/subscription/i.test(msg)) { setLocked(true); setError(null); }
-    else setError(msg);
+    if (/subscription/i.test(msg)) {
+      setSubscribed(false);
+      setError(null);
+      if (byAction) setGate(true);
+    } else setError(msg);
   };
 
   // keywords already fetched, keyed by store, so switching back is instant
@@ -120,6 +130,25 @@ export default function Page() {
   useEffect(() => {
     if (authReady && !user) router.replace("/");
   }, [authReady, user, router]);
+
+  /**
+   * Ask the same row the API gate asks about, so the workspace knows whether a
+   * press will be refused before it makes one. This is a convenience, not the
+   * gate: `subscriptions` is readable only by its owner and writable only by
+   * the webhook, and every data route checks entitlement server-side regardless
+   * of what this says.
+   */
+  useEffect(() => {
+    if (!user) return;
+    let alive = true;
+    supabase()?.from("subscriptions").select("status")
+      .then(({ data }) => {
+        if (!alive) return;
+        const rows = (data ?? []) as { status: string }[];
+        setSubscribed(rows.some((r) => ["active", "trialing"].includes(String(r.status))));
+      });
+    return () => { alive = false; };
+  }, [user]);
 
   /** Reads straight from our database, so it works with the provider asleep. */
   const loadKeywords = useCallback(async (st: string, force = false) => {
@@ -194,12 +223,21 @@ export default function Page() {
   }, [user, store, loadKeywords, backfill]);
   useEffect(() => { setOpen(null); setPicked(new Set()); anchor.current = null; }, [store]);
 
+  /**
+   * Wraps anything the visitor actually pressed.
+   *
+   * Guarding on the known answer first means an unsubscribed visitor gets the
+   * dialog immediately instead of after a round trip that was always going to
+   * be refused; a 402 from the route is still handled, since the local answer
+   * can be stale.
+   */
   const run = useCallback(async (what: string, fn: () => Promise<void>) => {
+    if (subscribed === false) { setGate(true); return; }
     setBusy(what); setError(null);
     try { await fn(); }
-    catch (e) { fail(e); }
+    catch (e) { fail(e, true); }
     finally { setBusy(null); }
-  }, []);
+  }, [subscribed]);
 
   /* ---------------------------------------------------------- tag field */
 
@@ -401,6 +439,13 @@ export default function Page() {
     return () => window.removeEventListener("keydown", key);
   }, [picked.size]);
 
+  useEffect(() => {
+    if (!gate) return;
+    const key = (e: KeyboardEvent) => e.key === "Escape" && setGate(false);
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  }, [gate]);
+
   /* One call per keyword pulls the whole leaderboard; the sheet reveals it in
      tiers, so "show more" costs nothing. */
   useEffect(() => {
@@ -425,11 +470,21 @@ export default function Page() {
     return () => window.removeEventListener("keydown", key);
   }, [open]);
 
-  const th = (key: SortKey, label: string, extra = "") => (
-    <span className={`srt ${extra} ${sort.key === key ? "on" : ""}`}
-      onClick={() => setSort((s) => ({ key, dir: s.key === key ? (s.dir === 1 ? -1 : 1) : -1 }))}>
-      {label}{sort.key === key && <span className="caret">{sort.dir === 1 ? "▲" : "▼"}</span>}
-    </span>
+  /** A clickable column header — the same `HEAD_CELL` label styling, plus a
+   *  sort toggle. Lost its markup in the Tailwind pass (the underlying sort
+   *  in `view` below was never touched, so data was still being sorted with
+   *  no way left to change it — this restores the control, not the logic). */
+  const th = (key: SortKey, label: string, className = "") => (
+    <button
+      type="button"
+      onClick={() => setSort((s) => ({ key, dir: s.key === key ? (s.dir === 1 ? -1 : 1) : -1 }))}
+      className={`flex cursor-pointer items-center gap-1 ${className} ${HEAD_CELL} ${
+        sort.key === key ? "text-dark-ink/80" : "hover:text-dark-ink/65"
+      }`}
+    >
+      {label}
+      {sort.key === key && <span aria-hidden="true">{sort.dir === 1 ? "▲" : "▼"}</span>}
+    </button>
   );
 
   const openRow = open ? rows.find((r) => keyOf(r) === open) ?? null : null;
@@ -442,59 +497,100 @@ export default function Page() {
 
   /* ------------------------------------------------------------- render */
 
-  return (
-    <div className="page app-workspace">
-      <div className="glow" />
+  /* One grid definition for the header and every row, so they cannot desync.
+     The old table used a fixed 258px template inside a 246px container at
+     320px, which collapsed the keyword column to zero and grew a scrollbar;
+     store, apps and added now drop out below their breakpoints instead.
+     Keyword stays `minmax(0,1fr)` — a bounded `65ch` cap was tried and it
+     was wrong: a grid container's own tracks don't stretch to fill leftover
+     width on their own, so capping the one flexible track left the whole row
+     narrower than the panel, and delete/the chevron ended up stranded with
+     dead space past them instead of sitting at the panel's actual edge. 1fr
+     is what makes the row's last column reach the true right edge.
+     Pop/Diff/Apps/Added were 6rem/6rem/3rem/3rem, then 4.5rem/4.5rem/3rem/
+     3.25rem — every attempt at fixing the uneven gap between them by
+     changing alignment (left vs right) failed for the same reason: with
+     unequal column widths, no single alignment can make the visual gap
+     between two labels equal, because each grid item stretches to fill its
+     whole column by default (`getBoundingClientRect` on the label was
+     measuring that stretched box, not the glyphs — which is why an earlier
+     "16px/16px/16px, all equal" measurement here was simply wrong). The
+     leftover space inside a column always shows up on one side of the label
+     or the other; it does not vanish. The only fix that actually holds is
+     equal-width columns: all four are the same width below, all four labels
+     left-aligned, so the leftover space inside each is the same and the
+     small remaining difference is just the label text itself (a few px, not
+     tens of px). The meter's own track absorbs whatever room that leaves it.
+     Delete and the chevron used to share one grid cell with their own
+     tight `gap-1` between them, which is exactly what broke the rule: every
+     other pair of items follows the row's `gap-4` and this one pair followed
+     a different, smaller number a few pixels away. They're separate columns
+     now, sized the same as everything else, so there is one spacing rule for
+     the whole row rather than one rule for the data and another for the
+     trailing icons. 5.5rem rather than 4rem: the meter's track was reading
+     as a sliver too short to show a 0-100 scale meaningfully. Widening all
+     six equally (not just Pop/Diff) keeps the one-rule-for-everything
+     property intact instead of reopening the mismatch this whole comment is
+     about. */
+  const ROW =
+    "grid min-w-0 items-center gap-4 " +
+    "[grid-template-columns:1.25rem_minmax(0,1fr)_4.5rem_4.5rem_1.75rem] " +
+    "sm:[grid-template-columns:1.25rem_minmax(0,1fr)_5.5rem_5.5rem_5.5rem_5.5rem_5.5rem_5.5rem]";
+  const ROW_ALL =
+    "grid min-w-0 items-center gap-4 " +
+    "[grid-template-columns:1.25rem_2.5rem_minmax(0,1fr)_4.5rem_4.5rem_1.75rem] " +
+    "sm:[grid-template-columns:1.25rem_3rem_minmax(0,1fr)_5.5rem_5.5rem_5.5rem_5.5rem_5.5rem_5.5rem]";
 
-      <header className="top">
-        <Link className="mark" href="/" aria-label="ASOGrade home">
-          <img src="/mark.png" alt="" width={26} height={26} />
-          <span>ASO<b>Grade</b></span>
-        </Link>
-        <span className="workspace-label">Keyword workspace</span>
-        <span className="sp" />
+  const HEAD_CELL = "text-2xs font-bold uppercase tracking-[0.06em] text-dark-ink/45";
+
+  return (
+    <div className="flex min-h-screen min-w-0 flex-col">
+      {/* No pill/card chrome here — the workspace isn't a marketing page, so
+          it just gets the two things it needs: the way back to the site,
+          and the account menu. Edge to edge like the landing header, not
+          centred in a max-width column — brand at the actual left edge,
+          account chip at the actual right edge. */}
+      <header className="flex w-full min-w-0 items-center justify-between gap-3 px-4 py-5 sm:px-6">
+        <BrandMark size="sm" />
         <AccountChip onSignIn={() => router.push("/")} />
       </header>
 
-      {locked ? (
-        <section className="lock standalone" aria-live="polite">
-          <div className="lock-copy">
-            <span className="lock-kicker">Subscription needed</span>
-            <h2>Your scoring is switched off.</h2>
-            <p>
-              Your keyword lists are safe exactly as you left them. Turn a plan back on and
-              everything here starts working again immediately.
-            </p>
-            <div className="lock-facts">
-              <span><b>109</b> storefronts</span>
-              <span><b>100</b> keywords per check</span>
-              <span><b>50</b> ranked apps per keyword</span>
-            </div>
-          </div>
-          <div className="lock-act">
-            <a className="btn primary big" href="/start">See the plans</a>
-            <a className="lock-alt" href="/billing">Check billing</a>
-          </div>
-        </section>
-      ) : (
-      <>
-      <section className="hero">
-        <div className="hero-text">
-          <span className="eyebrow">Apple Search Ads data</span>
-          <h1>Build the keyword set you can actually rank for.</h1>
-          <p>Paste messy ideas, score them by storefront, and keep the terms with demand and a realistic path into the ranking set.</p>
+      <main className="mx-auto mt-8 w-[min(100%-1.5rem,72rem)] min-w-0 flex-1">
+        <div className="min-w-0">
+          <Kicker>Apple Search Ads data</Kicker>
+          <h1 className="mt-3 max-w-[22ch] font-display text-2xl font-extrabold leading-tight tracking-tight text-ink sm:text-3xl">
+            Build the keyword set you can actually rank for.
+          </h1>
+          <p className="mt-3 max-w-[62ch] text-md leading-relaxed text-muted">
+            Paste messy ideas, score them by storefront, and keep the terms with demand and
+            a realistic path into the ranking set.
+          </p>
         </div>
 
-        <div className="command-card">
-          <div className="bar" onClick={() => field.current?.focus()}>
-            <span className="lead"><Search size={17} /></span>
+        {/* ------------------------------------------------------- composer */}
+        <Card tone="dark" pad="sm" className="mt-8">
+          <div
+            className="flex min-w-0 flex-wrap items-center gap-2 rounded-lg bg-white/6 p-2 sm:flex-nowrap"
+            onClick={() => field.current?.focus()}
+          >
+            <span className="shrink-0 pl-1 text-dark-ink/50"><Search size={17} /></span>
 
-            <div className="field">
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
               {chips.map((c) => (
-                <span className="chip" key={c}>
-                  {c}
-                  <button aria-label={`Remove ${c}`}
-                    onClick={(e) => { e.stopPropagation(); setChips((cur) => cur.filter((k) => k !== c)); }}>
+                /* A chip paints a background, so it can never be given a width
+                   it cannot fill — it truncates instead, which clips the text
+                   rather than letting it run outside the pill. */
+                <span
+                  key={c}
+                  className="flex min-w-0 max-w-full items-center gap-1 rounded-full bg-white/12 py-1 pl-3 pr-1 text-xs text-dark-ink"
+                >
+                  <span className="min-w-0 truncate">{c}</span>
+                  <button
+                    type="button"
+                    aria-label={`Remove ${c}`}
+                    className="grid size-4 shrink-0 cursor-pointer place-items-center rounded-full text-dark-ink/60 hover:bg-white/15 hover:text-dark-ink"
+                    onClick={(e) => { e.stopPropagation(); setChips((cur) => cur.filter((k) => k !== c)); }}
+                  >
                     <Close size={11} />
                   </button>
                 </span>
@@ -509,344 +605,534 @@ export default function Page() {
                   const t = e.clipboardData.getData("text");
                   if (/[\n,]/.test(t)) { e.preventDefault(); addChips(t); }
                 }}
+                className="min-w-0 flex-1 basis-20 bg-transparent py-1.5 text-base text-dark-ink outline-none placeholder:text-dark-ink/35"
               />
             </div>
 
-            <button className="go" onClick={(e) => { e.stopPropagation(); check(); }}
-              disabled={!staged || !!busy || showStore}>
+            <Button
+              size="md"
+              className="w-full shrink-0 sm:w-auto"
+              onClick={() => check()}
+              disabled={!staged || !!busy || showStore}
+            >
               {busy === "Checking" ? "Checking..." : staged ? `Check ${staged}` : "Check"}
-            </button>
+            </Button>
           </div>
 
-          <p className="under">
+          <p className="mt-2.5 px-1 text-xs leading-relaxed text-dark-ink/50">
             {showStore
               ? <>Viewing every store at once. Pick one country to add keywords.</>
               : staged
-                ? <>Press <kbd>Enter</kbd> again to run. <kbd>Backspace</kbd> removes the last one.</>
-                : <>Type a keyword and press <kbd>Enter</kbd>. Pasting a list works too.</>}
+                ? <>Press <Kbd>Enter</Kbd> again to run. <Kbd>Backspace</Kbd> removes the last one.</>
+                : <>Type a keyword and press <Kbd>Enter</Kbd>. Pasting a list works too.</>}
           </p>
-        </div>
+        </Card>
 
-      </section>
+        {error && <Notice tone="error" className="mt-4">{error}</Notice>}
 
+        {scoring > 0 && (
+          <Notice tone="working" className="mt-4">
+            Scoring {scoring} new keyword{scoring === 1 ? "" : "s"} — the dashes fill in shortly.
+          </Notice>
+        )}
 
-      {error && <div className="error">{error}</div>}
+        {offline && (
+          <Notice className="mt-4">
+            <b className="font-semibold text-ink">Fresh checks are paused.</b> Everything
+            already looked up still works
+            {pending.length
+              ? `, and ${pending.length} new keyword${pending.length === 1 ? "" : "s"} will be scored automatically once checks resume.`
+              : ", and new keywords will be scored automatically once checks resume."}
+          </Notice>
+        )}
 
-      {scoring > 0 && (
-        <div className="notice working">
-          Scoring {scoring} new keyword{scoring === 1 ? "" : "s"} — the dashes fill in shortly.
-        </div>
-      )}
-
-      {offline && (
-        <div className="notice">
-          <b>Fresh checks are paused.</b> Everything already looked up still works
-          {pending.length
-            ? `, and ${pending.length} new keyword${pending.length === 1 ? "" : "s"} will be scored automatically once checks resume.`
-            : ", and new keywords will be scored automatically once checks resume."}
-          <button className="x" onClick={() => { setOffline(false); setPending([]); }} aria-label="Dismiss">
-            <Close size={13} />
-          </button>
-        </div>
-      )}
-
-      <section className="panel">
-        <div className="head">
-          <div className="panel-titlegroup">
-            <span className="title">
-              {rows.length
+        {/* ---------------------------------------------------------- table */}
+        <Card tone="dark" pad="none" className="mt-6 overflow-hidden">
+          {/* Title and controls are two separate rows rather than one flex-wrap
+              row. A `flex-1 min-w-0` title next to shrink-0 controls never
+              actually wraps — flex-wrap only breaks a line when items can't be
+              compressed to fit, and a min-w-0 flex child can always compress to
+              zero, so the title silently shrank to a sliver behind the store
+              picker instead of dropping to its own line. */}
+          {/* The one coral surface in the workspace — everything else here is
+              the dark material. This is the panel's own identity bar, the
+              same accent gradient the landing page's primary button and CTA
+              band use, so the results table reads as this product's rather
+              than a generic dark dashboard. `stack="lg"`: side-by-side above
+              that breakpoint, title above controls below it — a `flex-1`
+              title block sharing a row with these fixed-width controls has
+              no forced wrap otherwise, which is the squish this fixes. */}
+          <CoralHeader
+            bleed={false}
+            stack="lg"
+            title={
+              rows.length
                 ? showStore
                   ? `${rows.length} across ${new Set(rows.map((r) => r.store)).size} stores`
                   : `${rows.length} keywords`
-                : "Results"}
-            </span>
-            <span className="subtitle">{showStore ? "Comparing every saved storefront" : `Researching ${storeName(store)}`}</span>
-          </div>
-          <span className="sp" />
-          <StorePicker value={store} onChange={setStore} />
-          <div className="search spyfield">
-            <Eye size={14} />
-            <input value={spyQuery} placeholder="Spy on a competitor — paste their App Store link"
-              autoCapitalize="off" autoCorrect="off" spellCheck={false} autoComplete="off"
-              onChange={(e) => setSpyQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && spyQuery.trim()) spyOn({ query: spyQuery.trim() });
-              }} />
-          </div>
+                : "Results"
+            }
+            subtitle={showStore ? "Comparing every saved storefront" : `Researching ${storeName(store)}`}
+            right={
+              <div className="flex min-w-0 flex-wrap items-center gap-2">
+                <StorePicker value={store} onChange={setStore} onDark={false} />
 
-          <div className="search">
-            <Search size={14} />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filter" />
-          </div>
-          <button className="btn icon" title="Recheck all"
-            onClick={recheck} disabled={!!busy || !rows.length}>
-            <Refresh />
-          </button>
-        </div>
+                <label className="flex min-w-0 flex-1 basis-full items-center gap-2 rounded-full bg-white px-3 py-2 text-accent-2/70 lg:basis-auto">
+                  <Eye size={14} />
+                  <input
+                    value={spyQuery}
+                    placeholder="Spy on a competitor — paste their link"
+                    autoCapitalize="off" autoCorrect="off" spellCheck={false} autoComplete="off"
+                    onChange={(e) => setSpyQuery(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter" && spyQuery.trim()) spyOn({ query: spyQuery.trim() }); }}
+                    className="min-w-0 flex-1 bg-transparent text-sm text-accent-2 outline-none placeholder:text-accent-2/60"
+                  />
+                </label>
 
-        <div className="bar-load" data-on={busy || loadingRows || scoring ? 1 : 0}><i /></div>
+                <label className="flex min-w-0 items-center gap-2 rounded-full bg-white px-3 py-2 text-accent-2/70">
+                  <Search size={14} />
+                  <input
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                    placeholder="Filter"
+                    className="w-20 min-w-0 bg-transparent text-sm text-accent-2 outline-none placeholder:text-accent-2/60"
+                  />
+                </label>
 
-        {!rows.length && !loadingRows ? (
-          <div className="center">
-            <div className="ghosts">{[68, 44, 82].map((w, i) => <span key={i} style={{ width: `${w}%` }} />)}</div>
-            <h3>{showStore ? "No keywords in any store yet" : `Nothing checked in ${storeName(store)} yet`}</h3>
-            <p>Add a keyword above and it lands here with its pop and diff.</p>
-          </div>
-        ) : (
-          <>
-            <div className="cols" data-all={showStore ? 1 : 0}>
-              <span className="pickcol" onClick={toggleAll} title="Select all">
-                <Check state={allOn ? "on" : someOn ? "some" : "off"} />
-              </span>
-              {showStore && th("store", "Store")}
-              {th("keyword", "Keyword")}
-              {th("popularity", "Pop")}
-              {th("difficulty", "Diff")}
-              <span className="apps">Apps</span>
-              {th("addedAt", "Added", "added")}
-              <span />
-              <span />
+                <Button variant="inverse" iconOnly size="sm" title="Recheck all" aria-label="Recheck all"
+                  className="shrink-0"
+                  onClick={recheck} disabled={!!busy || !rows.length}>
+                  <Refresh />
+                </Button>
+              </div>
+            }
+          />
+
+          {!rows.length && !loadingRows ? (
+            <div className="px-6 py-16 text-center">
+              <h3 className="font-display text-lg font-bold text-dark-ink">
+                {showStore ? "No keywords in any store yet" : `Nothing checked in ${storeName(store)} yet`}
+              </h3>
+              <p className="mt-2 text-sm text-dark-ink/55">
+                Add a keyword above and it lands here with its pop and diff.
+              </p>
             </div>
+          ) : (
+            <>
+              <div className={`${showStore ? ROW_ALL : ROW} border-b border-white/10 px-3 py-2.5`}>
+                <span className="cursor-pointer" onClick={toggleAll} title="Select all">
+                  <Check state={allOn ? "on" : someOn ? "some" : "off"} />
+                </span>
+                {showStore && th("store", "Store")}
+                {th("keyword", "Keyword")}
+                {th("popularity", "Pop")}
+                {th("difficulty", "Diff")}
+                <span className={`hidden sm:block ${HEAD_CELL}`}>Apps</span>
+                {/* `hidden` + `sm:contents` on the wrapper, not the button itself: a
+                    bare `flex`/`hidden` pair on one element both set `display` at
+                    the same specificity, and which one wins depends on Tailwind's
+                    internal class order, not the order they're written here — the
+                    exact bug class that broke the Card and Button colour variants
+                    earlier. The wrapper hides or disappears from layout; the button
+                    inside keeps its own `flex` untouched either way. */}
+                <span className="hidden sm:contents">{th("addedAt", "Added")}</span>
+                {/* Two placeholder cells, matching the two separate icon
+                    columns in the data rows below — see the ROW comment. */}
+                <span className="hidden sm:block" />
+                <span />
+              </div>
 
-            <div className="list" data-picking={picked.size ? 1 : 0}>
-              {view.map((r, i) => {
-                const rowKey = keyOf(r);
-                const isOpen = open === rowKey;
-                const on = picked.has(rowKey);
-                const comps = icons[rowKey];
-                return (
-                  <div key={rowKey}>
-                    <div className="krow" role="button" tabIndex={0} data-all={showStore ? 1 : 0}
-                      data-open={isOpen ? 1 : 0} data-picked={on ? 1 : 0}
+              <div className="min-w-0 p-1.5">
+                {view.map((r, i) => {
+                  const rowKey = keyOf(r);
+                  const isOpen = open === rowKey;
+                  const on = picked.has(rowKey);
+                  return (
+                    <div
+                      key={rowKey}
+                      role="button"
+                      tabIndex={0}
                       style={{ animationDelay: `${Math.min(i * 26, 340)}ms` }}
                       onClick={() => setOpen(isOpen ? null : rowKey)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(isOpen ? null : rowKey); }
-                      }}>
-                      <span className="pickcol"
-                        onClick={(e) => { e.stopPropagation(); toggle(rowKey, i, e.shiftKey); }}>
+                      }}
+                      className={`${showStore ? ROW_ALL : ROW} animate-fade cursor-pointer rounded-md px-2 py-2.5 transition-colors duration-150 ${
+                        on ? "bg-white/12" : "hover:bg-white/6"
+                      }`}
+                    >
+                      <span
+                        className="cursor-pointer"
+                        onClick={(e) => { e.stopPropagation(); toggle(rowKey, i, e.shiftKey); }}
+                      >
                         <Check state={on ? "on" : "off"} />
                       </span>
 
                       {showStore && (
-                        <span className="stcell" title={storeName(r.store)}>
-                          <span className="fl">{flagOf(r.store)}</span>
-                          <span className="cc">{r.store.toUpperCase()}</span>
+                        <span className="flex min-w-0 items-center gap-1" title={storeName(r.store)}>
+                          <span aria-hidden="true">{flagOf(r.store)}</span>
+                          <span className="hidden font-mono text-2xs text-dark-ink/55 sm:inline">
+                            {r.store.toUpperCase()}
+                          </span>
                         </span>
                       )}
 
-                      <span className="kw">
-                        <b title={r.keyword}>{r.keyword}</b>
+                      <span className="min-w-0 truncate text-sm text-dark-ink" title={r.keyword}>
+                        {r.keyword}
                       </span>
-                      <Meter value={r.popularity} band={popBand(r.popularity)} />
-                      <Meter value={r.difficulty} band={diffBand(r.difficulty)} />
-                      <span className="apps tnum">{r.appsCount ?? "—"}</span>
-                      <span className="added" title={r.addedAt ?? ""}>{shortAgo(r.addedAt)}</span>
+                      <Meter value={r.popularity} band={popBand(r.popularity)} onDark />
+                      <Meter value={r.difficulty} band={diffBand(r.difficulty)} onDark />
+                      <span className="hidden font-mono text-2xs tabular-nums text-dark-ink/60 sm:block">
+                        {r.appsCount ?? "—"}
+                      </span>
+                      <span className="hidden font-mono text-2xs tabular-nums text-dark-ink/60 sm:block"
+                        title={r.addedAt ?? ""}>
+                        {shortAgo(r.addedAt)}
+                      </span>
 
-                      <button className="kill" disabled={!!busy}
+                      {/* Delete and the chevron are separate grid cells, same
+                          as Pop/Diff/Apps/Added — the same rule applied to
+                          every item is what makes the row read as one system
+                          instead of the data columns following one spacing
+                          rule and the trailing icons following another.
+                          `variant="dangerGhost"` — no permanent chip, unlike
+                          the modal headers' `onColor` close/delete: one row
+                          among many is not a lone control on a coral bar,
+                          and a box per row read as noise. */}
+                      <Button
+                        variant="dangerGhost" iconOnly size="sm"
+                        disabled={!!busy}
                         title={`Delete “${r.keyword}” from ${storeName(r.store)}`}
-                        onClick={(e) => { e.stopPropagation(); removeKeywords([r]); }}>
+                        aria-label={`Delete ${r.keyword} from ${storeName(r.store)}`}
+                        onClick={(e) => { e.stopPropagation(); removeKeywords([r]); }}
+                        className="hidden sm:flex"
+                      >
                         <Trash size={14} />
-                      </button>
+                      </Button>
 
-                      <span className="chev">
-                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-                          <path d="M3 4.5 6 7.5 9 4.5" stroke="currentColor" strokeWidth="1.6"
-                            strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
+                      <span className={`shrink-0 text-dark-ink/40 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}>
+                        <Chevron size={11} />
                       </span>
                     </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </Card>
 
-                  </div>
-                );
-              })}
-            </div>
-          </>
-        )}
-      </section>
+        <footer className="mt-4 flex min-w-0 flex-wrap gap-x-6 gap-y-1 text-xs text-faint">
+          <span><b className="font-semibold text-ink-2">Pop</b> how much a keyword is searched · aim above 25</span>
+          <span><b className="font-semibold text-ink-2">Diff</b> how hard it is to index for · aim below 65</span>
+        </footer>
+      </main>
 
-      <footer className="legend">
-        <span><b>Pop</b> how much a keyword is searched in the App Store · aim above 25</span>
-        <span><b>Diff</b> how difficult it is to index for a keyword · aim below 65</span>
-      </footer>
-
-
+      {/* ------------------------------------------------------ keyword sheet */}
       {openRow && (
-        <div className="scrim" onClick={() => setOpen(null)}>
-          <div className="ksheet" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
-            <header>
-              <div className="who">
-                <h2>{openRow.keyword}</h2>
-              </div>
-                <button className="shut delete" disabled={!!busy}
-                  onClick={() => removeKeywords([openRow])} aria-label={`Delete ${openRow.keyword}`}
-                  title={`Delete ${openRow.keyword}`}>
+        <Modal onClose={() => setOpen(null)} title={openRow.keyword} size="lg" hideClose>
+          <CoralHeader
+            title={openRow.keyword}
+            right={
+              <span className="flex shrink-0 items-center gap-1">
+                <Button
+                  variant="onColor" iconOnly size="sm"
+                  disabled={!!busy}
+                  onClick={() => removeKeywords([openRow])}
+                  aria-label={`Delete ${openRow.keyword}`}
+                  title={`Delete ${openRow.keyword}`}
+                >
                   <Trash size={15} />
-                </button>
-              <button className="shut" onClick={() => setOpen(null)} aria-label="Close">
-                <Close size={15} />
-              </button>
-            </header>
+                </Button>
+                <Button variant="onColor" iconOnly size="sm" onClick={() => setOpen(null)} aria-label="Close">
+                  <Close size={15} />
+                </Button>
+              </span>
+            }
+          />
 
-            <div className="scores">
-              <span className="score">
-                <span className="sk">Pop</span>
-                <Meter value={openRow.popularity} band={popBand(openRow.popularity)} />
+          <div className="min-w-0 rounded-md border border-line bg-sunken px-[18px] py-3.5">
+            <div className="flex min-w-0 flex-wrap items-center gap-x-6 gap-y-2">
+              <span className="flex min-w-0 items-center gap-2">
+                <span className="text-2xs font-bold uppercase tracking-[0.06em] text-faint">Pop</span>
+                <span className="w-24"><Meter value={openRow.popularity} band={popBand(openRow.popularity)} /></span>
               </span>
-              <span className="score">
-                <span className="sk">Diff</span>
-                <Meter value={openRow.difficulty} band={diffBand(openRow.difficulty)} />
+              <span className="flex min-w-0 items-center gap-2">
+                <span className="text-2xs font-bold uppercase tracking-[0.06em] text-faint">Diff</span>
+                <span className="w-24"><Meter value={openRow.difficulty} band={diffBand(openRow.difficulty)} /></span>
               </span>
-              <span className="score narrow">
-                <span className="sk">Apps</span>
-                <b className="tnum">{openRow.appsCount ?? "—"}</b>
-              </span>
-              <span className="where">
-                {flagOf(openRow.store)} {storeName(openRow.store)} · checked {timeAgo(openRow.lastUpdate)}
+              <span className="flex min-w-0 items-center gap-2">
+                <span className="text-2xs font-bold uppercase tracking-[0.06em] text-faint">Apps</span>
+                <b className="font-mono text-sm tabular-nums text-ink">{openRow.appsCount ?? "—"}</b>
               </span>
             </div>
-
-            <div className="board">
-              <div className="bhead">
-                <span>Who holds the top spots</span>
-                {openApps && <span className="tnum">{Math.min(shown, openApps.length)} of {openApps.length}</span>}
-              </div>
-
-              <div className="blist">
-                {openApps
-                  ? openApps.slice(0, shown).map((c, k) => (
-                      <div className="comp" key={c.appStoreId ?? k}>
-                        <span className="pos tnum">{k + 1}</span>
-                        <a className="face" href={storeUrl(c.appStoreId, openRow?.store ?? store)}
-                          target="_blank" rel="noreferrer" title="Open in the App Store">
-                          {c.iconUrl ? <img src={c.iconUrl} alt="" /> : <span className="ph" />}
-                          <span className="n">
-                            {c.name}
-                            {c.subtitle && <small>{c.subtitle}</small>}
-                          </span>
-                        </a>
-                        <span className="s tnum">
-                          {c.ratingCount
-                            ? `${(c.ratingCount / 1000).toFixed(c.ratingCount > 99999 ? 0 : 1)}K ★`
-                            : "—"}
-                        </span>
-                        <button className="eye" title="See this app's keywords"
-                          disabled={!!busy}
-                          onClick={() => spyOn({ appStoreId: c.appStoreId, app: c })}>
-                          <Eye size={15} />
-                        </button>
-                      </div>
-                    ))
-                  : <div className="skel">{Array.from({ length: 6 }, (_, k) => <span key={k} />)}</div>}
-                {openApps && !openApps.length && <p className="hint">Nothing came back for this one.</p>}
-              </div>
-
-              {openApps && shown < openApps.length && (
-                <button className="btn more" onClick={() => setShown(nextTier)}>
-                  Show more
-                </button>
-              )}
-              {openApps && openApps.length > 0 && shown >= openApps.length && (
-                <p className="hint deep">That is as deep as the store ranks this keyword.</p>
-              )}
+            <div className="mt-3 min-w-0 border-t border-line pt-3 text-xs text-faint">
+              {flagOf(openRow.store)} {storeName(openRow.store)} · checked {timeAgo(openRow.lastUpdate)}
             </div>
-
-
           </div>
-        </div>
-      )}
 
-      {spy && (
-        <div className="scrim" onClick={() => setSpy(null)}>
-          <div className="spy" onClick={(e) => e.stopPropagation()}>
-            <header>
-              {spy.app.iconUrl ? <img src={spy.app.iconUrl} alt="" /> : <span className="ph" />}
-              <span className="who">
-                <a href={storeUrl(spy.app.appStoreId, store)} target="_blank" rel="noreferrer">
-                  {spy.app.name ?? spy.app.appStoreId}
-                </a>
-                <small>{spy.app.subtitle ?? spy.app.developer ?? ""}</small>
-              </span>
-              <span className="cnt tnum">{spy.keywords.length} keywords</span>
-              <button className="btn icon" onClick={() => setSpy(null)}><Close /></button>
-            </header>
+          {/* overflow-hidden so CoralHeader's own rounded-t-card clips down
+              to this card's smaller rounded-md corners, rather than the two
+              radii fighting at the seam. */}
+          <div className="mt-6 min-w-0 overflow-hidden rounded-md border border-line bg-sunken">
+            <CoralHeader
+              bleed={false}
+              size="sm"
+              title="Who holds the top spots"
+              right={
+                openApps && (
+                  <span className="shrink-0 font-mono text-xs text-white/80">
+                    {Math.min(shown, openApps.length)} of {openApps.length}
+                  </span>
+                )
+              }
+            />
 
-            <div className="cols">
-              <span className="pickcol" title="Select all"
-                onClick={() => setSpyPicked((cur) =>
-                  cur.size === spy.keywords.length ? new Set() : new Set(spy.keywords.map((r) => r.keyword)))}>
-                <Check state={
-                  spyPicked.size === 0 ? "off"
-                    : spyPicked.size === spy.keywords.length ? "on" : "some"} />
-              </span>
-              <span>Keyword</span><span>Pop</span><span>Diff</span><span className="apps">Apps</span><span />
-            </div>
-
-            <div className="spylist">
-              {spy.keywords.map((r) => {
-                const held = rows.some((x) => x.keyword === r.keyword && x.store === store);
-                const on = spyPicked.has(r.keyword);
-                return (
-                  <div className="krow" key={r.keyword} data-picked={on ? 1 : 0}>
-                    <span className="pickcol"
-                      onClick={() => setSpyPicked((cur) => {
-                        const next = new Set(cur);
-                        next.has(r.keyword) ? next.delete(r.keyword) : next.add(r.keyword);
-                        return next;
-                      })}>
-                      <Check state={on ? "on" : "off"} />
-                    </span>
-                    <span className="kw">{r.keyword}</span>
-                    <Meter value={r.popularity} band={popBand(r.popularity)} />
-                    <Meter value={r.difficulty} band={diffBand(r.difficulty)} />
-                    <span className="apps tnum">{r.appsCount ?? "\u2014"}</span>
-                    <button className="add" disabled={held || !!busy}
-                      title={held ? "already in your list" : `Add \u201c${r.keyword}\u201d`}
-                      onClick={() => adopt([r.keyword])}>
-                      {held ? <Check state="on" /> : <Plus size={15} />}
-                    </button>
+            <div className="max-h-[22rem] min-w-0 overflow-y-auto p-1.5">
+              {openApps
+                ? openApps.slice(0, shown).map((c, k) => (
+                    <div key={c.appStoreId ?? k}
+                      className="grid min-w-0 items-center gap-2.5 rounded-sm px-2 py-2 [grid-template-columns:1.5rem_minmax(0,1fr)_auto_1.75rem] hover:bg-hover">
+                      <span className="font-mono text-2xs tabular-nums text-faint">{k + 1}</span>
+                      <a
+                        className="flex min-w-0 items-center gap-2.5 no-underline"
+                        href={storeUrl(c.appStoreId, openRow?.store ?? store)}
+                        target="_blank" rel="noreferrer" title="Open in the App Store"
+                      >
+                        {c.iconUrl
+                          ? <img src={c.iconUrl} alt="" className="size-8 shrink-0 rounded-md" />
+                          : <span className="size-8 shrink-0 rounded-md bg-line" />}
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm text-ink">{c.name}</span>
+                          {c.subtitle && (
+                            <small className="block truncate text-2xs text-faint">{c.subtitle}</small>
+                          )}
+                        </span>
+                      </a>
+                      <span className="shrink-0 font-mono text-2xs tabular-nums text-faint">
+                        {c.ratingCount
+                          ? `${(c.ratingCount / 1000).toFixed(c.ratingCount > 99999 ? 0 : 1)}K ★`
+                          : "—"}
+                      </span>
+                      <button
+                        type="button"
+                        title="See this app's keywords"
+                        disabled={!!busy}
+                        onClick={() => spyOn({ appStoreId: c.appStoreId, app: c })}
+                        className="shrink-0 cursor-pointer rounded-full p-1.5 text-faint transition-colors hover:bg-tint hover:text-accent disabled:opacity-40"
+                      >
+                        <Eye size={15} />
+                      </button>
+                    </div>
+                  ))
+                : (
+                  <div className="space-y-2 p-2">
+                    {Array.from({ length: 6 }, (_, k) => (
+                      <span key={k} className="block h-9 animate-pulse rounded-md bg-line/50" />
+                    ))}
                   </div>
-                );
-              })}
-              {!spy.keywords.length && <p className="hint">Nothing came back for this app.</p>}
+                )}
+              {openApps && !openApps.length && (
+                <p className="px-3 py-6 text-center text-sm text-faint">Nothing came back for this one.</p>
+              )}
             </div>
 
-            {spyPicked.size > 0 && (
-              <footer className="spybar">
-                <span className="cnt tnum">{spyPicked.size} selected</span>
-                <button className="ghost" onClick={() => setSpyPicked(new Set())}>Clear</button>
-                <span className="sp" />
-                <button className="btn primary" disabled={!!busy}
-                  onClick={() => adopt([...spyPicked].filter((k) =>
-                    !rows.some((x) => x.keyword === k && x.store === store)))}>
-                  <Plus size={14} /> Add {spyPicked.size}
-                </button>
-              </footer>
+            {openApps && shown < openApps.length && (
+              <div className="border-t border-line p-2">
+                <Button variant="ghost" size="sm" block onClick={() => setShown(nextTier)}>
+                  Show more
+                </Button>
+              </div>
+            )}
+            {openApps && openApps.length > 0 && shown >= openApps.length && (
+              <p className="border-t border-line px-4 py-3 text-center text-xs text-faint">
+                That is as deep as the store ranks this keyword.
+              </p>
             )}
           </div>
-        </div>
+        </Modal>
       )}
 
-      </>
+      {/* -------------------------------------------------------- spy panel */}
+      {spy && (
+        <Modal onClose={() => setSpy(null)} title={spy.app.name ?? "Competitor keywords"} size="lg" hideClose>
+          <CoralHeader
+            icon={
+              spy.app.iconUrl
+                ? <img src={spy.app.iconUrl} alt="" className="size-10 shrink-0 rounded-lg" />
+                : <span className="size-10 shrink-0 rounded-lg bg-white/20" />
+            }
+            title={
+              <a
+                href={storeUrl(spy.app.appStoreId, store)}
+                target="_blank" rel="noreferrer"
+                className="no-underline hover:underline"
+              >
+                {spy.app.name ?? spy.app.appStoreId}
+              </a>
+            }
+            subtitle={spy.app.subtitle ?? spy.app.developer ?? ""}
+            right={
+              <span className="flex shrink-0 items-center gap-3">
+                <span className="font-mono text-xs text-white/80">{spy.keywords.length} keywords</span>
+                <Button variant="onColor" iconOnly size="sm" onClick={() => setSpy(null)} aria-label="Close">
+                  <Close size={15} />
+                </Button>
+              </span>
+            }
+          />
+
+          {/* Same responsive template as the main table. This one had a fixed
+              430px grid with no override at all, so at 375px the header row
+              and the keyword rows drifted 110px out of alignment. */}
+          <div className="mt-5 grid min-w-0 items-center gap-3 border-b border-line pb-2 [grid-template-columns:1.25rem_minmax(0,1fr)_4.5rem_4.5rem_1.75rem] sm:[grid-template-columns:1.25rem_minmax(0,1fr)_6rem_6rem_3rem_1.75rem]">
+            <span
+              className="cursor-pointer"
+              title="Select all"
+              onClick={() => setSpyPicked((cur) =>
+                cur.size === spy.keywords.length ? new Set() : new Set(spy.keywords.map((r) => r.keyword)))}
+            >
+              <Check state={spyPicked.size === 0 ? "off" : spyPicked.size === spy.keywords.length ? "on" : "some"} />
+            </span>
+            <span className="text-2xs font-bold uppercase tracking-[0.06em] text-faint">Keyword</span>
+            <span className="text-2xs font-bold uppercase tracking-[0.06em] text-faint">Pop</span>
+            <span className="text-2xs font-bold uppercase tracking-[0.06em] text-faint">Diff</span>
+            <span className="hidden text-right text-2xs font-bold uppercase tracking-[0.06em] text-faint sm:block">Apps</span>
+            <span />
+          </div>
+
+          <div className="max-h-[24rem] min-w-0 overflow-y-auto py-1">
+            {spy.keywords.map((r) => {
+              const held = rows.some((x) => x.keyword === r.keyword && x.store === store);
+              const on = spyPicked.has(r.keyword);
+              return (
+                <div
+                  key={r.keyword}
+                  className={`grid min-w-0 items-center gap-3 rounded-sm px-1 py-2 [grid-template-columns:1.25rem_minmax(0,1fr)_4.5rem_4.5rem_1.75rem] sm:[grid-template-columns:1.25rem_minmax(0,1fr)_6rem_6rem_3rem_1.75rem] ${
+                    on ? "bg-tint" : "hover:bg-hover"
+                  }`}
+                >
+                  <span
+                    className="cursor-pointer"
+                    onClick={() => setSpyPicked((cur) => {
+                      const next = new Set(cur);
+                      if (next.has(r.keyword)) next.delete(r.keyword); else next.add(r.keyword);
+                      return next;
+                    })}
+                  >
+                    <Check state={on ? "on" : "off"} />
+                  </span>
+                  <span className="min-w-0 truncate text-sm text-ink" title={r.keyword}>{r.keyword}</span>
+                  <Meter value={r.popularity} band={popBand(r.popularity)} />
+                  <Meter value={r.difficulty} band={diffBand(r.difficulty)} />
+                  <span className="hidden text-right font-mono text-2xs tabular-nums text-faint sm:block">
+                    {r.appsCount ?? "—"}
+                  </span>
+                  <Button
+                    variant="primary" iconOnly size="sm" className="shrink-0"
+                    disabled={held || !!busy}
+                    title={held ? "already in your list" : `Add “${r.keyword}”`}
+                    aria-label={held ? "Already in your list" : `Add ${r.keyword}`}
+                    onClick={() => adopt([r.keyword])}
+                  >
+                    {held ? <Check state="on" /> : <Plus size={15} />}
+                  </Button>
+                </div>
+              );
+            })}
+            {!spy.keywords.length && (
+              <p className="px-3 py-6 text-center text-sm text-faint">Nothing came back for this app.</p>
+            )}
+          </div>
+
+          {spyPicked.size > 0 && (
+            <div className="mt-3 flex min-w-0 flex-wrap items-center gap-3 border-t border-line pt-3">
+              <span className="font-mono text-xs text-muted">{spyPicked.size} selected</span>
+              <Button variant="ghost" size="sm" onClick={() => setSpyPicked(new Set())}>Clear</Button>
+              <Button
+                size="sm"
+                className="ml-auto"
+                disabled={!!busy}
+                onClick={() => adopt([...spyPicked].filter((k) =>
+                  !rows.some((x) => x.keyword === k && x.store === store)))}
+              >
+                <Plus size={14} /> Add {spyPicked.size}
+              </Button>
+            </div>
+          )}
+        </Modal>
       )}
 
+      {/* -------------------------------------------------- subscription gate */}
+      {gate && (
+        <Modal onClose={() => setGate(false)} title="Subscription needed">
+          <BrandMark size="sm" as="span" />
+          <p className="mt-5 font-display text-xl font-extrabold leading-tight text-ink">
+            Subscription needed
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-muted">
+            Scoring keywords needs an active plan. Your lists stay exactly as you left
+            them — turn a plan on and everything here starts working immediately.
+          </p>
+
+          <div className="mt-5 flex min-w-0 flex-wrap gap-x-5 gap-y-2 border-t border-line pt-4 text-sm text-muted">
+            <span><b className="font-display font-extrabold text-ink">109</b> storefronts</span>
+            <span><b className="font-display font-extrabold text-ink">100</b> keywords per check</span>
+            <span><b className="font-display font-extrabold text-ink">50</b> ranked apps</span>
+          </div>
+
+          <div className="mt-5 flex flex-col gap-2.5">
+            <Button href="/start" size="lg" block>See the plans</Button>
+            <Button href="/billing" variant="ghost" size="sm" block>Check billing</Button>
+          </div>
+
+          <p className="mt-4 text-center text-xs text-faint">$14.99/mo or $99/yr · cancel anytime</p>
+        </Modal>
+      )}
+
+      {/* ------------------------------------------------------ selection bar */}
       {picked.size > 0 && (
-        <div className="selbar">
-          <span className="cnt">{picked.size} selected</span>
-          <button className="ghost" onClick={toggleAll}>
-            {allOn ? "Deselect all" : `Select all ${visible.length}`}
-          </button>
-          <span className="div" />
-          <button className="wipe" disabled={!!busy}
-            onClick={() => removeKeywords(rows.filter((r) => picked.has(keyOf(r))))}>
-            <Trash size={13} /> {busy?.startsWith("Removing") ? "Deleting…" : `Delete ${picked.size}`}
-          </button>
-          <button className="x" title="Clear selection (Esc)"
-            onClick={() => { setPicked(new Set()); anchor.current = null; }}>
-            <Close size={13} />
-          </button>
+        <div className="fixed inset-x-0 bottom-4 z-40 flex justify-center px-3">
+          {/* Bounded by the viewport and allowed to wrap. It was `position:
+              fixed; left:50%` with three nowrap children and no max-width, so
+              below ~620px it ran off both edges at once. */}
+          <div className="flex min-w-0 max-w-full animate-rise flex-wrap items-center gap-x-3 gap-y-2 rounded-full border border-ink/20 bg-ink px-4 py-2.5 shadow-3">
+            <span className="shrink-0 text-sm font-semibold text-white">{picked.size} selected</span>
+            <button
+              type="button"
+              onClick={toggleAll}
+              className="hidden shrink-0 cursor-pointer text-sm text-white/70 hover:text-white sm:block"
+            >
+              {allOn ? "Deselect all" : `Select all ${visible.length}`}
+            </button>
+            <button
+              type="button"
+              disabled={!!busy}
+              onClick={() => removeKeywords(rows.filter((r) => picked.has(keyOf(r))))}
+              className="flex shrink-0 cursor-pointer items-center gap-1.5 text-sm font-semibold text-[#ff9b90] hover:text-red disabled:opacity-50"
+            >
+              <Trash size={13} /> {busy?.startsWith("Removing") ? "Deleting…" : `Delete ${picked.size}`}
+            </button>
+            <button
+              type="button"
+              title="Clear selection (Esc)"
+              aria-label="Clear selection"
+              onClick={() => { setPicked(new Set()); anchor.current = null; }}
+              className="shrink-0 cursor-pointer rounded-full p-1.5 text-white/50 hover:bg-white/10 hover:text-white"
+            >
+              <Close size={13} />
+            </button>
+          </div>
         </div>
       )}
     </div>
+  );
+}
+
+/** Inline key hint. */
+function Kbd({ children }: { children: React.ReactNode }) {
+  return (
+    <kbd className="rounded-sm border border-white/20 bg-white/10 px-1.5 py-0.5 font-sans text-2xs font-semibold text-dark-ink">
+      {children}
+    </kbd>
   );
 }

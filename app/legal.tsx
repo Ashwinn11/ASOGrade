@@ -1,42 +1,32 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
+import SiteHeader from "./ui/SiteHeader";
+import SiteFooter from "./ui/SiteFooter";
+import Button from "./ui/Button";
+import Prose from "./ui/Prose";
+import { Close } from "./components/icons";
 
-/** Shared shell for the privacy and terms pages: brand home, prose, footer. */
+/** Shared shell for the privacy and terms pages. */
 export default function Legal({ title, updated, children }:
   { title: string; updated: string; children: ReactNode }) {
   return (
-    <div className="page landing legal-page">
-      <div className="land-bg" aria-hidden="true" />
+    <div className="flex min-h-screen min-w-0 flex-col">
+      <SiteHeader
+        actions={
+          <Button variant="icon" iconOnly size="sm" href="/" aria-label="Close and return to ASOGrade">
+            <Close size={16} />
+          </Button>
+        }
+      />
 
-      <header className="landing-nav">
-        <Link className="brand-mark" href="/" aria-label="ASOGrade home">
-          <img src="/mark.png" alt="" width={26} height={26} />
-          <span>ASO<b>Grade</b></span>
-        </Link>
-        <span className="sp" />
-        <div className="nav-actions">
-          <Link className="btn primary" href="/">Back to ASOGrade</Link>
-        </div>
-      </header>
-
-      <main className="legal">
-        <h1>{title}</h1>
-        <p className="legal-updated">Last updated {updated}</p>
-        {children}
+      <main className="mx-auto mt-10 w-[min(100%-1.5rem,48rem)] min-w-0 flex-1">
+        <h1 className="font-display text-3xl font-extrabold leading-tight tracking-tight text-ink">
+          {title}
+        </h1>
+        <p className="mt-2 text-xs text-faint">Last updated {updated}</p>
+        <Prose className="mt-8">{children}</Prose>
       </main>
 
-      <footer className="foot">
-        <div className="foot-base only">
-          <Link className="brand-mark" href="/" aria-label="ASOGrade home">
-            <img src="/mark.png" alt="" width={22} height={22} />
-            <span>ASO<b>Grade</b></span>
-          </Link>
-          <Link href="/privacy">Privacy</Link>
-          <Link href="/terms">Terms</Link>
-          <a href="mailto:support@asograde.com">Support</a>
-          <span className="fine">Not affiliated with Apple. App Store is a trademark of Apple Inc.</span>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

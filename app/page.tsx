@@ -1,11 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUser } from "./components/useUser";
 import SignInModal from "./components/SignInModal";
 import { STORES } from "@/lib/types";
+import SiteHeader from "./ui/SiteHeader";
+import SiteFooter from "./ui/SiteFooter";
+import Button from "./ui/Button";
+import Card from "./ui/Card";
+import CoralHeader from "./ui/CoralHeader";
+import Table from "./ui/Table";
+import Faq from "./ui/Faq";
+import Notice from "./ui/Notice";
+import Meter, { popBand, diffBand } from "./ui/Meter";
+import { Kicker } from "./ui/Pill";
 
 const STOREFRONTS = [
   { code: "US", name: "United States", pop: 67, diff: 38 },
@@ -49,16 +58,6 @@ const span = (vals: number[]) => {
 const popAt  = span(OPPORTUNITIES.map((o) => o.pop));
 const diffAt = span(OPPORTUNITIES.map((o) => o.diff));
 
-/*
- * The pill is centred on its coordinate, so the usable range is inset by half
- * a pill on each side — otherwise the extreme points hang off the canvas and
- * collide with the axis labels in the corners.
- */
-const plot = (pop: number, diff: number) => ({
-  left: `${20 + (1 - diffAt(diff)) * 56}%`,   // lower difficulty sits right
-  top: `${24 + (1 - popAt(pop)) * 54}%`,      // higher popularity sits high
-});
-
 /* Taken from a real teardown of Finch in the US store, so the numbers on the
    landing page are the numbers the product actually returns. */
 const RIVAL = {
@@ -75,29 +74,6 @@ const RIVAL = {
   ],
 };
 
-const WORKFLOW = [
-  {
-    n: "01",
-    h: "Paste the messy list",
-    p: "Names, subtitles, competitor ideas, review language, and raw Search Ads terms can land in the same batch.",
-    chips: ["habit tracker", "sleep sounds", "gratitude journal"],
-    metric: "100 keyword ceiling",
-  },
-  {
-    n: "02",
-    h: "Move through markets",
-    p: "Run the same terms in your main storefront, then jump to secondary countries when a keyword looks blocked.",
-    chips: ["US", "GB", "BR", "JP"],
-    metric: `${STORES.length} storefronts`,
-  },
-  {
-    n: "03",
-    h: "Ship the reachable set",
-    p: "Keep the terms with demand and a realistic path into the ranking set. Leave the vanity keywords out.",
-    chips: ["shortlist", "test", "watch"],
-    metric: "metadata-ready",
-  },
-];
 
 const COMPARE = [
   { label: "First action", suite: "Add your app, verify it, configure storefronts, then research", ours: "Paste a keyword list and read the scores" },
@@ -156,15 +132,25 @@ const PROVENANCE = [
   },
 ];
 
-const popBand = (value: number) => (value >= 65 ? "hi" : value >= 25 ? "mid" : "lo");
-const diffBand = (value: number) => (value <= 35 ? "hi" : value <= 65 ? "mid" : "lo");
 
-function ScoreCell({ value, band }: { value: number; band: string }) {
+const NAV = [
+  { href: "#product", label: "Product" },
+  { href: "#spy", label: "Competitors" },
+  { href: "#data", label: "The data" },
+  { href: "#compare", label: "Compare" },
+  { href: "#faq", label: "FAQ" },
+];
+
+/* Section heading + supporting copy, used by every band on this page. */
+function SectionCopy({ kicker, title, children }: { kicker: string; title: string; children?: React.ReactNode }) {
   return (
-    <span className={`cell ${band}`}>
-      <span className="n">{value}</span>
-      <span className="track"><i style={{ width: `${value}%` }} /></span>
-    </span>
+    <div className="min-w-0 max-w-[46rem]">
+      <Kicker>{kicker}</Kicker>
+      <h2 className="mt-3 font-display text-2xl font-extrabold leading-tight tracking-tight text-ink sm:text-3xl">
+        {title}
+      </h2>
+      {children && <p className="mt-3 text-md leading-relaxed text-muted">{children}</p>}
+    </div>
   );
 }
 
@@ -172,24 +158,9 @@ export default function Landing() {
   const router = useRouter();
   const { user, ready } = useUser();
   const [signIn, setSignIn] = useState(false);
-
-  // one way in: signed in goes straight through, everyone else signs in first
-  // Signed out goes through sign-in first; /start picks up from there.
-  const enter = () => (user ? router.push("/app") : setSignIn(true));
-
-  /* Every primary button on the page is this one, so the ask never drifts. */
-  const Cta = ({ big = true, note = true }: { big?: boolean; note?: boolean }) => (
-    <span className="cta-group">
-      <button className={`btn primary${big ? " big" : ""}`} onClick={enter} disabled={!ready}>
-        {user ? "Open your workspace" : "Get started"}
-      </button>
-      {note && !user && (
-        <span className="cta-note">$14.99/mo or $99/yr · cancel anytime · nothing to install</span>
-      )}
-    </span>
-  );
   const [authError, setAuthError] = useState<string | null>(null);
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
+
+  const enter = () => (user ? router.push("/app") : setSignIn(true));
 
   useEffect(() => {
     const e = new URLSearchParams(window.location.search).get("authError");
@@ -199,335 +170,399 @@ export default function Landing() {
     }
   }, []);
 
+  /* Every primary button on the page is this one, so the ask never drifts.
+     The price note is a sibling in normal flow, not an absolutely-positioned
+     nowrap label — as an overlay it used to sit on top of the button beside it
+     and run off the card edge below ~400px. */
+  const Cta = ({ size = "lg", note = true }: { size?: "md" | "lg"; note?: boolean }) => (
+    <span className="flex min-w-0 flex-col items-start gap-2">
+      <Button size={size} onClick={enter} disabled={!ready}>
+        {user ? "Dashboard" : "Get started"}
+      </Button>
+      {note && !user && (
+        <span className="text-xs leading-relaxed text-faint">
+          $14.99/mo or $99/yr · cancel anytime · nothing to install
+        </span>
+      )}
+    </span>
+  );
+
   return (
-    <div className="land">
-      <a className="skip" href="#main">Skip to content</a>
-      <div className="land-bg" aria-hidden="true" />
+    <div className="min-w-0">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-surface focus:px-4 focus:py-2 focus:shadow-2"
+      >
+        Skip to content
+      </a>
 
-      <header className="landing-nav">
-        <Link className="brand-mark" href="/" aria-label="ASOGrade home">
-          <img src="/mark.png" alt="" width={26} height={26} />
-          <span>ASO<b>Grade</b></span>
-        </Link>
-        <nav className="nav-menu" aria-label="Primary">
-          <a href="#product">Product</a>
-          <a href="#spy">Competitors</a>
-          <a href="#data">The data</a>
-          <a href="#compare">Compare</a>
-          <a href="#faq">FAQ</a>
-        </nav>
-        <div className="nav-actions">
-          <Cta big={false} note={false} />
+      <SiteHeader links={NAV} actions={<Cta size="md" note={false} />} />
+
+      {authError && (
+        <div className="mx-auto mt-4 w-[min(100%-1.5rem,72rem)]">
+          <Notice tone="error">Sign-in failed: {authError}</Notice>
         </div>
-      </header>
+      )}
 
-      {authError && <div className="error wrapped">Sign-in failed: {authError}</div>}
-
-      <main id="main">
-        <section className="landing-hero" id="product">
-          <div className="hero-copy">
-            <span className="landing-eyebrow">Browser-first ASO research</span>
-            <h1>Rank for keywords people actually search.</h1>
-            <p className="hero-sub">
+      <main id="main" className="min-w-0">
+        {/* ------------------------------------------------------------ hero */}
+        <section
+          id="product"
+          className="mx-auto mt-12 scroll-mt-24 grid w-[min(100%-1.5rem,72rem)] min-w-0 items-center gap-10 lg:grid-cols-[1fr_1.05fr] lg:gap-14"
+        >
+          <div className="min-w-0">
+            <Kicker>Browser-first ASO research</Kicker>
+            <h1 className="mt-4 font-display text-3xl font-extrabold leading-[1.05] tracking-tight text-ink sm:text-4xl">
+              Rank for keywords people actually search.
+            </h1>
+            <p className="mt-5 max-w-[52ch] text-md leading-relaxed text-muted">
               Paste a hundred keyword ideas and get Apple Search Ads demand, ranking
               difficulty and how many apps you are up against — scored per storefront,
               in seconds. No install, no tracked app to set up first.
             </p>
-
-            <p className="hero-who">
-              For indie developers, small studios and the freelancers who do their
-              own keyword research.
+            <p className="mt-4 max-w-[46ch] text-sm leading-relaxed text-faint">
+              For indie developers, small studios and the freelancers who do their own
+              keyword research.
             </p>
 
-            <div className="hero-actions">
+            {/* Both actions share the row and wrap together; neither is forced
+                to a width its label cannot fill. */}
+            <div className="mt-8 flex min-w-0 flex-wrap items-start gap-3">
               <Cta />
-              <a className="btn secondary big" href="#data">How the scores work</a>
+              <Button variant="secondary" size="lg" href="#data" external>
+                How the scores work
+              </Button>
             </div>
 
-            <dl className="proof-list" aria-label="Product facts">
-              <div>
-                <dt>{((STORES.length * 100) / 1000).toFixed(1)}K</dt>
-                <dd>keyword &times; market scores per batch</dd>
-              </div>
-              <div>
-                <dt>{STORES.length}</dt>
-                <dd>App Store markets</dd>
-              </div>
-              <div>
-                <dt>50</dt>
-                <dd>ranked apps per keyword</dd>
-              </div>
+            <dl className="mt-10 grid min-w-0 gap-4 sm:grid-cols-3">
+              {[
+                [`${((STORES.length * 100) / 1000).toFixed(1)}K`, "keyword × market scores per batch"],
+                [String(STORES.length), "App Store markets"],
+                ["50", "ranked apps per keyword"],
+              ].map(([n, label]) => (
+                <div key={label} className="min-w-0">
+                  <dt className="font-display text-xl font-extrabold text-ink">{n}</dt>
+                  <dd className="mt-1 text-xs leading-relaxed text-faint">{label}</dd>
+                </div>
+              ))}
             </dl>
           </div>
 
-          <div className="product-shot" aria-label="ASOGrade keyword workspace preview">
-            {/* Two separate cards. The panel leads with its coral bar as a hard
-                top edge; the storefront strip sits below as its own row. */}
-            <div className="shot-panel">
-              <div className="shot-head">
-                <span className="shot-titlegroup">
-                  <b>{SAMPLE.length * 32} keywords</b>
-                  <em>Researching United States</em>
+          <ProductShot />
+        </section>
+
+        {/* ---------------------------------------------------- opportunity */}
+        <section className="mx-auto mt-24 grid w-[min(100%-1.5rem,72rem)] min-w-0 items-center gap-10 lg:grid-cols-[1.05fr_1fr]">
+          <OpportunityMap />
+          <SectionCopy kicker="Why it wins" title="Demand and difficulty in one row, so weak keywords are obvious.">
+            High popularity with low difficulty is the only quadrant worth your
+            characters. Both numbers sit on the same row, so the weak bets are obvious
+            without a spreadsheet.
+          </SectionCopy>
+        </section>
+
+        {/* --------------------------------------------------------- rivals */}
+        <section id="spy" className="mx-auto mt-24 scroll-mt-24 w-[min(100%-1.5rem,72rem)] min-w-0">
+          <SectionCopy kicker="Competitor teardown" title="Read the keyword set behind any app in the chart.">
+            Paste a competitor&apos;s App Store link and get the keywords they show up
+            for, each with its own popularity and difficulty. Take the ones worth having
+            straight into your list.
+          </SectionCopy>
+
+          <div className="mt-8 grid min-w-0 gap-5 lg:grid-cols-[1.1fr_1fr]">
+            <Card tone="dark" pad="none" className="min-w-0 overflow-hidden">
+              {/* The name/subtitle pair shares this row with a fixed icon and a
+                  fixed count. A `flex-1 min-w-0` text block next to shrink-0
+                  siblings has a minimum width of zero, so without a forced
+                  wrap it silently squeezes to a couple of pixels instead of
+                  ever dropping to its own line — the count gets `basis-full`
+                  so it wraps below once the name needs the room. */}
+              <div className="flex min-w-0 flex-wrap items-center gap-3 border-b border-white/10 p-4">
+                <img
+                  src={RIVAL.icon}
+                  alt=""
+                  width={40}
+                  height={40}
+                  loading="lazy"
+                  className="size-10 shrink-0 rounded-lg"
+                />
+                <span className="min-w-0 flex-1">
+                  <b className="block truncate text-base font-semibold text-dark-ink">{RIVAL.name}</b>
+                  <em className="block truncate text-xs not-italic text-dark-ink/60">{RIVAL.subtitle}</em>
                 </span>
-                <span className="shot-pill">🇺🇸 United States</span>
-                <span className="shot-pill wide">Spy on a competitor</span>
-                <span className="shot-pill narrow">Filter</span>
+                <span className="shrink-0 basis-full font-mono text-2xs text-dark-ink/60 sm:basis-auto">
+                  {RIVAL.total} keywords
+                </span>
               </div>
 
-              <div className="shot-cols">
-                <span className="shot-box" aria-hidden="true" />
-                <span>Keyword</span>
-                <span className="num">Pop</span>
-                <span className="num">Diff</span>
-                <span className="num">Apps</span>
-                <span className="num">Added</span>
-              </div>
-
-              <div className="shot-rows" role="table" aria-label="Sample keyword scores">
-                {SAMPLE.map((row, i) => (
-                  <div className="shot-row" role="row" key={row.kw}
-                    style={{ animationDelay: `${140 + i * 70}ms` }}>
-                    <span className="shot-box" aria-hidden="true" />
-                    <span className="shot-kw">{row.kw}</span>
-                    <ScoreCell value={row.pop} band={popBand(row.pop)} />
-                    <ScoreCell value={row.diff} band={diffBand(row.diff)} />
-                    <span className="num">{row.apps}</span>
-                    <span className="num">{row.added}</span>
+              <div className="min-w-0 p-2">
+                {RIVAL.keywords.map((r) => (
+                  <div
+                    key={r.kw}
+                    className="grid min-w-0 items-center gap-3 rounded-md px-2 py-2.5 [grid-template-columns:minmax(0,1fr)_5.5rem_5.5rem] sm:[grid-template-columns:minmax(0,1fr)_7rem_7rem]"
+                  >
+                    <span className="min-w-0 truncate text-sm text-dark-ink">{r.kw}</span>
+                    <Meter value={r.pop} band={popBand(r.pop)} onDark />
+                    <Meter value={r.diff} band={diffBand(r.diff)} onDark />
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
 
-            <div className="shot-markets" aria-label="Same keyword across storefronts">
-              {STOREFRONTS.map((store) => (
-                <div key={store.code}>
-                  <span>{store.code}</span>
-                  <b>{store.name}</b>
-                  <small>{store.pop} pop / {store.diff} diff</small>
-                </div>
+            <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              {[
+                ["No app required", "You do not have to publish, or even name, an app of your own to read someone else's."],
+                ["Straight from the rankings", "Open any keyword, then use the eye on a competing app to read its full set."],
+                ["Names and subtitles too", "Every app in a ranking list shows the 30 characters it chose to compete on."],
+              ].map(([h, p]) => (
+                <Card key={h} pad="sm">
+                  <b className="block text-base font-semibold text-ink">{h}</b>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted">{p}</p>
+                </Card>
               ))}
             </div>
           </div>
-
         </section>
 
-        <section className="section-shell feature-section">
-          <div className="advantage-board">
-            <div className="opportunity-map" aria-label="Keyword opportunity map">
-              <div className="map-top">
-                <span>Opportunity map</span>
-                <b>popularity x difficulty</b>
-              </div>
-              <div className="map-canvas">
-                <span className="map-axis demand">higher popularity</span>
-                <span className="map-axis reachable">lower difficulty</span>
-                {OPPORTUNITIES.map((item, i) => (
-                  <span
-                    className={`map-point ${item.tone}`}
-                    key={item.kw}
-                    style={{ ...plot(item.pop, item.diff), animationDelay: `${i * 80}ms` }}
-                  >
-                    <b>{item.kw}</b>
-                    <em>{item.pop}/{item.diff}</em>
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="section-copy compact board-copy">
-              <span className="section-kicker">Why it wins</span>
-              <h2>Demand and difficulty in one row, so weak keywords are obvious.</h2>
-              <p>
-                High popularity with low difficulty is the only quadrant worth your
-                characters. Both numbers sit on the same row, so the weak bets are
-                obvious without a spreadsheet.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section className="section-shell rival-section" id="spy">
-          <div className="section-copy compact">
-            <span className="section-kicker">Competitor teardown</span>
-            <h2>Read the keyword set behind any app in the chart.</h2>
-            <p>
-              Paste a competitor&apos;s App Store link and get the keywords they show up
-              for, each with its own popularity and difficulty. Take the ones worth
-              having straight into your list.
-            </p>
-          </div>
-
-          <div className="rival-board">
-            <div className="rival-panel" aria-label="Example competitor teardown">
-              <div className="rival-head">
-                <img className="rival-icon" src={RIVAL.icon} alt="" width={40} height={40} loading="lazy" />
-                <span className="rival-who">
-                  <b>{RIVAL.name}</b>
-                  <em>{RIVAL.subtitle}</em>
-                </span>
-                <span className="rival-count">{RIVAL.total} keywords</span>
-              </div>
-              <div className="rival-cols">
-                <span>Keyword</span><span>Pop</span><span>Diff</span><span />
-              </div>
-              {RIVAL.keywords.map((r) => (
-                <div className="rival-row" key={r.kw}>
-                  <span className="rival-kw">{r.kw}</span>
-                  <ScoreCell value={r.pop} band={popBand(r.pop)} />
-                  <ScoreCell value={r.diff} band={diffBand(r.diff)} />
-                  <span className="rival-add" aria-hidden="true">+</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="rival-notes">
-              <article>
-                <b>No app required</b>
-                <p>You do not have to publish, or even name, an app of your own to read someone else&apos;s.</p>
-              </article>
-              <article>
-                <b>Straight from the rankings</b>
-                <p>Open any keyword, then use the eye on a competing app to read its full set.</p>
-              </article>
-              <article>
-                <b>Names and subtitles too</b>
-                <p>Every app in a ranking list shows the 30 characters it chose to compete on.</p>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <section className="mid-cta" aria-label="Try it">
-          <div>
-            <b>Try it on a competitor right now.</b>
-            <span>Paste any App Store link and read their keyword set in about a second.</span>
+        {/* -------------------------------------------------------- mid CTA */}
+        <section className="mx-auto mt-20 flex w-[min(100%-1.5rem,72rem)] min-w-0 flex-wrap items-center justify-between gap-6 rounded-card border border-line bg-surface p-7">
+          <div className="min-w-0">
+            <b className="block font-display text-xl font-extrabold text-ink">
+              Try it on a competitor right now.
+            </b>
+            <span className="mt-1.5 block text-sm leading-relaxed text-muted">
+              Paste any App Store link and read their keyword set in about a second.
+            </span>
           </div>
           <Cta note={false} />
         </section>
 
-        <section className="section-shell compare-section" id="compare">
-          <div className="section-copy compact">
-            <span className="section-kicker">Positioning</span>
-            <h2>What this does, and what it deliberately does not.</h2>
-          </div>
-
-          <div className="compare-table" role="table" aria-label="ASOGrade positioning against full ASO suites">
-            <div className="compare-head" role="row">
-              <span>Decision point</span>
-              <span>Full ASO suites</span>
-              <span>ASOGrade</span>
-            </div>
-            {COMPARE.map((row) => (
-              <div className="compare-row" role="row" key={row.label}>
-                <b>{row.label}</b>
-                <span>{row.suite}</span>
-                <span>{row.ours}</span>
-              </div>
-            ))}
-          </div>
+        {/* ------------------------------------------------------- compare */}
+        <section id="compare" className="mx-auto mt-24 scroll-mt-24 w-[min(100%-1.5rem,72rem)] min-w-0">
+          <SectionCopy kicker="Positioning" title="What this does, and what it deliberately does not." />
+          <Table
+            className="mt-8"
+            caption="ASOGrade positioning against full ASO suites"
+            head={["Decision point", "Full ASO suites", "ASOGrade"]}
+            rows={COMPARE.map((r) => [r.label, r.suite, r.ours])}
+          />
         </section>
 
-        <section className="section-shell trust-section" id="data">
-          <div className="section-copy compact">
-            <span className="section-kicker">The data</span>
-            <h2>Where these numbers come from.</h2>
-            <p>
-              A keyword score is only worth the source behind it. Here is ours,
-              stated plainly enough to argue with.
-            </p>
-          </div>
-          <div className="trust-grid">
+        {/* ---------------------------------------------------------- data */}
+        <section id="data" className="mx-auto mt-24 scroll-mt-24 w-[min(100%-1.5rem,72rem)] min-w-0">
+          <SectionCopy kicker="The data" title="Where these numbers come from.">
+            A keyword score is only worth the source behind it. Here is ours, stated
+            plainly enough to argue with.
+          </SectionCopy>
+          <div className="mt-8 grid min-w-0 gap-4 sm:grid-cols-2">
             {PROVENANCE.map((item) => (
-              <div className="trust-card" key={item.h}>
-                <h3>{item.h}</h3>
-                <p>{item.p}</p>
-              </div>
+              <Card key={item.h} className="border-l-[3px] border-l-accent">
+                <h3 className="text-lg font-bold text-ink">{item.h}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{item.p}</p>
+              </Card>
             ))}
           </div>
         </section>
 
-        <section className="section-shell faq-section" id="faq">
-          <div className="section-copy compact">
-            <span className="section-kicker">FAQ</span>
-            <h2>Questions worth answering upfront.</h2>
-          </div>
-
-          <div className="faq-list">
-            {FAQ.map((item, i) => {
-              const open = openFaq === i;
-              return (
-                <div className="faq-item" key={item.q} data-open={open ? 1 : 0}>
-                  <button
-                    aria-expanded={open}
-                    aria-controls={`faq-panel-${i}`}
-                    onClick={() => setOpenFaq(open ? null : i)}
-                  >
-                    {item.q}
-                    <svg width="13" height="13" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                      <path d="M3 4.5 6 7.5 9 4.5" stroke="currentColor" strokeWidth="1.6"
-                        strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </button>
-                  {open && <p id={`faq-panel-${i}`}>{item.a}</p>}
-                </div>
-              );
-            })}
-          </div>
+        {/* ----------------------------------------------------------- FAQ */}
+        <section id="faq" className="mx-auto mt-24 scroll-mt-24 grid w-[min(100%-1.5rem,72rem)] min-w-0 gap-8 lg:grid-cols-[minmax(0,.62fr)_minmax(0,1fr)]">
+          <SectionCopy kicker="FAQ" title="Questions worth answering upfront." />
+          <Faq items={FAQ} collapsible />
         </section>
 
-        <section className="closing-cta">
-          <span>Before the next release</span>
-          <h2>Find out which keywords are worth the characters.</h2>
-          <Cta />
+        {/* ------------------------------------------------------ closing */}
+        <section className="mx-auto mt-24 w-[min(100%-1.5rem,72rem)] min-w-0 rounded-card bg-[linear-gradient(135deg,var(--color-accent),var(--color-accent-2))] px-6 py-12 text-center sm:px-10">
+          <Kicker tone="onDark">Before the next release</Kicker>
+          <h2 className="mx-auto mt-4 max-w-[24ch] font-display text-2xl font-extrabold leading-tight text-white sm:text-3xl">
+            Find out which keywords are worth the characters.
+          </h2>
+          <div className="mt-7 flex justify-center">
+            <span className="flex flex-col items-center gap-2">
+              <Button size="lg" variant="inverse" onClick={enter} disabled={!ready}>
+                {user ? "Dashboard" : "Get started"}
+              </Button>
+              {!user && (
+                <span className="text-xs leading-relaxed text-white/75">
+                  $14.99/mo or $99/yr · cancel anytime · nothing to install
+                </span>
+              )}
+            </span>
+          </div>
         </section>
       </main>
 
-      <footer className="foot">
-        <div className="foot-top">
-          <div className="foot-brand">
-            <Link className="brand-mark" href="/" aria-label="ASOGrade home">
-              <img src="/mark.png" alt="" width={22} height={22} />
-              <span>ASO<b>Grade</b></span>
-            </Link>
-            <p>App Store keyword research that runs in the browser.</p>
-          </div>
-
-          <nav className="foot-col" aria-label="Product">
-            <h4>Product</h4>
-            <a href="#product">Keyword research</a>
-            <a href="#spy">Competitor teardown</a>
-            <a href="#data">The data</a>
-            <Link href="/solutions">Solutions</Link>
-          </nav>
-
-          <nav className="foot-col" aria-label="Resources">
-            <h4>Resources</h4>
-            <Link href="/guides">ASO Guides</Link>
-            <Link href="/glossary">ASO Glossary</Link>
-            <Link href="/keyword-research">109 Storefronts</Link>
-            <Link href="/compare">Compare approaches</Link>
-          </nav>
-
-          <nav className="foot-col" aria-label="Company">
-            <h4>Company</h4>
-            <a href="#faq">FAQ</a>
-            <a href="mailto:support@asograde.com">Support</a>
-          </nav>
-
-          <nav className="foot-col" aria-label="Legal">
-            <h4>Legal</h4>
-            <Link href="/privacy">Privacy</Link>
-            <Link href="/terms">Terms</Link>
-          </nav>
-        </div>
-
-        <div className="foot-base">
-          <span>&copy; {new Date().getFullYear()} ASOGrade</span>
-          <span className="fine">Not affiliated with Apple. App Store is a trademark of Apple Inc.</span>
-        </div>
-      </footer>
+      <SiteFooter />
 
       {signIn && <SignInModal onClose={() => setSignIn(false)} next="/start" />}
     </div>
+  );
+}
+
+/* ------------------------------------------------------------ product shot */
+
+/**
+ * The workspace preview.
+ *
+ * The old markup used one fixed six-track grid (`20px 1fr 84px 84px 40px 44px`)
+ * with no responsive override at all, so it needed 327px before padding and
+ * silently lost its two right-hand columns on every phone — the keyword track
+ * collapsed to zero and `.shot-panel { overflow: hidden }` hid the evidence.
+ * Apps and Added are now dropped below `sm` instead of overflowing.
+ */
+function ProductShot() {
+  const cols =
+    "grid min-w-0 items-center gap-3 [grid-template-columns:minmax(0,1fr)_4.5rem_4.5rem] " +
+    "sm:[grid-template-columns:minmax(0,1fr)_5.5rem_5.5rem_3rem_3.5rem]";
+
+  return (
+    <div className="min-w-0" aria-label="ASOGrade keyword workspace preview">
+      <Card tone="dark" pad="none" className="min-w-0 overflow-hidden">
+        {/* The same CoralHeader the real workspace panel uses, so this
+            preview reads as a screenshot of the actual product rather than a
+            generic dark mock. */}
+        <CoralHeader
+          bleed={false}
+          stack="sm"
+          title={`${SAMPLE.length * 32} keywords`}
+          subtitle="Researching United States"
+          right={
+            <span className="shrink-0 self-start rounded-full bg-white px-3 py-1 text-2xs text-accent-2 sm:self-auto">
+              🇺🇸 United States
+            </span>
+          }
+        />
+
+        <div className={`${cols} border-b border-white/10 px-4 py-2.5`}>
+          <span className="text-2xs font-bold uppercase tracking-[0.06em] text-dark-ink/45">Keyword</span>
+          <span className="text-2xs font-bold uppercase tracking-[0.06em] text-dark-ink/45">Pop</span>
+          <span className="text-2xs font-bold uppercase tracking-[0.06em] text-dark-ink/45">Diff</span>
+          <span className="hidden text-right text-2xs font-bold uppercase tracking-[0.06em] text-dark-ink/45 sm:block">Apps</span>
+          <span className="hidden text-right text-2xs font-bold uppercase tracking-[0.06em] text-dark-ink/45 sm:block">Added</span>
+        </div>
+
+        <div className="min-w-0 p-2" role="table" aria-label="Sample keyword scores">
+          {SAMPLE.map((row, i) => (
+            <div
+              key={row.kw}
+              role="row"
+              className={`${cols} animate-fade rounded-md px-2 py-2.5`}
+              style={{ animationDelay: `${140 + i * 70}ms` }}
+            >
+              <span className="min-w-0 truncate text-sm text-dark-ink">{row.kw}</span>
+              <Meter value={row.pop} band={popBand(row.pop)} onDark />
+              <Meter value={row.diff} band={diffBand(row.diff)} onDark />
+              <span className="hidden text-right font-mono text-2xs tabular-nums text-dark-ink/60 sm:block">{row.apps}</span>
+              <span className="hidden text-right font-mono text-2xs tabular-nums text-dark-ink/60 sm:block">{row.added}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <div className="mt-3 grid min-w-0 grid-cols-3 gap-2">
+        {STOREFRONTS.map((store) => (
+          <Card key={store.code} tone="dark" pad="sm" className="min-w-0">
+            <span className="block font-mono text-2xs text-dark-ink/50">{store.code}</span>
+            <b className="mt-0.5 block truncate text-sm font-semibold text-dark-ink">{store.name}</b>
+            <small className="mt-0.5 block truncate text-2xs text-dark-ink/55">
+              {store.pop} pop / {store.diff} diff
+            </small>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------- opportunity map */
+
+const TONE: Record<string, string> = {
+  best: "bg-green/85",
+  good: "bg-green/85",
+  watch: "bg-amber/90",
+  hard: "bg-red/85",
+};
+
+/**
+ * Scatter of four sample keywords, positioned from their own scores.
+ *
+ * Two things this has to get right, both of which it got wrong before. A pill
+ * paints a background, so it must never be given a width it cannot fill —
+ * `max-width` plus `white-space: nowrap` is what printed the scores outside
+ * their own pill. And a pill is over half the canvas on a phone, so centring
+ * it on its coordinate hangs it off the edge; below `sm` each pill anchors to
+ * the edge of the half it belongs to and popularity carries the vertical axis.
+ */
+function OpportunityMap() {
+  return (
+    <Card tone="dark" pad="sm" className="min-w-0 overflow-hidden">
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs font-semibold text-dark-ink/70">
+        <span>Opportunity map</span>
+        <b className="font-mono text-2xs font-semibold text-dark-ink">popularity × difficulty</b>
+      </div>
+
+      {/* Two soft diagonal tints plus a faint grid-paper texture, the way the
+          original canvas read as a lit surface rather than a plain dark box.
+          The texture is a decorative pseudo-layer, not real content, so it is
+          a plain aria-hidden span rather than something the overflow rules
+          above need to account for. */}
+      <div
+        className="relative mt-4 min-h-[31rem] min-w-0 overflow-hidden rounded-lg border border-white/14 sm:min-h-[28rem]"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(40,200,150,.16), transparent 38%)," +
+            "linear-gradient(315deg, rgba(201,100,67,.2), transparent 36%)," +
+            "rgba(255,255,255,.035)",
+        }}
+      >
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 [mask-image:linear-gradient(180deg,#000,rgba(0,0,0,.24))]"
+          style={{
+            backgroundImage:
+              "linear-gradient(90deg, rgba(255,255,255,.055) 1px, transparent 1px)," +
+              "linear-gradient(180deg, rgba(255,255,255,.055) 1px, transparent 1px)",
+            backgroundSize: "72px 72px",
+          }}
+        />
+        <span aria-hidden="true" className="pointer-events-none absolute inset-x-[10%] top-1/2 h-px bg-white/16" />
+        <span aria-hidden="true" className="pointer-events-none absolute inset-y-[10%] left-1/2 w-px bg-white/16" />
+
+        <span className="absolute left-4 top-4 text-2xs font-bold uppercase tracking-[0.06em] text-dark-ink/45">
+          higher popularity
+        </span>
+        <span className="absolute bottom-3.5 right-4 text-2xs font-bold uppercase tracking-[0.06em] text-dark-ink/45">
+          lower difficulty
+        </span>
+
+        {OPPORTUNITIES.map((item, i) => {
+          const x = diffAt(item.diff);
+          const y = popAt(item.pop);
+          const left = x > 0.5;   // low difficulty sits right, so a high x is the left half
+          return (
+            <span
+              key={item.kw}
+              style={{ "--x": x, "--y": y, animationDelay: `${i * 80}ms` } as React.CSSProperties}
+              className={[
+                "absolute inline-flex animate-fade items-baseline gap-1.5 whitespace-nowrap",
+                "rounded-full border border-white/20 px-2.5 py-1.5 text-white shadow-2",
+                // phone: anchor to the near edge, spread popularity over the height
+                "top-[calc((10+(1-var(--y))*80)*1%)] -translate-y-1/2",
+                left ? "left-1.5" : "right-1.5",
+                // desktop: centre on the true coordinate
+                "sm:left-[calc((20+(1-var(--x))*56)*1%)] sm:right-auto",
+                "sm:top-[calc((24+(1-var(--y))*54)*1%)] sm:-translate-x-1/2 sm:-translate-y-1/2",
+                TONE[item.tone],
+              ].join(" ")}
+            >
+              <span aria-hidden="true" className="size-1.5 shrink-0 self-center rounded-full bg-current opacity-90" />
+              <b className="text-xs font-bold">{item.kw}</b>
+              <em className="font-mono text-2xs not-italic text-white/75">
+                {item.pop}/{item.diff}
+              </em>
+            </span>
+          );
+        })}
+      </div>
+    </Card>
   );
 }
