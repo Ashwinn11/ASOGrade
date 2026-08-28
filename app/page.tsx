@@ -300,21 +300,6 @@ const catStats = (rows: Category["rows"]) => [
   { n: `${rows.filter((r) => r.diff <= 40).length} of ${rows.length}`, label: "you can win" },
 ];
 
-const HOW_IT_WORKS = [
-  {
-    title: "Paste your keywords",
-    body: "Up to 100 at once — your own list, or a competitor's App Store link to pull theirs instead.",
-  },
-  {
-    title: "Read the real scores",
-    body: "Popularity and difficulty come straight from Apple Search Ads, for any of 109 storefronts, updated daily.",
-  },
-  {
-    title: "Update your metadata",
-    body: "Put the keywords with real demand and low difficulty into your title, subtitle, and keyword field.",
-  },
-];
-
 const CLOSING_POINTS = [
   "Your first scores in under a minute",
   `All ${STORES.length} storefronts included`,
@@ -323,7 +308,6 @@ const CLOSING_POINTS = [
 
 const CLOSING_LINKS = [
   { href: "/solutions", label: "What it solves" },
-  { href: "/pricing", label: "Pricing" },
   { href: "/guides", label: "ASO guides" },
 ];
 
@@ -331,6 +315,10 @@ const FAQ = [
   {
     q: "How is this different from a full ASO suite?",
     a: "A suite does rank tracking, reviews, ad campaigns and reporting, and charges you for all of it. ASOGrade does keyword research only. Paste your keywords, see how many people search them and how hard they are to rank for, then decide what to use. If you need rank tracking and campaign management, get a suite.",
+  },
+  {
+    q: "Is there a free trial or free plan?",
+    a: "No. ASOGrade runs on real Apple Search Ads data, which costs money to keep current — a crippled free tier would just mean stale numbers for everyone, so we skip it and price it fairly instead. Cancel anytime, no contract.",
   },
   {
     q: "What is ASO?",
@@ -502,14 +490,14 @@ export default function Landing() {
 
   const Cta = ({ size = "lg" }: { size?: "md" | "lg" }) => (
     <Button size={size} onClick={enter} disabled={!ready}>
-      {user ? "Dashboard" : "Score your keywords"}
+      {user ? "Dashboard" : "Score My Keywords"}
     </Button>
   );
 
-  const PriceNote = ({ onDark = false }: { onDark?: boolean }) =>
+  const SignInNote = () =>
     user ? null : (
-      <span className={cn("block text-xs leading-relaxed", onDark ? "text-white/75" : "text-faint")}>
-        $14.99/mo or $99/yr · cancel anytime · nothing to install
+      <span className="block text-xs leading-relaxed text-faint">
+        No card, no spam — just Google sign-in.
       </span>
     );
 
@@ -541,23 +529,21 @@ export default function Landing() {
             <h1
               className="mx-auto max-w-[32ch] font-display text-3xl font-extrabold leading-[1.03] tracking-tight text-ink sm:text-4xl"
             >
-              More Downloads Start With the
+              Stop Guessing Which App Store
               <br />
-              Right Keywords
+              Keywords Actually Work
             </h1>
-            <p className="mx-auto mt-6 max-w-[42ch] text-md leading-relaxed text-muted">
-              ASOGrade scores every App Store keyword by real search demand,
-              so you know exactly which ones to use.
+            <p className="mx-auto mt-6 max-w-[46ch] text-md leading-relaxed text-muted">
+              ASOGrade scores every keyword with real Apple Search Ads demand —
+              the same numbers advertisers bid on, not a guess — across all{" "}
+              {STORES.length} App Store markets.
             </p>
 
             <div className="mt-9 flex min-w-0 flex-wrap justify-center gap-3">
               <Cta />
-              <Button variant="secondary" size="lg" href="#how" external>
-                See how it works
-              </Button>
             </div>
             <div className="mt-4">
-              <PriceNote />
+              <SignInNote />
             </div>
 
             <div className="mx-auto mt-12 min-w-0 max-w-[40rem] border-t border-line pt-9 text-center">
@@ -600,39 +586,12 @@ export default function Landing() {
           </div>
         </section>
 
-        <section id="how" className={cn(WRAP, "mt-20 scroll-mt-24")}>
-          <BandHeading
-            kicker="How it works"
-            title="From keyword list to shipped metadata"
-            lead="No setup, no onboarding call. Paste, read the scores, ship the update."
-          />
-          <div className="mt-10 grid min-w-0 gap-5 sm:grid-cols-3">
-            {HOW_IT_WORKS.map((step, i) => (
-              <Card key={step.title} pad="lg" className="min-w-0">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-tint font-display text-sm font-extrabold text-accent-2">
-                  {i + 1}
-                </span>
-                <h3 className="mt-4 font-display text-lg font-extrabold leading-snug text-ink">
-                  {step.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted">{step.body}</p>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-
         <section id="product" className={cn(WRAP, "mt-20 scroll-mt-24")}>
           <ProductSwitcher />
         </section>
 
 
-        {BENEFITS.map((b) => (
-          <section key={b.id} id={b.id} className={cn(WRAP, "mt-24 scroll-mt-24")}>
-            <BenefitBand item={b} />
-          </section>
-        ))}
-
+        {/* Problem, before the benefits that solve it. */}
         <section className={cn("mt-24 min-w-0 border-y border-ink", DARK_SURFACE)}>
           <div className={cn(WRAP, "py-14 sm:py-16")}>
             <div className="grid min-w-0 items-center gap-10 lg:grid-cols-[minmax(0,11rem)_minmax(0,1fr)] lg:gap-16">
@@ -678,15 +637,16 @@ export default function Landing() {
           </div>
         </section>
 
-        <section id="examples" className={cn(WRAP, "mt-24 scroll-mt-24")}>
-          <BandHeading
-            title="The gap in your category"
-            lead="Every category has a different spread between what is popular and what is actually winnable. These are real keyword sets, not customer results — pick yours and see the gap."
-          />
-          <WorkedExamples />
-        </section>
+        {BENEFITS.map((b) => (
+          <section key={b.id} id={b.id} className={cn(WRAP, "mt-24 scroll-mt-24")}>
+            <BenefitBand item={b} />
+          </section>
+        ))}
 
-        {/* --------------------------------------------------------- 9 · FAQ */}
+        {/* Objection handling sits right after the benefits that earn it — this
+            is a paid-only product with no free tier, so the FAQ answering that
+            needs to reach a visitor before the deep-dive category tables lose
+            them, not after. */}
         <section
           id="faq"
           className={cn(WRAP, "mt-24 grid scroll-mt-24 gap-8 lg:grid-cols-[minmax(0,.62fr)_minmax(0,1fr)]")}
@@ -699,6 +659,14 @@ export default function Landing() {
           </div>
           <Faq items={FAQ} collapsible />
           <JsonLd data={faqSchema(FAQ)} />
+        </section>
+
+        <section id="examples" className={cn(WRAP, "mt-24 scroll-mt-24")}>
+          <BandHeading
+            title="The gap in your category"
+            lead="Every category has a different spread between what is popular and what is actually winnable. These are real keyword sets, not customer results — pick yours and see the gap."
+          />
+          <WorkedExamples />
         </section>
 
         <section className={cn(WRAP, "mt-24 grid items-center gap-10 lg:grid-cols-[1fr_1.05fr]")}>
@@ -733,12 +701,9 @@ export default function Landing() {
 
             <div className="mt-9 flex min-w-0 flex-wrap items-center gap-3">
               <Cta />
-              <Button variant="secondary" size="lg" href="/pricing">
-                See pricing
-              </Button>
             </div>
             <div className="mt-4">
-              <PriceNote />
+              <SignInNote />
             </div>
           </div>
 

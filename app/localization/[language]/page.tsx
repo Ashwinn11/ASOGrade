@@ -72,7 +72,7 @@ export default async function LocalizationPage({ params }: Props) {
         ]),
       ]}
       cta={{
-        heading: `Score your keywords across every ${loc.language} storefront`,
+        heading: `Get started across every ${loc.language} storefront`,
         body: "Paste your candidate list and check real demand and difficulty in each market, in seconds.",
       }}
     >
