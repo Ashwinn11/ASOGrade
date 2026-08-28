@@ -93,7 +93,13 @@ export default function SiteFooter({ className }: { className?: string }) {
                     {l.label}
                   </a>
                 ) : (
-                  <Link key={l.href} href={l.href} className={LINK}>
+                  /* prefetch={false}: this footer renders on every page site-wide
+                     (landing, legal, and every pSEO template), so its ~13 links
+                     were firing a full-viewport prefetch burst on every single
+                     pageview — visible in Vercel's runtime logs as a dozen
+                     simultaneous hub-page hits per visit. None of these are a
+                     likely very-next-click, so it's not worth prefetching. */
+                  <Link key={l.href} href={l.href} prefetch={false} className={LINK}>
                     {l.label}
                   </Link>
                 ),
@@ -102,11 +108,16 @@ export default function SiteFooter({ className }: { className?: string }) {
           ))}
         </div>
 
-        {/* ScrollLaunch and SaaSFame verify a free listing by fetching this page
-            and looking for their badge, so both have to stay on the homepage
-            rather than move to a press page later. Plain <a>/<img>: each image
-            is served from the directory's own domain, which next/image would
-            need configured as a remote pattern for no benefit at this size. */}
+        {/* ScrollLaunch, SaaSFame, SaaS Roots, Confetti SaaS, and CurlShip all
+            verify a free listing (or, for Confetti/CurlShip, a dofollow link
+            specifically — the listing itself is already live either way) by
+            fetching this page and looking for their badge, so all five have to
+            stay on the homepage rather than move to a press page later.
+            CurlShip's check runs hourly via cron rather than on submit; its
+            /badge page has a manual "verify now" trigger if that matters later.
+            Plain <a>/<img>: each image is served from the directory's own
+            domain, which next/image would need configured as a remote pattern
+            for no benefit at this size. */}
         <div className="mt-10 flex flex-wrap items-center gap-4">
           <a
             href="https://www.scrolllaunch.com/products/asograde?ref=badge"
@@ -132,6 +143,44 @@ export default function SiteFooter({ className }: { className?: string }) {
               src="https://saasfame.com/badge-light.svg"
               alt="Featured on saasfame.com"
               style={{ height: 54, width: "auto" }}
+              loading="lazy"
+            />
+          </a>
+          <a
+            target="_blank"
+            href="https://saasroots.com/product/asograde"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://saasroots.com/assets/images/badge.png"
+              alt="SaaS Roots"
+              height={54}
+              loading="lazy"
+            />
+          </a>
+          <a
+            href="https://confettisaas.com/saas/asograde-com?ref=badge"
+            target="_blank"
+            rel="noopener"
+            aria-label="View ASOGrade on ConfettiSaaS"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://confettisaas.com/badge-light.svg"
+              width={250}
+              height={54}
+              alt="ASOGrade on ConfettiSaaS"
+              loading="lazy"
+              style={{ display: "block" }}
+            />
+          </a>
+          <a href="https://curlship.com" target="_blank" rel="noopener">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://curlship.com/badge.svg"
+              alt="Listed on CurlShip"
+              width={120}
+              height={20}
               loading="lazy"
             />
           </a>

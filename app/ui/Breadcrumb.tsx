@@ -36,6 +36,12 @@ export default function Breadcrumb({
             ) : (
               <Link
                 href={crumb.href}
+                /* Every one of the 300+ pSEO pages renders this trail, and its
+                   "ASOGrade" crumb always points at "/" — that single Link,
+                   multiplied across every page, was the largest source of
+                   prefetch requests to the homepage in runtime logs. A
+                   breadcrumb is rarely someone's actual next click. */
+                prefetch={false}
                 className="min-w-0 text-muted no-underline hover:text-accent transition-colors duration-150"
               >
                 {crumb.label}

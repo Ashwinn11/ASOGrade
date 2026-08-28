@@ -57,6 +57,7 @@ export default function GlossaryHub() {
       <Section title="All glossary terms">
         <LinkCardGrid
           min={250}
+          prefetch={false}
           items={sorted.map((entry) => ({
             href: `/glossary/${entry.slug}`,
             title: entry.term,

@@ -51,6 +51,7 @@ export default function TipsHub() {
       <Section>
         <LinkCardGrid
           min={300}
+          prefetch={false}
           items={TIPS.map((t) => ({
             href: `/tips/${t.slug}`,
             title: t.question,

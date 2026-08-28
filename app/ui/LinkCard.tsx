@@ -23,11 +23,20 @@ export function LinkCardGrid({
   items,
   min = 260,
   className,
+  prefetch,
 }: {
   items: LinkCardItem[];
   /** Track floor. Wrapped in min(…, 100%) so it can never exceed the container. */
   min?: number;
   className?: string;
+  /**
+   * Pass `false` on grids with dozens of items (glossary's 66, tips' 55,
+   * every storefront's 109) — Next.js prefetches every visible `<Link>` by
+   * default, so a single hub-page scroll was quietly firing that many
+   * background requests. Leave unset on small "related content" grids
+   * (2-6 items), where prefetch is cheap and the next click is likely.
+   */
+  prefetch?: boolean;
 }) {
   return (
     <ul
@@ -35,17 +44,18 @@ export function LinkCardGrid({
       style={{ gridTemplateColumns: `repeat(auto-fit, minmax(min(${min}px, 100%), 1fr))` }}
     >
       {items.map((item) => (
-        <LinkCard key={item.href} {...item} />
+        <LinkCard key={item.href} prefetch={prefetch} {...item} />
       ))}
     </ul>
   );
 }
 
-export default function LinkCard({ href, title, note, cta, badge }: LinkCardItem) {
+export default function LinkCard({ href, title, note, cta, badge, prefetch }: LinkCardItem & { prefetch?: boolean }) {
   return (
     <li className="min-w-0 list-none">
       <Link
         href={href}
+        prefetch={prefetch}
         className={cn(
           "group flex h-full min-w-0 flex-col gap-1.5 rounded-md border border-line",
           "bg-surface px-5 py-4 no-underline transition-colors duration-150 ease-brand",

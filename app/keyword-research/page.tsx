@@ -133,6 +133,7 @@ function StoreGrid({ stores }: { stores: [string, string][] }) {
         <li key={code} className="min-w-0">
           <Link
             href={`/keyword-research/${code}`}
+            prefetch={false}
             className="flex min-w-0 items-center gap-2 rounded-md border border-line bg-surface px-3 py-2.5 no-underline transition-colors duration-150 hover:border-tint-line hover:bg-hover"
           >
             <span aria-hidden="true" className="shrink-0 text-base leading-none">
