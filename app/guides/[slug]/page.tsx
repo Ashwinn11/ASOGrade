@@ -21,11 +21,12 @@ import { LinkCardGrid } from "@/app/ui/LinkCard";
  * worse than a static one that occasionally lags.
  *
  * Anchored to this file's own git history rather than invented: `guides.ts`
- * was added 2026-08-26 and last substantively touched 2026-08-27. Bump
- * MODIFIED by hand the next time a guide's content actually changes.
+ * was added 2026-08-26, last substantively touched 2026-08-27, then grew from
+ * 8 to 23 entries on 2026-08-28. Bump MODIFIED by hand the next time a guide's
+ * content actually changes.
  */
 const PUBLISHED = "2026-08-26T00:00:00Z";
-const MODIFIED = "2026-08-27T00:00:00Z";
+const MODIFIED = "2026-08-28T00:00:00Z";
 
 interface Props {
   params: Promise<{ slug: string }>;

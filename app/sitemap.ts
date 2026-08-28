@@ -4,6 +4,9 @@ import { GLOSSARY } from "@/lib/seo/glossary";
 import { GUIDES } from "@/lib/seo/guides";
 import { COMPARE_DATA } from "@/lib/seo/compare";
 import { SOLUTION_DETAILS } from "@/lib/seo/solutions";
+import { PERSONAS } from "@/lib/seo/personas";
+import { LOCALIZATIONS } from "@/lib/seo/localization";
+import { TIPS } from "@/lib/seo/tips";
 
 /* Read from the same arrays the routes generate from, so a new page cannot
    ship without a sitemap entry. These two were hand-listed here while their
@@ -76,6 +79,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.8,
     },
+    {
+      url: `${siteUrl}/for`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${siteUrl}/localization`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${siteUrl}/tips`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
   ];
 
   const storeRoutes: MetadataRoute.Sitemap = STORES.map(([code]) => ({
@@ -113,6 +134,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
+  const personaRoutes: MetadataRoute.Sitemap = PERSONAS.map((p) => ({
+    url: `${siteUrl}/for/${p.slug}`,
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
+
+  const localizationRoutes: MetadataRoute.Sitemap = LOCALIZATIONS.map((l) => ({
+    url: `${siteUrl}/localization/${l.slug}`,
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
+
+  const tipRoutes: MetadataRoute.Sitemap = TIPS.map((t) => ({
+    url: `${siteUrl}/tips/${t.slug}`,
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
+
   return [
     ...coreRoutes,
     ...hubRoutes,
@@ -120,6 +162,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...glossaryRoutes,
     ...compareRoutes,
     ...solutionRoutes,
+    ...personaRoutes,
+    ...localizationRoutes,
+    ...tipRoutes,
     ...storeRoutes,
   ];
 }

@@ -36,7 +36,13 @@ function organization() {
 
 /**
  * FAQPage schema for pages with Q+A pairs.
- * Renders as rich results in Google Search when validated.
+ *
+ * Google removed the FAQ rich-result snippet entirely in May 2026 (it had
+ * already been restricted to a handful of government/health sites since
+ * August 2023) — this no longer buys a visual result in Google Search. Kept
+ * anyway: the markup is still valid schema.org, still parsed by Bingbot,
+ * PerplexityBot, and the RAG crawlers behind AI answer engines, and costs
+ * nothing to leave in place.
  */
 export function faqSchema(items: { q: string; a: string }[]) {
   return {

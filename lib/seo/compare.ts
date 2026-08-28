@@ -183,4 +183,207 @@ export const COMPARE_DATA: ComparePageData[] = [
       },
     ],
   },
+  {
+    slug: "apptweak",
+    maturityKey: "tool",
+    title: "ASOGrade vs. AppTweak",
+    subtitle: "A full App Store and Google Play intelligence suite versus a research-only tool",
+    description:
+      "AppTweak bundles keyword research with rank tracking, competitor monitoring, and ad intelligence across App Store and Google Play. Here's how the research pass compares.",
+    intro: [
+      "AppTweak is one of the most established ASO platforms on the market, covering both the App Store and Google Play with keyword research, rank tracking, competitor monitoring, ratings and reviews analysis, and Apple Search Ads intelligence in one dashboard.",
+      "If you're evaluating AppTweak against ASOGrade, the real question is whether you need the full platform or just the keyword research step inside it. AppTweak is built to be the single tool a team lives in daily; ASOGrade is built to be the tool you open before a metadata update and close afterward.",
+    ],
+    whatThisApproachDoes: [
+      "AppTweak's Essential plan starts at $79/month ($949/year) and includes keyword research, rank tracking, competitor analysis, and ratings/reviews analysis for up to 500 tracked keywords, 5 followed apps, and 5 competitors per app, with 6 months of historical data. Grow ($249/month) and Grow Plus ($499/month) raise those limits and add organic-installs-per-keyword, in-app event monitoring, and longer history. Enterprise pricing adds an ASO Agent, AppDNA/GameDNA taxonomy, and a dedicated account manager. Confirm current pricing on their site — suite pricing changes.",
+      "Both App Store and Google Play are covered from the same account across 100+ countries and languages, which matters if you ship on both platforms and want one place to check keyword performance across them.",
+      "The historical data and rank tracking are real strengths: seeing how a keyword's difficulty or your own rank has moved over 6-24 months is something a point-in-time research tool cannot show.",
+    ],
+    whereItFalls: [
+      "Every AppTweak tier through Grow Plus is scoped to a single seat and a single domain. An agency or a studio managing keyword research for several apps or clients needs either an Enterprise contract or multiple accounts, which changes the effective per-app cost quickly.",
+      "If keyword research before a metadata update is the only workflow you actually run, the $79-$499/month range buys rank tracking, review management, and reporting features that sit unused between update cycles.",
+      "Onboarding a new app means setting it up, verifying it, and configuring trackers before the first keyword score appears — a reasonable cost for a tool you'll live in daily, less so if you need one research pass and a fast answer.",
+    ],
+    whereASOGradeFits: [
+      "ASOGrade skips the setup: paste up to 100 keywords and get popularity and difficulty back in seconds, with no app verification or tracker configuration first.",
+      "If you're already paying for AppTweak and using its tracking, review management, and Google Play coverage, ASOGrade is not a replacement — Google Play keyword research isn't something it does at all. If you're on the App Store only and mainly opening AppTweak to check keyword scores before an update, ASOGrade covers that specific step at a fraction of the cost.",
+      "For teams managing more than one app or client under a single AppTweak seat limit, ASOGrade's flat per-account pricing with no seat or domain cap is worth checking against what an Enterprise upgrade would cost instead.",
+    ],
+    faq: [
+      {
+        q: "Does ASOGrade support Google Play like AppTweak does?",
+        a: "No. ASOGrade is App Store only, across all 109 storefronts. If you ship on Google Play and need keyword research there too, AppTweak or a similar cross-platform suite covers both stores from one account.",
+      },
+      {
+        q: "Is AppTweak's keyword data better than ASOGrade's?",
+        a: "Both use Apple Search Ads-based signals for App Store popularity; AppTweak layers in its own rank-tracking history and organic-install estimates on top. If you need trend history over months, AppTweak's tracking does something ASOGrade doesn't. If you need a current score fast, both work.",
+      },
+      {
+        q: "Can I use ASOGrade instead of paying for AppTweak's Grow plan?",
+        a: "Only if rank tracking, in-app event monitoring, and Google Play coverage aren't things you use. Those live on AppTweak's Grow tier and above. If your workflow is keyword research before each update, ASOGrade covers that alone for less.",
+      },
+    ],
+  },
+  {
+    slug: "sensor-tower",
+    maturityKey: "tool",
+    title: "ASOGrade vs. Sensor Tower",
+    subtitle: "Enterprise market intelligence versus a self-serve keyword research tool",
+    description:
+      "Sensor Tower is a market-intelligence platform with custom, quote-based pricing. Here's what that means if you only need App Store keyword research.",
+    intro: [
+      "Sensor Tower is a mobile market-intelligence platform built for enterprise clients: Store Intelligence, Ad Intelligence, Audience data, Web Insights, and more, plus its own Gen AI product and MCP server for programmatic access. It's aimed at competitive intelligence across an entire market, not a single app's keyword research.",
+      "The comparison here is unusual because Sensor Tower doesn't publish self-serve pricing at all. Their own pricing page states plainly that plans are customized for each customer through a sales conversation, so there's no tier or dollar figure to weigh against ASOGrade's $14.99/month the way you can with other tools.",
+    ],
+    whatThisApproachDoes: [
+      "Sensor Tower's strength is breadth: market share estimates, competitor download and revenue estimates, ad creative intelligence across networks, and audience overlap data that go well beyond what any single-app keyword tool measures. Teams doing market sizing, investment research, or competitive strategy at a portfolio level use it for exactly that reason.",
+      "The platform is built for analysts and growth teams who need to answer how a whole category is moving, not just what to put in a keyword field.",
+    ],
+    whereItFalls: [
+      "There's no public price to compare, no self-serve signup, and no way to try a keyword lookup before a sales call. For a developer who wants to check 100 keywords this afternoon, that's a real barrier regardless of what the eventual contract costs.",
+      "Sensor Tower's estimates are modeled from a mix of panel data and other signals rather than a single direct feed like Apple Search Ads demand for the App Store specifically, which is a different kind of number for a different kind of question — market sizing versus whether a word will rank.",
+      "Its scope is built for teams evaluating a market, not for the specific, recurring task of scoring a keyword list before a metadata update.",
+    ],
+    whereASOGradeFits: [
+      "If what you actually need is App Store keyword popularity and difficulty before writing metadata, ASOGrade answers that in seconds at a fixed $14.99/month, with the price visible before you sign up for anything.",
+      "ASOGrade doesn't do market sizing, ad intelligence, or competitor revenue estimates, and isn't trying to. If those are what you need, Sensor Tower's breadth is the right tool and the sales conversation is worth having.",
+      "Some teams use both: a market-intelligence platform for strategy and a focused research tool for the recurring keyword-scoring work, because the two answer different questions at very different price points.",
+    ],
+    faq: [
+      {
+        q: "Why doesn't Sensor Tower list its prices?",
+        a: "It's built for enterprise clients with custom needs across market intelligence, ad intelligence, and audience data, so pricing is quoted per contract rather than published as a fixed tier. That's a legitimate model for that kind of product, but it means you can't compare cost without a sales call.",
+      },
+      {
+        q: "Is Sensor Tower overkill for basic App Store keyword research?",
+        a: "For that specific task, likely yes. Sensor Tower is built to answer market-level questions with a large data platform behind it. If keyword popularity and difficulty for your own metadata is the whole job, a dedicated research tool answers it faster and at a fraction of the likely cost.",
+      },
+      {
+        q: "Can I get an estimate of Sensor Tower's App Store ASO pricing before contacting sales?",
+        a: "Not from their own site. If you want to compare cost before a sales conversation, tools with published pricing, including ASOGrade, AppTweak, and MobileAction, let you see the number upfront.",
+      },
+    ],
+  },
+  {
+    slug: "mobileaction",
+    maturityKey: "tool",
+    title: "ASOGrade vs. MobileAction",
+    subtitle: "A tiered ASO and ad-intelligence suite versus a flat-priced research tool",
+    description:
+      "MobileAction prices ASO Intelligence, Apple Ads campaign management, and ad intelligence as three separate products. Here's how the keyword research tier compares.",
+    intro: [
+      "MobileAction sells ASO Intelligence (keyword research, rank tracking, competitor analysis) as one product, Apple Ads campaign management (CMP) as a second, and Ad Intelligence (creative and network data) as a third. Each has its own pricing, so the number you land on depends on which you need.",
+      "For keyword research specifically, MobileAction's ASO Intelligence tiers are the relevant comparison. Its CMP tool has a free tier for accounts under $10,000/month in Apple Ads spend, which is worth knowing if you're already running Search Ads campaigns and just need a keyword-scoring layer alongside them.",
+    ],
+    whatThisApproachDoes: [
+      "ASO Intelligence starts at Lite ($15/month: 100 keywords, 5 apps, 3 competitors, 3 months of history, 1 seat) and moves to Basic ($69/month, their most popular tier: 500 keywords, 8 apps, 10 competitors, 6 months of history, adds competitor keyword insights and metadata analysis), then Pro ($239/month: 1,500 keywords, 10 apps, 15 competitors, 3 seats, organic downloads per keyword and keyword trends). Enterprise adds unlimited competitors and seats at custom pricing.",
+      "The Lite tier at $15/month is close to ASOGrade's price and covers a reasonable starting keyword volume, with rank tracking and multi-app support ASOGrade doesn't do.",
+      "Bundling CMP and Ad Intelligence as separate paid products means a team using all three functions gets a coordinated view of paid and organic performance in one vendor relationship, which some workflows value.",
+    ],
+    whereItFalls: [
+      "The 100-keyword cap on Lite and 500 on Basic apply across all your tracked apps combined, not per app, so a studio running keyword research across several apps hits those ceilings faster than a single-app developer would.",
+      "Getting the ad-intelligence view means paying for a separate product on top of ASO Intelligence, which adds up if the only thing you actually use is keyword popularity and difficulty.",
+      "Historical tracking and multi-app dashboards are built for ongoing monitoring; if your workflow is a research pass before each metadata update rather than daily tracking, you're paying partly for a cadence you don't use.",
+    ],
+    whereASOGradeFits: [
+      "ASOGrade's $14.99/month (or $8.25/month on the yearly plan) includes all 109 storefronts and up to 100 keywords per batch with no seat, app, or competitor cap, which is a different tradeoff than MobileAction's per-tier caps: one flat price instead of a ladder to climb as your keyword count grows.",
+      "If you're not running Apple Ads campaigns and don't need CMP or Ad Intelligence, MobileAction's ASO Intelligence alone is the fair comparison, and its Lite tier is close in price to ASOGrade's yearly rate with rank tracking as its main addition.",
+      "For research-only workflows across multiple apps or storefronts, checking whether MobileAction's per-tier keyword caps or ASOGrade's flat, uncapped-per-batch pricing costs less depends on how many keywords you actually score in a typical month.",
+    ],
+    faq: [
+      {
+        q: "Does MobileAction's Lite tier compete with ASOGrade on price?",
+        a: "Closely. At $15/month, Lite is within a dollar of ASOGrade's monthly rate and includes rank tracking ASOGrade doesn't. The tradeoff is a 100-keyword cap across all your apps combined, versus ASOGrade's 100 keywords per batch with no total cap.",
+      },
+      {
+        q: "Do I need MobileAction's CMP if I use ASOGrade?",
+        a: "Only if you're running Apple Search Ads campaigns and want campaign management tooling. ASOGrade doesn't manage ad campaigns; it scores keywords for organic metadata decisions, which is a different job than bidding and budget management.",
+      },
+      {
+        q: "Which is better for a studio with several apps?",
+        a: "Depends on your keyword volume. MobileAction's tiers cap total tracked keywords across all apps, so a studio can hit that ceiling and need to upgrade. ASOGrade's flat pricing has no per-app or total-keyword ceiling, only the 100-per-batch limit on any single research pass.",
+      },
+    ],
+  },
+  {
+    slug: "appfigures",
+    maturityKey: "tool",
+    title: "ASOGrade vs. Appfigures",
+    subtitle: "An app analytics platform with ASO features versus a keyword-research-first tool",
+    description:
+      "Appfigures is built around download, revenue, and subscription analytics, with keyword tools layered on top. Here's how it compares for keyword research specifically.",
+    intro: [
+      "Appfigures started as an app analytics platform (downloads, revenue, subscriptions, ad spend across your own apps) and has added ASO features across its pricing tiers over time. Keyword research is one part of what it does rather than the whole product.",
+      "That shapes the comparison: if you want analytics and ASO in one dashboard, Appfigures does both. If keyword research is the specific job, you're choosing how much analytics tooling you want to pay for to get it.",
+    ],
+    whatThisApproachDoes: [
+      "Connect ($9.99/month, $7.99/month billed annually) is the entry tier: 5 apps, 25 tracked keywords, and analytics focused on downloads, revenue, subscriptions, and ad spend rather than deep ASO. Monitor ($44.99/month, $35.99/month annually) is the first tier with real ASO capability: 100 keywords, daily rank updates, and keyword popularity scores. Optimize ($149.99/month) adds a premium competitor and hourly rank updates; Boost ($599.99/month) and Amplify ($1,399.99/month) scale further into multiple competitors, Apple Ads Intelligence, and market trend reports.",
+      "For a team that wants download and revenue tracking alongside ASO in a single account, that consolidation has real value: one login instead of two separate tools with two separate data exports to reconcile.",
+    ],
+    whereItFalls: [
+      "The entry-level Connect tier isn't really an ASO plan: 25 keywords and no daily rank updates make it thin for research. The tier that actually does keyword popularity scoring and daily updates, Monitor, starts at $44.99/month, three times ASOGrade's monthly rate.",
+      "Most of Appfigures' tier structure is priced around analytics depth (more apps, more competitors, ad spend intelligence) rather than keyword-research depth specifically, so a lot of the cost increase up the ladder isn't buying more keyword capability.",
+      "If download and revenue analytics aren't something you need from a third-party tool (App Store Connect already gives you your own numbers), you're paying for a chunk of Appfigures that isn't doing anything for your keyword strategy.",
+    ],
+    whereASOGradeFits: [
+      "If keyword research is the actual task, ASOGrade's $14.99/month sits between Appfigures' Connect (too thin for real ASO) and Monitor (three times the price, bundled with analytics you may already get from App Store Connect).",
+      "ASOGrade doesn't do download, revenue, or subscription analytics at all. If you need that alongside ASO in one tool, Appfigures' bundle is the more complete answer.",
+      "For a developer or small studio that already reads its own numbers in App Store Connect and just wants the keyword-scoring step done well and cheaply, ASOGrade covers that without paying for the analytics half of Appfigures' pricing.",
+    ],
+    faq: [
+      {
+        q: "Is Appfigures' cheapest plan good for keyword research?",
+        a: "Not really. Connect at $9.99/month tracks only 25 keywords and skips daily rank updates and popularity scores. Appfigures' first real ASO tier is Monitor at $44.99/month.",
+      },
+      {
+        q: "Why is Appfigures more expensive than ASOGrade for keyword research?",
+        a: "Because you're paying for its analytics platform (downloads, revenue, subscriptions, ad spend tracking) alongside the ASO features, not for keyword research alone. If you don't need that analytics layer, you're paying for capability you won't use.",
+      },
+      {
+        q: "Should I use both Appfigures and ASOGrade?",
+        a: "If you already rely on Appfigures for revenue and subscription analytics and just want a faster, cheaper keyword-scoring pass before metadata updates, running ASOGrade alongside it for that one step is reasonable.",
+      },
+    ],
+  },
+  {
+    slug: "astro",
+    maturityKey: "tool",
+    title: "ASOGrade vs. Astro",
+    subtitle: "A native Mac app with rank tracking versus a browser-based research tool",
+    description:
+      "Astro is a macOS-only app priced close to ASOGrade's yearly rate. The real difference is platform and rank tracking, not cost.",
+    intro: [
+      "Astro (tryastro.app) is a native macOS application for App Store keyword research: install a DMG, sign in, and work from a desktop app rather than a browser tab. It requires macOS 14 or later.",
+      "Astro's pricing, $9/month or $108/year for a single Mac license, sits close enough to ASOGrade's $14.99/month ($99/year) that price isn't the deciding factor between them. Platform and feature scope are.",
+    ],
+    whatThisApproachDoes: [
+      "A single Astro license includes unlimited keyword tracking, daily rank tracking with historical graphs, competitor keyword extraction, and popularity/difficulty scoring built on Apple Search Ads data, the same underlying data source ASOGrade uses. DeepL-powered translation is built in for localizing metadata.",
+      "Astro covers 60+ App Store countries. For an app targeting its top markets, that's likely enough coverage without needing all 109 storefronts.",
+      "Rank tracking is a real feature ASOGrade doesn't have: Astro shows how your app's position for a keyword moves over time, not just a point-in-time difficulty score.",
+    ],
+    whereItFalls: [
+      "Astro requires a Mac and a local install. If you work across Windows, Linux, or want to check a keyword list from a phone or a shared team machine, a native macOS-only app is a real constraint ASOGrade doesn't have.",
+      "60+ storefronts is meaningfully fewer than ASOGrade's 109, which matters specifically for the long tail of smaller or emerging markets where difficulty tends to be lowest.",
+      "A single Mac license is scoped to one machine; sharing research across a team means either sharing one login on one computer or buying more licenses, whereas ASOGrade runs in any browser on any device tied to one account.",
+    ],
+    whereASOGradeFits: [
+      "If you're on a Mac, want rank tracking, and 60+ storefronts covers your target markets, Astro is a legitimate, similarly-priced alternative built specifically for indie iOS developers.",
+      "If you work across multiple operating systems, want the full 109-storefront range including smaller emerging markets, or want to check keywords from any device without installing anything, ASOGrade fits that instead.",
+      "Neither tool is meaningfully cheaper than the other at this point; the honest choice is platform (installed Mac app versus browser tool) and whether you need rank tracking, which only Astro of the two provides.",
+    ],
+    faq: [
+      {
+        q: "Is Astro cheaper than ASOGrade?",
+        a: "Barely, and not consistently. Astro is $9/month or $108/year; ASOGrade is $14.99/month or $99/year. On the annual plan ASOGrade is actually $9 cheaper. Price isn't the real difference between them.",
+      },
+      {
+        q: "Does ASOGrade do rank tracking like Astro?",
+        a: "No. ASOGrade scores keyword popularity and difficulty for research purposes; it doesn't track your app's ranking position for those keywords over time. If daily rank tracking is what you need, Astro has it built in.",
+      },
+      {
+        q: "Can I use Astro if I don't have a Mac?",
+        a: "No. Astro requires macOS 14 or later, distributed as a native app. ASOGrade runs in any modern browser on any operating system, which is the main practical difference if you're not on a Mac.",
+      },
+    ],
+  },
 ];

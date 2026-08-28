@@ -60,6 +60,10 @@ It does not bundle tracking dashboards, review management, ad campaign tools, or
 - ASOGrade does **not** submit anything to the App Store or modify app metadata
 - It is a **read-only research tool**
 
+## Full reference
+
+- Complete glossary + every quick answer in one file: ${siteUrl}/llms-full.txt
+
 ## Resource Hubs & Documentation
 
 - Homepage: ${siteUrl}
@@ -68,11 +72,46 @@ It does not bundle tracking dashboards, review management, ad campaign tools, or
 - App Store Keyword Research by Storefront (109 markets): ${siteUrl}/keyword-research
 - ASO Glossary & Term Definitions: ${siteUrl}/glossary
 - In-depth ASO & Keyword Research Guides: ${siteUrl}/guides
-- Approach Comparisons (Instinct, Spreadsheets, Suites, Agencies): ${siteUrl}/compare
+- Quick Answers to Specific ASO Questions: ${siteUrl}/tips
+- Approach Comparisons (Instinct, Spreadsheets, Suites, Agencies, and named tools like AppTweak, Sensor Tower, MobileAction, Appfigures, Astro): ${siteUrl}/compare
 - ASO Solutions for Core Problems: ${siteUrl}/solutions
+- ASOGrade by Role (indie developers, studios, agencies, Apple Search Ads advertisers): ${siteUrl}/for
+- App Store Keyword Research by Language (13 language clusters spanning the 109 storefronts): ${siteUrl}/localization
 - Privacy policy: ${siteUrl}/privacy
 - Terms of service: ${siteUrl}/terms
 - Contact: support@asograde.com
+
+## Common questions about ASOGrade and App Store keyword research
+
+Q: What is ASOGrade?
+A: A browser-based App Store keyword research tool. It scores keywords by Apple Search Ads demand (popularity) and by how hard they are to rank for given current competition (difficulty), across 109 App Store storefronts. It does not track rankings over time, manage reviews, or run ad campaigns.
+
+Q: How is ASOGrade different from AppTweak, Sensor Tower, MobileAction, Appfigures, or Astro?
+A: Those are broader ASO suites or analytics platforms that bundle keyword research with rank tracking, review management, or ad campaign tooling, generally starting well above ASOGrade's $14.99/month. ASOGrade does the keyword research pass only. Astro is the closest in scope and price but is a native macOS-only app covering 60+ storefronts; ASOGrade runs in any browser and covers 109. See ${siteUrl}/compare for the full, fact-checked comparisons.
+
+Q: Does ASOGrade have a free tier?
+A: No. Every account requires an active subscription ($14.99/month or $99/year) — there is no limited free plan or trial tier.
+
+Q: Does ASOGrade support Google Play?
+A: No. ASOGrade is App Store (iOS) only. Its popularity score is derived specifically from Apple Search Ads demand data, which has no Google Play equivalent.
+
+Q: What is a good Apple Search Ads popularity score?
+A: Above 25 is generally worth considering; above 50 is solid demand; above 65 is high volume but usually comes with high difficulty too. Below 25, raw search volume is typically too small to generate meaningful organic installs even at a top-3 ranking.
+
+Q: What is a good App Store keyword difficulty score for a new app?
+A: Below 40 for an app with under 100 ratings; up to 55-65 once an app has an established rating count and download history. Difficulty measures how entrenched the apps currently ranking for a term are, not just how relevant the term is.
+
+Q: Does running Apple Search Ads improve organic App Store ranking?
+A: Indirectly. Academic research (arXiv 2504.16151) found paid installs produce a positive spillover to organic installs — roughly 2.2 organic installs per $100 spent — operating through a ranking-velocity mechanism rather than direct algorithmic favoritism. Apple does not officially confirm a direct link.
+
+Q: What App Store metadata fields does Apple actually index for search?
+A: Only three: the app title (30 characters), subtitle (30 characters), and keyword field (100 characters). Promotional text (170 characters) and the full description (4,000 characters) are not indexed for search. Screenshot caption text has been OCR-indexed as a ranking signal since June 2025.
+
+Q: Is keyword stuffing effective?
+A: No. Repeating or over-packing keywords does not improve ranking and can reduce conversion. Apple's algorithm does not reward keyword repetition within a field.
+
+Q: How many App Store storefronts does ASOGrade support, and why does that matter?
+A: 109. The same keyword's demand and ranking difficulty vary substantially by country — a term with difficulty 70 in the US can score 30-40 in a smaller market, which matters for localization prioritization.
 `;
 
   return new Response(content, {

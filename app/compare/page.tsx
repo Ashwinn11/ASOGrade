@@ -28,6 +28,11 @@ export const COMPARE_PAGES = [
   { slug: "spreadsheets", key: "sheet", title: "ASOGrade vs. DIY Spreadsheets" },
   { slug: "aso-suites", key: "tool", title: "ASOGrade vs. Full ASO Suites" },
   { slug: "agencies", key: "agency", title: "ASOGrade vs. Hiring an Agency" },
+  { slug: "apptweak", key: "tool", title: "ASOGrade vs. AppTweak" },
+  { slug: "sensor-tower", key: "tool", title: "ASOGrade vs. Sensor Tower" },
+  { slug: "mobileaction", key: "tool", title: "ASOGrade vs. MobileAction" },
+  { slug: "appfigures", key: "tool", title: "ASOGrade vs. Appfigures" },
+  { slug: "astro", key: "tool", title: "ASOGrade vs. Astro" },
 ] as const;
 
 const MATRIX: string[][] = [
@@ -35,6 +40,11 @@ const MATRIX: string[][] = [
   ["Spreadsheet", "Manual lookup in App Store", "2–4 hours", "Manual / free limits", "$0 (significant time)"],
   ["Full suite", "App setup, verification, tracker config", "30–60 minutes", "Mixed / estimated models", "$79–$300/mo"],
   ["Agency", "Discovery call & retainer contract", "1–2 weeks turnaround", "Agency tooling suite", "$500–$5,000/mo"],
+  ["AppTweak", "App setup, verification, tracker config", "30–60 minutes", "ASA-based + estimates", "$79–$499/mo"],
+  ["Sensor Tower", "Book a sales call", "Days (quote process)", "Modeled market estimates", "Custom (quote-based)"],
+  ["MobileAction", "App setup, verification", "20–40 minutes", "ASA-based + estimates", "$15–$239/mo"],
+  ["Appfigures", "App setup, verification", "20–40 minutes", "ASA-based + estimates", "$9.99–$599.99/mo"],
+  ["Astro", "Download, install, sign in", "10–15 minutes", "Apple Search Ads demand", "$9/mo ($108/yr)"],
   ["ASOGrade", "Paste 100 keywords & read scores", "Under 10 seconds", "Apple Search Ads demand", "$8.25–$14.99/mo"],
 ];
 
@@ -65,7 +75,7 @@ export default function CompareHub() {
         lead="Honest, category-level comparisons between ASOGrade and the alternatives — no made-up competitor claims, just a clear read on what each approach actually delivers."
       />
 
-      <Section title="Four common ways to handle ASO">
+      <Section title="Common ways to handle ASO">
         <LinkCardGrid
           min={280}
           items={COMPARE_PAGES.map((p) => ({
@@ -80,7 +90,7 @@ export default function CompareHub() {
 
       <Section title="Approach comparison matrix">
         <Table
-          caption="How five approaches to App Store keyword research compare"
+          caption="How different approaches to App Store keyword research compare"
           head={["Approach", "First action", "Time per batch", "Data source", "Typical cost"]}
           rows={MATRIX}
           highlightLast

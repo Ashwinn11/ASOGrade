@@ -36,6 +36,7 @@ const COLUMNS: { heading: string; links: { href: string; label: string; external
       { href: "/", label: "Keyword research" },
       { href: "/pricing", label: "Pricing" },
       { href: "/solutions", label: "Solutions" },
+      { href: "/for", label: "By role" },
     ],
   },
   {
@@ -43,7 +44,9 @@ const COLUMNS: { heading: string; links: { href: string; label: string; external
     links: [
       { href: "/guides", label: "ASO Guides" },
       { href: "/glossary", label: "ASO Glossary" },
+      { href: "/tips", label: "Quick answers" },
       { href: "/keyword-research", label: "109 Storefronts" },
+      { href: "/localization", label: "By language" },
       { href: "/compare", label: "Compare approaches" },
     ],
   },
@@ -99,26 +102,40 @@ export default function SiteFooter({ className }: { className?: string }) {
           ))}
         </div>
 
-        {/* ScrollLaunch verifies a free listing by fetching this page and
-            looking for the badge, so it has to stay on the homepage rather than
-            move to a press page later. A plain <a> and <img>: the image is
-            served from scrolllaunch.com, which next/image would need configured
-            as a remote pattern for no benefit at 220x48. */}
-        <a
-          href="https://www.scrolllaunch.com/products/asograde?ref=badge"
-          target="_blank"
-          rel="noopener"
-          className="mt-10 inline-block"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="https://www.scrolllaunch.com/api/badge/asograde"
-            alt="Featured on ScrollLaunch"
-            width={220}
-            height={48}
-            loading="lazy"
-          />
-        </a>
+        {/* ScrollLaunch and SaaSFame verify a free listing by fetching this page
+            and looking for their badge, so both have to stay on the homepage
+            rather than move to a press page later. Plain <a>/<img>: each image
+            is served from the directory's own domain, which next/image would
+            need configured as a remote pattern for no benefit at this size. */}
+        <div className="mt-10 flex flex-wrap items-center gap-4">
+          <a
+            href="https://www.scrolllaunch.com/products/asograde?ref=badge"
+            target="_blank"
+            rel="noopener"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://www.scrolllaunch.com/api/badge/asograde"
+              alt="Featured on ScrollLaunch"
+              width={220}
+              height={48}
+              loading="lazy"
+            />
+          </a>
+          <a
+            href="https://saasfame.com/item/asograde"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://saasfame.com/badge-light.svg"
+              alt="Featured on saasfame.com"
+              style={{ height: 54, width: "auto" }}
+              loading="lazy"
+            />
+          </a>
+        </div>
 
         <div className="mt-8 flex min-w-0 flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/20 pt-6 text-xs text-white/70">
           <span>&copy; {new Date().getFullYear()} ASOGrade</span>
