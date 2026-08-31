@@ -75,15 +75,6 @@ const HERO_STATS = [
 
 
 const gs = { fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
-const IconList = ({ size = 17 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" {...gs} aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" /></svg>
-);
-const IconTarget = ({ size = 17 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" {...gs} aria-hidden="true"><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3" /></svg>
-);
-const IconGlobe = ({ size = 17 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" {...gs} aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18" /></svg>
-);
 const Spark = ({ size = 13 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2Z" /></svg>
 );
@@ -93,67 +84,11 @@ const Star = ({ size = 18 }: { size?: number }) => (
 const Arrow = ({ size = 15 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" {...gs} aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" /></svg>
 );
-const ArrowUpRight = ({ size = 15 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" {...gs} aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg>
-);
 const AppleMark = ({ size = 15 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09ZM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25Z" />
   </svg>
 );
-
-interface ProductTab {
-  id: string;
-  tab: string;
-  Icon: (p: { size?: number }) => React.ReactElement;
-  kicker: string;
-  title: string;
-  body: string;
-  extra: string;
-  href: string;
-  linkLabel: string;
-  visual: "shot" | "rival" | "markets";
-}
-
-const PRODUCTS: ProductTab[] = [
-  {
-    id: "scoring",
-    tab: "Keyword Scoring",
-    Icon: IconList,
-    kicker: "Keyword scoring",
-    title: "Score every keyword before you commit to it",
-    body: "See exactly how many people search it, and how hard it is to break into the top results. Nothing in your metadata has to be a guess.",
-    extra: "Paste up to 100 keywords at once and see which ones you can win.",
-    href: "/guides/app-store-keyword-research-workflow",
-    linkLabel: "See the workflow",
-    visual: "shot",
-  },
-  {
-    id: "teardown",
-    tab: "Competitor Teardown",
-    Icon: IconTarget,
-    kicker: "Competitor teardown",
-    title: "Pull any competitor's full keyword list",
-    body: "Every app ranking above you already did this research. Paste their App Store link and get their exact keyword list, scored the same way as yours.",
-    extra: "Just paste their App Store link. You do not need an app of your own.",
-    href: "/guides/competitor-keyword-set",
-    linkLabel: "How to read a rival's set",
-    visual: "rival",
-  },
-  {
-    id: "markets",
-    tab: "Every Storefront",
-    Icon: IconGlobe,
-    kicker: "Every storefront",
-    title: `Check every keyword across all ${STORES.length} markets`,
-    body: "The same keyword can be wide open in one country and locked up in another. See where you can actually win before you spend a translation budget finding out.",
-    extra: `All ${STORES.length} storefronts are included on every plan.`,
-    href: "/keyword-research",
-    linkLabel: "Browse the storefronts",
-    visual: "markets",
-  },
-];
-
 
 const BENEFITS = [
   {
@@ -197,108 +132,6 @@ const BENEFITS = [
   },
 ];
 
-
-interface Category {
-  id: string;
-  label: string;
-  lead: string;
-  read: string;
-  href: string;
-  rows: { kw: string; pop: number; diff: number }[];
-}
-
-const CATEGORIES: Category[] = [
-  {
-    id: "health",
-    label: "Health & Fitness",
-    lead: "Crowded at the top, wide open once you get specific.",
-    read: "The two most obvious keywords are also the two hardest. \u201Cgratitude journal\u201D and \u201Cwater reminder\u201D get a third of the searches at a third of the difficulty.",
-    href: "/guides/low-competition-app-store-keywords",
-    rows: [
-      { kw: "habit tracker", pop: 67, diff: 67 },
-      { kw: "sleep sounds", pop: 66, diff: 71 },
-      { kw: "mood tracker", pop: 53, diff: 60 },
-      { kw: "gratitude journal", pop: 34, diff: 28 },
-      { kw: "water reminder", pop: 29, diff: 24 },
-    ],
-  },
-  {
-    id: "finance",
-    label: "Finance",
-    lead: "People here know what they want, and difficulty drops fast.",
-    read: "Searches stay steady all the way down the list, so the last keyword is almost as good as the first. Difficulty more than halves.",
-    href: "/guides/evaluate-keyword-difficulty",
-    rows: [
-      { kw: "budget planner", pop: 51, diff: 42 },
-      { kw: "expense tracker", pop: 49, diff: 55 },
-      { kw: "savings goal", pop: 31, diff: 26 },
-      { kw: "bill reminder", pop: 28, diff: 22 },
-      { kw: "net worth tracker", pop: 22, diff: 18 },
-    ],
-  },
-  {
-    id: "productivity",
-    label: "Productivity",
-    lead: "The biggest keywords are the least worth chasing.",
-    read: "\u201Cto do list\u201D gets the searches but you cannot win it. A new app gets found on keywords like \u201Cfocus timer\u201D and \u201Ctime blocking\u201D.",
-    href: "/guides/app-store-keyword-research-workflow",
-    rows: [
-      { kw: "to do list", pop: 62, diff: 79 },
-      { kw: "daily planner", pop: 47, diff: 68 },
-      { kw: "note taking", pop: 44, diff: 57 },
-      { kw: "focus timer", pop: 38, diff: 33 },
-      { kw: "time blocking", pop: 21, diff: 19 },
-    ],
-  },
-  {
-    id: "games",
-    label: "Games",
-    lead: "Genre keywords belong to studios with ad budgets.",
-    read: "Every genre keyword here is above 70 difficulty. \u201Cmerge game\u201D and \u201Ccozy game\u201D sit thirty points lower and still get searched.",
-    href: "/guides/low-competition-app-store-keywords",
-    rows: [
-      { kw: "puzzle games", pop: 64, diff: 81 },
-      { kw: "idle game", pop: 58, diff: 74 },
-      { kw: "word game", pop: 55, diff: 70 },
-      { kw: "merge game", pop: 41, diff: 49 },
-      { kw: "cozy game", pop: 27, diff: 31 },
-    ],
-  },
-  {
-    id: "education",
-    label: "Education",
-    lead: "A few giant keywords, and a long tail nobody targets.",
-    read: "The top two belong to apps with hundreds of millions of installs. Everything under 40 difficulty you can reach in one release.",
-    href: "/guides/multi-storefront-keyword-research",
-    rows: [
-      { kw: "language learning", pop: 58, diff: 72 },
-      { kw: "math solver", pop: 47, diff: 61 },
-      { kw: "flashcards", pop: 42, diff: 38 },
-      { kw: "study planner", pop: 31, diff: 27 },
-      { kw: "kids reading", pop: 29, diff: 24 },
-    ],
-  },
-  {
-    id: "travel",
-    label: "Travel",
-    lead: "Plain utilities, low competition, users who stay.",
-    read: "\u201Cpacking list\u201D gets half the searches of \u201Cflight tracker\u201D at under a third of the difficulty, and nobody bids on it.",
-    href: "/guides/apple-search-ads-popularity",
-    rows: [
-      { kw: "flight tracker", pop: 54, diff: 63 },
-      { kw: "trip planner", pop: 46, diff: 52 },
-      { kw: "currency converter", pop: 43, diff: 49 },
-      { kw: "offline maps", pop: 39, diff: 44 },
-      { kw: "packing list", pop: 24, diff: 18 },
-    ],
-  },
-];
-
-const catStats = (rows: Category["rows"]) => [
-  { n: String(Math.max(...rows.map((r) => r.pop))), label: "most searched" },
-  { n: String(Math.min(...rows.map((r) => r.diff))), label: "easiest to rank for" },
-  { n: `${rows.filter((r) => r.diff <= 40).length} of ${rows.length}`, label: "you can win" },
-];
 
 const CLOSING_POINTS = [
   "Your first scores in under a minute",
@@ -348,7 +181,6 @@ const FAQ = [
 
 const NAV = [
   { href: "#product", label: "Product" },
-  { href: "#examples", label: "Examples" },
   { href: "/guides", label: "Guides" },
   { href: "#faq", label: "FAQ" },
 ];
@@ -359,117 +191,6 @@ const WRAP = "mx-auto w-[min(100%-1.5rem,72rem)] min-w-0";
 const DARK_SURFACE =
   "bg-[radial-gradient(circle_at_85%_0%,rgba(255,207,188,.16),transparent_38%),linear-gradient(140deg,var(--color-dark-1),var(--color-dark-2)_60%,var(--color-dark-3))]";
 
-
-function BandHeading({
-  kicker,
-  title,
-  lead,
-  onDark = false,
-}: {
-  kicker?: string;
-  title: string;
-  lead?: string;
-  onDark?: boolean;
-}) {
-  return (
-    <div className="mx-auto min-w-0 max-w-[46rem] text-center">
-      {kicker && <Kicker tone={onDark ? "onDark" : "accent"}>{kicker}</Kicker>}
-      <h2
-        className={cn(
-          "font-display text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl",
-          onDark ? "text-dark-ink" : "text-ink",
-          kicker && "mt-4",
-        )}
-        style={{ textWrap: "balance" } as React.CSSProperties}
-      >
-        {title}
-      </h2>
-      {lead && (
-        <p
-          className={cn(
-            "mx-auto mt-4 max-w-[52ch] text-md leading-relaxed",
-            onDark ? "text-dark-ink/70" : "text-muted",
-          )}
-        >
-          {lead}
-        </p>
-      )}
-    </div>
-  );
-}
-
-
-function TabStrip({
-  items,
-  active,
-  onSelect,
-  label,
-  variant = "text",
-}: {
-  items: { id: string; label: string; Icon?: (p: { size?: number }) => React.ReactElement }[];
-  active: string;
-  onSelect: (id: string) => void;
-  label: string;
-  /** `coral` sits inside a CoralHeader; `text` sits on the page background. */
-  variant?: "text" | "coral";
-}) {
-  const coral = variant === "coral";
-  return (
-    <div
-      role="tablist"
-      aria-label={label}
-      className={cn(
-        "flex min-w-0 gap-2",
-        coral
-          ? "flex-col items-stretch sm:flex-row sm:flex-wrap sm:justify-center sm:gap-2.5"
-          : "flex-wrap justify-center sm:gap-3",
-      )}
-    >
-      {items.map((item) => {
-        const on = item.id === active;
-        return (
-          <button
-            key={item.id}
-            role="tab"
-            type="button"
-            id={`tab-${item.id}`}
-            aria-selected={on}
-            aria-controls={`panel-${item.id}`}
-            onClick={() => onSelect(item.id)}
-            className={cn(
-              "flex min-w-0 cursor-pointer items-center gap-2.5 rounded-full border text-sm font-semibold",
-              "transition-[background-color,color,border-color,box-shadow] duration-150 ease-brand",
-              coral ? "px-3.5 py-2 text-left" : "px-4 py-2",
-              on
-                ? coral
-                  ? "border-transparent bg-white text-accent-2 shadow-1"
-                  : "border-transparent bg-accent text-white shadow-1"
-                : coral
-                  ? "border-transparent bg-transparent text-white/80 hover:bg-white/15 hover:text-white"
-                  : "border-transparent bg-transparent text-muted hover:text-ink",
-            )}
-          >
-            {item.Icon && (
-              <span
-                className={cn(
-                  "flex size-7 shrink-0 items-center justify-center rounded-full transition-colors duration-150",
-                  on
-                    ? "bg-tint text-accent"
-                    : coral
-                      ? "bg-white/15 text-white/80"
-                      : "bg-sunken text-faint",
-                )}
-              >
-                <item.Icon size={15} />
-              </span>
-            )}
-            <span className="min-w-0 leading-tight">{item.label}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 export default function Landing() {
   const router = useRouter();
@@ -524,43 +245,50 @@ export default function Landing() {
 
       <main id="main" className="min-w-0">
         {/* ------------------------------------------------------- 1 · hero */}
-        <section className="min-w-0 border-b border-line">
-          <div className={cn(WRAP, "py-16 text-center sm:py-24")}>  
-            <h1
-              className="mx-auto max-w-[32ch] font-display text-3xl font-extrabold leading-[1.03] tracking-tight text-ink sm:text-4xl"
-            >
-              Stop Guessing Which App Store
-              <br />
-              Keywords Actually Work
-            </h1>
-            <p className="mx-auto mt-6 max-w-[46ch] text-md leading-relaxed text-muted">
-              ASOGrade scores every keyword with real Apple Search Ads demand —
-              the same numbers advertisers bid on, not a guess — across all{" "}
-              {STORES.length} App Store markets.
-            </p>
+        <section id="product" className="min-w-0 scroll-mt-24 border-b border-line">
+          <div className={cn(WRAP, "pb-6 pt-16 sm:pb-8 sm:pt-24")}>
+            <div className="grid min-w-0 items-center gap-10 lg:grid-cols-[1fr_1.15fr] lg:gap-14">
+              <div className="min-w-0">
+                <h1
+                  className="max-w-[20ch] font-display text-3xl font-extrabold leading-[1.03] tracking-tight text-ink sm:text-4xl"
+                  style={{ textWrap: "balance" } as React.CSSProperties}
+                >
+                  Stop Guessing Which App Store Keywords Actually Work
+                </h1>
+                <p className="mt-6 max-w-[38ch] text-md leading-relaxed text-muted">
+                  Real Apple Search Ads demand for every keyword, scored
+                  across all {STORES.length} App Store markets.
+                </p>
 
-            <div className="mt-9 flex min-w-0 flex-wrap justify-center gap-3">
-              <Cta />
-            </div>
-            <div className="mt-4">
-              <SignInNote />
+                <div className="mt-9 flex min-w-0 flex-wrap gap-3">
+                  <Cta />
+                </div>
+                <div className="mt-4">
+                  <SignInNote />
+                </div>
+
+                <div className="mt-10 flex max-w-[38ch] items-start gap-4 border-t border-line pt-7">
+                  <span className="shrink-0" aria-hidden="true">
+                    <AppleMark size={72} />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-display text-lg font-extrabold tracking-tight text-ink">
+                      Powered by Apple Search Ads
+                    </p>
+                    <p className="mt-1.5 text-sm leading-relaxed text-muted">
+                      The same number advertisers bid on, scored across all{" "}
+                      {STORES.length} markets.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="min-w-0">
+                <ProductShot />
+              </div>
             </div>
 
-            <div className="mx-auto mt-12 min-w-0 max-w-[40rem] border-t border-line pt-9 text-center">
-              <p className="flex min-w-0 flex-wrap items-center justify-center gap-3 font-display text-xl font-extrabold tracking-tight text-ink sm:text-2xl">
-                <span className="shrink-0 -translate-y-0.5" aria-hidden="true">
-                  <AppleMark size={28} />
-                </span>
-                Powered by Apple Search Ads
-              </p>
-              <p className="mx-auto mt-3 max-w-[48ch] text-sm leading-relaxed text-muted">
-                Popularity comes straight from Apple Search Ads. It is the same
-                number advertisers bid on, and we score it separately in all{" "}
-                {STORES.length} markets.
-              </p>
-            </div>
-
-            <dl className="mx-auto mt-11 grid min-w-0 max-w-[52rem] grid-cols-1 gap-px overflow-hidden rounded-card bg-accent-2 shadow-2 sm:grid-cols-3">
+            <dl className="mx-auto mt-14 grid min-w-0 max-w-[52rem] grid-cols-1 gap-px overflow-hidden rounded-card bg-accent-2 shadow-2 sm:grid-cols-3">
               {HERO_STATS.map((s) => (
                 <div key={s.label} className="min-w-0 bg-accent px-5 py-7 text-center">
                   <dt className="sr-only">{s.label}</dt>
@@ -586,13 +314,9 @@ export default function Landing() {
           </div>
         </section>
 
-        <section id="product" className={cn(WRAP, "mt-20 scroll-mt-24")}>
-          <ProductSwitcher />
-        </section>
-
 
         {/* Problem, before the benefits that solve it. */}
-        <section className={cn("mt-24 min-w-0 border-y border-ink", DARK_SURFACE)}>
+        <section className={cn("mt-14 min-w-0 border-y border-ink", DARK_SURFACE)}>
           <div className={cn(WRAP, "py-14 sm:py-16")}>
             <div className="grid min-w-0 items-center gap-10 lg:grid-cols-[minmax(0,11rem)_minmax(0,1fr)] lg:gap-16">
               <div className="relative mx-auto min-w-0 w-[min(100%,11rem)]">
@@ -661,14 +385,6 @@ export default function Landing() {
           <JsonLd data={faqSchema(FAQ)} />
         </section>
 
-        <section id="examples" className={cn(WRAP, "mt-24 scroll-mt-24")}>
-          <BandHeading
-            title="The gap in your category"
-            lead="Every category has a different spread between what is popular and what is actually winnable. These are real keyword sets, not customer results — pick yours and see the gap."
-          />
-          <WorkedExamples />
-        </section>
-
         <section className={cn(WRAP, "mt-24 grid items-center gap-10 lg:grid-cols-[1fr_1.05fr]")}>
           <div className="min-w-0">
             <h2
@@ -718,61 +434,6 @@ export default function Landing() {
   );
 }
 
-function ProductSwitcher() {
-  const [active, setActive] = useState(PRODUCTS[0].id);
-  const current = PRODUCTS.find((p) => p.id === active) ?? PRODUCTS[0];
-
-  const VISUALS = {
-    shot: <ProductShot />,
-    rival: <RivalPanel />,
-    markets: <MarketPanel />,
-  };
-
-  return (
-    <Card pad="none" className="min-w-0 overflow-hidden">
-      <CoralHeader
-        bleed={false}
-        center={
-          <TabStrip
-            variant="coral"
-            label="What it does"
-            items={PRODUCTS.map((p) => ({ id: p.id, label: p.tab, Icon: p.Icon }))}
-            active={active}
-            onSelect={setActive}
-          />
-        }
-      />
-
-      <div
-        role="tabpanel"
-        id={`panel-${current.id}`}
-        aria-labelledby={`tab-${current.id}`}
-        key={current.id}
-        className="grid min-w-0 animate-fade items-center gap-8 p-5 sm:p-8 lg:grid-cols-[1.15fr_1fr] lg:gap-12"
-      >
-        <div className="order-2 min-w-0 lg:order-1">{VISUALS[current.visual]}</div>
-
-        <div className="order-1 min-w-0 lg:order-2">
-          <Kicker>{current.kicker}</Kicker>
-          <h2 className="mt-4 font-display text-xl font-extrabold leading-tight tracking-tight text-ink sm:text-2xl">
-            {current.title}
-          </h2>
-          <p className="mt-4 text-md leading-relaxed text-muted">{current.body}</p>
-          <p className="mt-4 text-md leading-relaxed text-muted">{current.extra}</p>
-          <div className="mt-7">
-            <Link
-              href={current.href}
-              className="inline-flex items-center gap-1.5 text-md font-semibold text-accent no-underline hover:text-accent-2"
-            >
-              {current.linkLabel} <Arrow size={15} />
-            </Link>
-          </div>
-        </div>
-      </div>
-    </Card>
-  );
-}
-
 function BenefitBand({ item }: { item: (typeof BENEFITS)[number] }) {
   const VISUALS = {
     map: <OpportunityMap />,
@@ -819,84 +480,6 @@ function BenefitBand({ item }: { item: (typeof BENEFITS)[number] }) {
     </div>
   );
 }
-
-
-function WorkedExamples() {
-  const [active, setActive] = useState(CATEGORIES[0].id);
-  const cat = CATEGORIES.find((c) => c.id === active) ?? CATEGORIES[0];
-  const stats = catStats(cat.rows);
-
-  return (
-    <div className="mt-10 min-w-0">
-      <TabStrip
-        label="Categories"
-        items={CATEGORIES.map((c) => ({ id: c.id, label: c.label }))}
-        active={active}
-        onSelect={setActive}
-      />
-
-      <div
-        role="tabpanel"
-        id={`panel-${cat.id}`}
-        aria-labelledby={`tab-${cat.id}`}
-        key={cat.id}
-        className="mt-10 min-w-0 animate-fade"
-      >
-        <div className="grid min-w-0 gap-4 sm:grid-cols-3">
-          {stats.map((s) => (
-            <Card key={s.label} pad="lg" className="min-w-0">
-              <span className="flex min-w-0 items-center gap-2">
-                <span className="shrink-0 text-accent"><ArrowUpRight size={16} /></span>
-                <b className="font-display text-2xl font-extrabold leading-none text-ink">{s.n}</b>
-              </span>
-              <span className="mt-2.5 block text-sm leading-relaxed text-muted">{s.label}</span>
-            </Card>
-          ))}
-        </div>
-
-        <Card pad="lg" className="mt-4 grid min-w-0 gap-8 lg:grid-cols-[1.1fr_1fr] lg:gap-10">
-          <div className={cn("min-w-0 self-start overflow-hidden rounded-md border border-ink", DARK_SURFACE)}>
-            <div className="grid min-w-0 items-center gap-3 border-b border-white/10 px-4 py-3 [grid-template-columns:minmax(0,1fr)_5.5rem_5.5rem] sm:[grid-template-columns:minmax(0,1fr)_7rem_7rem]">
-              <span className="text-2xs font-bold uppercase tracking-[0.06em] text-dark-ink/45">
-                {cat.label}
-              </span>
-              <span className="text-2xs font-bold uppercase tracking-[0.06em] text-dark-ink/45">Pop</span>
-              <span className="text-2xs font-bold uppercase tracking-[0.06em] text-dark-ink/45">Diff</span>
-            </div>
-            <div className="min-w-0 p-2">
-              {cat.rows.map((r) => (
-                <div
-                  key={r.kw}
-                  className="grid min-w-0 items-center gap-3 rounded-md px-2 py-2.5 [grid-template-columns:minmax(0,1fr)_5.5rem_5.5rem] sm:[grid-template-columns:minmax(0,1fr)_7rem_7rem]"
-                >
-                  <span className="min-w-0 truncate text-sm text-dark-ink">{r.kw}</span>
-                  <Meter value={r.pop} band={popBand(r.pop)} onDark />
-                  <Meter value={r.diff} band={diffBand(r.diff)} onDark />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex min-w-0 flex-col justify-center">
-            <p className="text-sm leading-relaxed text-faint">{cat.lead}</p>
-            <p
-              className="mt-4 font-display text-lg font-extrabold leading-snug text-ink"
-              style={{ textWrap: "balance" } as React.CSSProperties}
-            >
-              {cat.read}
-            </p>
-            <div className="mt-7">
-              <Button variant="secondary" href={cat.href}>
-                Read the guide <Arrow size={14} />
-              </Button>
-            </div>
-          </div>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
 
 
 function RivalPanel() {
