@@ -84,6 +84,11 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  verification: {
+    other: {
+      "ory-verify": "orynth-e64469ecaecd4f80be3a2234f6ae6710",
+    },
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
