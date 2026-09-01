@@ -1,48 +1,52 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { GLOSSARY } from "@/lib/seo/glossary";
-import { GUIDES } from "@/lib/seo/guides";
-import { collectionPageSchema, breadcrumbSchema } from "@/lib/seo/schema";
-import { OG_IMAGE } from "@/lib/seo/meta";
-import { SITE_URL } from "@/lib/seo/site";
+import {
+  GLOSSARY_ENTITIES,
+  GUIDE_ENTITIES,
+  buildPseoMetadata,
+  buildUnifiedGraphSchema,
+  buildWebPageSchema,
+  buildBreadcrumbSchema,
+  SITE_URL,
+} from "@/lib/seo/engine";
 import PseoLayout from "@/app/ui/PseoLayout";
 import Section, { PageHero } from "@/app/ui/Section";
 import { LinkCardGrid } from "@/app/ui/LinkCard";
 
-export const metadata: Metadata = {
-  title: "ASO Glossary: App Store Optimization Terms | ASOGrade",
-  description:
+export const metadata: Metadata = buildPseoMetadata({
+  titleCandidates: [
+    "ASO Glossary: App Store Optimization Terms | ASOGrade",
+    "ASO Glossary: App Store Optimization Terms",
+  ],
+  descriptionCandidates: [
     "Clear definitions of App Store Optimization terms — keyword popularity, keyword difficulty, storefronts, metadata fields, competitor teardown, and more.",
-  alternates: { canonical: "/glossary" },
-  openGraph: {
-    images: [OG_IMAGE],
-    title: "ASO Glossary: App Store Optimization Terms | ASOGrade",
-    description:
-      "Clear definitions of App Store Optimization terms — keyword popularity, keyword difficulty, storefronts, metadata fields, and more.",
-    url: `${SITE_URL}/glossary`,
-    type: "website",
-  },
-};
+  ],
+  canonicalPath: "/glossary",
+  type: "website",
+});
 
-const sorted = [...GLOSSARY].sort((a, b) => a.term.localeCompare(b.term));
+const sorted = [...GLOSSARY_ENTITIES].sort((a, b) => a.term.localeCompare(b.term));
 
 export default function GlossaryHub() {
+  const jsonLdGraph = buildUnifiedGraphSchema([
+    buildWebPageSchema({
+      title: "ASO Glossary",
+      description:
+        "Definitions of App Store Optimization terms — keyword popularity, keyword difficulty, storefronts, metadata fields, competitor teardown, and more.",
+      url: `${SITE_URL}/glossary`,
+      type: "CollectionPage",
+    }),
+    buildBreadcrumbSchema([
+      { name: "ASOGrade", url: SITE_URL },
+      { name: "ASO Glossary", url: `${SITE_URL}/glossary` },
+    ]),
+  ]);
+
   return (
     <PseoLayout
       current="/glossary"
       trail={[{ label: "ASOGrade", href: "/" }, { label: "ASO Glossary" }]}
-      schema={[
-        collectionPageSchema({
-          title: "ASO Glossary",
-          description:
-            "Definitions of App Store Optimization terms — keyword popularity, keyword difficulty, storefronts, metadata fields, competitor teardown, and more.",
-          url: `${SITE_URL}/glossary`,
-        }),
-        breadcrumbSchema([
-          { name: "ASOGrade", url: SITE_URL },
-          { name: "ASO Glossary", url: `${SITE_URL}/glossary` },
-        ]),
-      ]}
+      schema={jsonLdGraph}
       cta={{
         heading: "Put the definitions to work",
         body: "Score App Store keywords by popularity and difficulty across 109 storefronts — the two numbers behind every definition in this glossary.",
@@ -71,7 +75,7 @@ export default function GlossaryHub() {
         note="Ready to apply these definitions to real keyword research workflows? Read our in-depth guides:"
       >
         <LinkCardGrid
-          items={GUIDES.slice(0, 4).map((g) => ({
+          items={GUIDE_ENTITIES.slice(0, 4).map((g) => ({
             href: `/guides/${g.slug}`,
             title: g.metaTitle ?? g.title,
             note: g.description,

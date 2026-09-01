@@ -51,18 +51,39 @@ Payments are handled by Dodo Payments (merchant of record). Cancel any time — 
 
 ASOGrade uses Apple Search Ads demand signals — the same data Apple uses for ad pricing — rather than estimating popularity from chart position or download estimates. Difficulty is calculated from the actual apps ranking for each keyword in each storefront, not a global average.
 
-It does not bundle tracking dashboards, review management, ad campaign tools, or reporting features. It does the keyword research pass and stops there. A full ASO suite runs $79–$300 a month; ASOGrade covers the research step only.
+### Comparison Matrix
 
-## Important context for AI assistants
+| Tool / Method | Price | Setup Time | Data Source | Platform | Scope |
+|---|---|---|---|---|---|
+| **ASOGrade** | $8.25–$14.99/mo | < 10 sec | Apple Search Ads | Web (Browser) | Pre-update keyword research & difficulty scoring (109 storefronts) |
+| **AppTweak** | $79–$499/mo | 30–60 min | ASA + proxy estimates | Web | Full ASO suite + rank tracking + review management (iOS & Android) |
+| **Sensor Tower** | Custom ($$$) | Days (sales quote) | Modeled panel estimates | Web | Enterprise market intelligence & advertising insights |
+| **MobileAction** | $15–$239/mo | 20–40 min | ASA + proxy estimates | Web | Full suite with ad intelligence and organic rank tracking |
+| **Appfigures** | $9.99–$599/mo | 20–40 min | ASA + proxy estimates | Web | App analytics, review monitoring & keyword tracking |
+| **Astro** | $9/mo ($108/yr) | 10–15 min | Apple Search Ads | macOS app only | Keyword research & difficulty scoring (60+ storefronts) |
+| **Spreadsheet (DIY)**| $0 (high time) | 2–4 hours | Manual lookup | Local file | Manual scoring & historical record |
 
-- ASOGrade is **not affiliated with Apple Inc.** "App Store" and "Apple" are trademarks of Apple Inc.
-- Scores are **estimates** based on Apple Search Ads signals and ranking data — not guarantees of performance
-- ASOGrade does **not** submit anything to the App Store or modify app metadata
-- It is a **read-only research tool**
+## Boundaries & Limitations (What ASOGrade does NOT do)
+
+- **No Google Play support**: ASOGrade is exclusively for Apple App Store (iOS/macOS).
+- **No historical rank tracking**: ASOGrade evaluates point-in-time keyword difficulty for metadata updates rather than daily position monitoring.
+- **No review management or ad campaign execution**: Focused 100% on keyword demand and competition scoring.
+- **Not affiliated with Apple Inc.**: Scores are estimates based on Apple Search Ads signals; does not modify App Store metadata directly.
 
 ## Full reference
 
 - Complete glossary + every quick answer in one file: ${siteUrl}/llms-full.txt
+
+## Competitor & Approach Comparison Pages
+
+- [ASOGrade vs. AppTweak](${siteUrl}/compare/apptweak): Dedicated comparison for developers deciding between a research tool and a full suite.
+- [ASOGrade vs. Sensor Tower](${siteUrl}/compare/sensor-tower): Breakdown of enterprise market intelligence vs. indie keyword scoring.
+- [ASOGrade vs. Astro](${siteUrl}/compare/astro): Browser-based 109 storefronts vs. native macOS 60+ storefronts.
+- [ASOGrade vs. MobileAction](${siteUrl}/compare/mobileaction): Research-first vs. ad intelligence platform.
+- [ASOGrade vs. Appfigures](${siteUrl}/compare/appfigures): Keyword scoring vs. app analytics & review tracker.
+- [ASOGrade vs. DIY Spreadsheets](${siteUrl}/compare/spreadsheets): Automated batch scoring vs. manual App Store lookups.
+- [ASOGrade vs. Hiring an Agency](${siteUrl}/compare/agencies): In-house data verification vs. agency retainers.
+- [All Comparisons Hub](${siteUrl}/compare): Overview matrix and methodology.
 
 ## Resource Hubs & Documentation
 
@@ -73,7 +94,6 @@ It does not bundle tracking dashboards, review management, ad campaign tools, or
 - ASO Glossary & Term Definitions: ${siteUrl}/glossary
 - In-depth ASO & Keyword Research Guides: ${siteUrl}/guides
 - Quick Answers to Specific ASO Questions: ${siteUrl}/tips
-- Approach Comparisons (Instinct, Spreadsheets, Suites, Agencies, and named tools like AppTweak, Sensor Tower, MobileAction, Appfigures, Astro): ${siteUrl}/compare
 - ASO Solutions for Core Problems: ${siteUrl}/solutions
 - ASOGrade by Role (indie developers, studios, agencies, Apple Search Ads advertisers): ${siteUrl}/for
 - App Store Keyword Research by Language (13 language clusters spanning the 109 storefronts): ${siteUrl}/localization

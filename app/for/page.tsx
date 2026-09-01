@@ -1,44 +1,48 @@
 import type { Metadata } from "next";
-import { PERSONAS } from "@/lib/seo/personas";
-import { collectionPageSchema, breadcrumbSchema } from "@/lib/seo/schema";
-import { OG_IMAGE } from "@/lib/seo/meta";
-import { SITE_URL } from "@/lib/seo/site";
+import {
+  PERSONA_ENTITIES,
+  buildPseoMetadata,
+  buildUnifiedGraphSchema,
+  buildWebPageSchema,
+  buildBreadcrumbSchema,
+  SITE_URL,
+} from "@/lib/seo/engine";
 import PseoLayout from "@/app/ui/PseoLayout";
 import Section, { PageHero } from "@/app/ui/Section";
 import { LinkCardGrid } from "@/app/ui/LinkCard";
 
-export const metadata: Metadata = {
-  title: "App Store Keyword Research by Role | ASOGrade",
-  description:
+export const metadata: Metadata = buildPseoMetadata({
+  titleCandidates: [
+    "App Store Keyword Research by Role | ASOGrade",
+    "App Store Keyword Research by Role",
+  ],
+  descriptionCandidates: [
     "How indie developers, studios, agencies, and Apple Search Ads advertisers each use ASOGrade for App Store keyword research — and where it isn't the right fit.",
-  alternates: { canonical: "/for" },
-  openGraph: {
-    images: [OG_IMAGE],
-    title: "App Store Keyword Research by Role | ASOGrade",
-    description:
-      "How indie developers, studios, agencies, and Apple Search Ads advertisers each use ASOGrade for App Store keyword research — and where it isn't the right fit.",
-    url: `${SITE_URL}/for`,
-    type: "website",
-  },
-};
+  ],
+  canonicalPath: "/for",
+  type: "website",
+});
 
 export default function ForHub() {
+  const jsonLdGraph = buildUnifiedGraphSchema([
+    buildWebPageSchema({
+      title: "App Store Keyword Research by Role",
+      description:
+        "Who ASOGrade's keyword research fits, broken down by how each kind of user actually works.",
+      url: `${SITE_URL}/for`,
+      type: "CollectionPage",
+    }),
+    buildBreadcrumbSchema([
+      { name: "ASOGrade", url: SITE_URL },
+      { name: "For", url: `${SITE_URL}/for` },
+    ]),
+  ]);
+
   return (
     <PseoLayout
       current="/for"
       trail={[{ label: "ASOGrade", href: "/" }, { label: "For" }]}
-      schema={[
-        collectionPageSchema({
-          title: "App Store Keyword Research by Role",
-          description:
-            "Who ASOGrade's keyword research fits, broken down by how each kind of user actually works.",
-          url: `${SITE_URL}/for`,
-        }),
-        breadcrumbSchema([
-          { name: "ASOGrade", url: SITE_URL },
-          { name: "For", url: `${SITE_URL}/for` },
-        ]),
-      ]}
+      schema={jsonLdGraph}
       cta={{
         heading: "Find your workflow",
         body: "Whichever one you are, the research pass looks the same: paste keywords, read real demand and difficulty, in seconds.",
@@ -52,7 +56,7 @@ export default function ForHub() {
       <Section>
         <LinkCardGrid
           min={280}
-          items={PERSONAS.map((p) => ({
+          items={PERSONA_ENTITIES.map((p) => ({
             href: `/for/${p.slug}`,
             title: p.audience,
             note: p.subtitle,

@@ -2,9 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LOCALIZATIONS } from "@/lib/seo/localization";
-import { faqSchema, breadcrumbSchema, webPageSchema } from "@/lib/seo/schema";
-import { fitTitle, fitDescription, OG_IMAGE } from "@/lib/seo/meta";
-import { SITE_URL } from "@/lib/seo/site";
+import {
+  LOCALIZATION_ENTITIES,
+  getPseoEntity,
+  buildPseoMetadata,
+  buildUnifiedGraphSchema,
+  buildBreadcrumbSchema,
+  buildFaqSchema,
+  buildWebPageSchema,
+  SITE_URL,
+  type LocalizationEntity,
+} from "@/lib/seo/engine";
 import PseoLayout from "@/app/ui/PseoLayout";
 import Section, { PageHero } from "@/app/ui/Section";
 import Prose from "@/app/ui/Prose";
@@ -13,12 +21,15 @@ import Card from "@/app/ui/Card";
 import Pill from "@/app/ui/Pill";
 import { LinkCardGrid } from "@/app/ui/LinkCard";
 
+export const dynamicParams = true;
+export const revalidate = 86400;
+
 interface Props {
   params: Promise<{ language: string }>;
 }
 
 export async function generateStaticParams() {
-  return LOCALIZATIONS.map((l) => ({ language: l.slug }));
+  return LOCALIZATION_ENTITIES.map((l) => ({ language: l.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -26,21 +37,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const loc = LOCALIZATIONS.find((l) => l.slug === language);
   if (!loc) return {};
 
-  const title = fitTitle([`${loc.metaTitle ?? loc.title} | ASOGrade`, loc.metaTitle ?? loc.title]);
-  const description = fitDescription(loc.description);
-
-  return {
-    title,
-    description,
-    alternates: { canonical: `/localization/${language}` },
-    openGraph: {
-      images: [OG_IMAGE],
-      title,
-      description,
-      url: `${SITE_URL}/localization/${language}`,
-      type: "article",
-    },
-  };
+  return buildPseoMetadata({
+    titleCandidates: [
+      `${loc.metaTitle ?? loc.title} | ASOGrade`,
+      loc.metaTitle ?? loc.title,
+    ],
+    descriptionCandidates: [loc.description],
+    canonicalPath: `/localization/${language}`,
+    type: "article",
+  });
 }
 
 export default async function LocalizationPage({ params }: Props) {
@@ -48,7 +53,21 @@ export default async function LocalizationPage({ params }: Props) {
   const loc = LOCALIZATIONS.find((l) => l.slug === language);
   if (!loc) notFound();
 
-  const others = LOCALIZATIONS.filter((l) => l.slug !== loc.slug);
+  const others = LOCALIZATION_ENTITIES.filter((l) => l.slug !== loc.slug);
+
+  const jsonLdGraph = buildUnifiedGraphSchema([
+    buildWebPageSchema({
+      title: loc.title,
+      description: loc.description,
+      url: `${SITE_URL}/localization/${loc.slug}`,
+    }),
+    buildBreadcrumbSchema([
+      { name: "ASOGrade", url: SITE_URL },
+      { name: "Localization", url: `${SITE_URL}/localization` },
+      { name: loc.language, url: `${SITE_URL}/localization/${loc.slug}` },
+    ]),
+    buildFaqSchema(loc.faq ?? []),
+  ]);
 
   return (
     <PseoLayout
@@ -58,19 +77,7 @@ export default async function LocalizationPage({ params }: Props) {
         { label: "Localization", href: "/localization" },
         { label: loc.language },
       ]}
-      schema={[
-        webPageSchema({
-          title: loc.title,
-          description: loc.description,
-          url: `${SITE_URL}/localization/${loc.slug}`,
-        }),
-        faqSchema(loc.faq),
-        breadcrumbSchema([
-          { name: "ASOGrade", url: SITE_URL },
-          { name: "Localization", url: `${SITE_URL}/localization` },
-          { name: loc.language, url: `${SITE_URL}/localization/${loc.slug}` },
-        ]),
-      ]}
+      schema={jsonLdGraph}
       cta={{
         heading: `Get started across every ${loc.language} storefront`,
         body: "Paste your candidate list and check real demand and difficulty in each market, in seconds.",
@@ -83,16 +90,16 @@ export default async function LocalizationPage({ params }: Props) {
         lead={loc.subtitle}
       />
 
-      <Card tone="sunken" className="mt-6 border-l-[3px] border-l-accent">
+      <Card tone="sunken" className="mt-6 border-l-[3px] border-l-accent" pad="md">
         <strong className="block font-display text-sm font-bold uppercase tracking-[0.04em] text-ink">
-          Storefronts covered
+          Storefronts covered by {loc.language} metadata
         </strong>
         <div className="mt-2.5 flex flex-wrap gap-2">
           {loc.storefronts.map((s) => (
             <Link
               key={s.code}
               href={`/keyword-research/${s.code}`}
-              className="rounded-full border border-black/10 bg-surface px-3 py-1 text-xs font-medium text-ink no-underline transition-colors duration-150 hover:border-accent hover:text-accent"
+              className="rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-ink no-underline transition-colors duration-150 hover:border-accent hover:text-accent"
             >
               {s.name}
             </Link>
@@ -124,7 +131,7 @@ export default async function LocalizationPage({ params }: Props) {
         </Prose>
       </Section>
 
-      {loc.faq.length > 0 && (
+      {loc.faq && loc.faq.length > 0 && (
         <Section title="Frequently asked questions">
           <Faq items={loc.faq} />
         </Section>
@@ -136,7 +143,7 @@ export default async function LocalizationPage({ params }: Props) {
           items={others.map((l) => ({
             href: `/localization/${l.slug}`,
             title: l.language,
-            note: l.subtitle,
+            note: l.description,
             cta: "Read more",
           }))}
         />

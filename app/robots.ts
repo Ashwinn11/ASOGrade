@@ -12,30 +12,27 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/dashboard", "/billing", "/auth", "/api/", "/onboarding"],
       },
       {
-        // AI search bots (ChatGPT, Perplexity, Claude) — allow for citations
+        // AI search, citation, and LLM training crawlers (ChatGPT, Claude, Gemini, Perplexity)
         userAgent: [
+          "GPTBot",
           "OAI-SearchBot",
           "ChatGPT-User",
           "ClaudeBot",
           "Claude-Web",
           "Claude-SearchBot",
+          "anthropic-ai",
+          "Google-Extended",
+          "Google-CloudVertexBot",
+          "GoogleOther",
           "PerplexityBot",
+          "CCBot",
         ],
         allow: "/",
         disallow: ["/dashboard", "/billing", "/auth", "/api/", "/onboarding"],
       },
       {
-        // AI training crawlers — block (opt out of training data)
-        userAgent: [
-          "GPTBot",
-          "anthropic-ai",
-          "Google-Extended",
-          "Google-CloudVertexBot",
-          "CCBot",
-          "Bytespider",
-          "Amazonbot",
-          "FacebookBot",
-        ],
+        // Generic aggressive scrapers & non-search bots
+        userAgent: ["Bytespider", "Amazonbot", "FacebookBot"],
         disallow: "/",
       },
     ],

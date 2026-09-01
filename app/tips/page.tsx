@@ -1,43 +1,47 @@
 import type { Metadata } from "next";
-import { TIPS } from "@/lib/seo/tips";
-import { collectionPageSchema, breadcrumbSchema } from "@/lib/seo/schema";
-import { OG_IMAGE } from "@/lib/seo/meta";
-import { SITE_URL } from "@/lib/seo/site";
+import {
+  TIP_ENTITIES,
+  buildPseoMetadata,
+  buildUnifiedGraphSchema,
+  buildWebPageSchema,
+  buildBreadcrumbSchema,
+  SITE_URL,
+} from "@/lib/seo/engine";
 import PseoLayout from "@/app/ui/PseoLayout";
 import Section, { PageHero } from "@/app/ui/Section";
 import { LinkCardGrid } from "@/app/ui/LinkCard";
 
-export const metadata: Metadata = {
-  title: "App Store Keyword Research: Quick Answers | ASOGrade",
-  description:
+export const metadata: Metadata = buildPseoMetadata({
+  titleCandidates: [
+    "App Store Keyword Research: Quick Answers | ASOGrade",
+    "App Store Keyword Research: Quick Answers",
+  ],
+  descriptionCandidates: [
     "Direct answers to specific App Store keyword and ASO questions — one question, one real answer, no padding.",
-  alternates: { canonical: "/tips" },
-  openGraph: {
-    images: [OG_IMAGE],
-    title: "App Store Keyword Research: Quick Answers | ASOGrade",
-    description:
-      "Direct answers to specific App Store keyword and ASO questions — one question, one real answer, no padding.",
-    url: `${SITE_URL}/tips`,
-    type: "website",
-  },
-};
+  ],
+  canonicalPath: "/tips",
+  type: "website",
+});
 
 export default function TipsHub() {
+  const jsonLdGraph = buildUnifiedGraphSchema([
+    buildWebPageSchema({
+      title: "App Store Keyword Research: Quick Answers",
+      description: "Direct answers to specific App Store keyword and ASO questions.",
+      url: `${SITE_URL}/tips`,
+      type: "CollectionPage",
+    }),
+    buildBreadcrumbSchema([
+      { name: "ASOGrade", url: SITE_URL },
+      { name: "Tips", url: `${SITE_URL}/tips` },
+    ]),
+  ]);
+
   return (
     <PseoLayout
       current="/tips"
       trail={[{ label: "ASOGrade", href: "/" }, { label: "Tips" }]}
-      schema={[
-        collectionPageSchema({
-          title: "App Store Keyword Research: Quick Answers",
-          description: "Direct answers to specific App Store keyword and ASO questions.",
-          url: `${SITE_URL}/tips`,
-        }),
-        breadcrumbSchema([
-          { name: "ASOGrade", url: SITE_URL },
-          { name: "Tips", url: `${SITE_URL}/tips` },
-        ]),
-      ]}
+      schema={jsonLdGraph}
       cta={{
         heading: "Get the numbers behind your own keywords",
         body: "Paste your candidate list and read popularity, difficulty, and competing app count in seconds.",
@@ -52,9 +56,9 @@ export default function TipsHub() {
         <LinkCardGrid
           min={300}
           prefetch={false}
-          items={TIPS.map((t) => ({
+          items={TIP_ENTITIES.map((t) => ({
             href: `/tips/${t.slug}`,
-            title: t.question,
+            title: t.title,
             note: t.shortAnswer,
             cta: "Read the answer",
           }))}

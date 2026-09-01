@@ -1,59 +1,84 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { GLOSSARY } from "@/lib/seo/glossary";
-import { faqSchema, breadcrumbSchema, definedTermSchema } from "@/lib/seo/schema";
-import { fitTitle, fitDescription, OG_IMAGE } from "@/lib/seo/meta";
-import { SITE_URL } from "@/lib/seo/site";
+import {
+  GLOSSARY_ENTITIES,
+  getPseoEntity,
+  buildPseoMetadata,
+  buildUnifiedGraphSchema,
+  buildDefinedTermSchema,
+  buildBreadcrumbSchema,
+  buildFaqSchema,
+  buildWebPageSchema,
+  getRelatedGlossaryTerms,
+  SITE_URL,
+  type GlossaryEntity,
+} from "@/lib/seo/engine";
 import PseoLayout from "@/app/ui/PseoLayout";
 import Section, { PageHero } from "@/app/ui/Section";
 import Prose from "@/app/ui/Prose";
 import Faq from "@/app/ui/Faq";
+import Card from "@/app/ui/Card";
 import { LinkCardGrid } from "@/app/ui/LinkCard";
+
+export const dynamicParams = true;
+export const revalidate = 86400;
 
 interface Props {
   params: Promise<{ term: string }>;
 }
 
 export async function generateStaticParams() {
-  return GLOSSARY.map((entry) => ({ term: entry.slug }));
+  return GLOSSARY_ENTITIES.map((entry) => ({ term: entry.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { term } = await params;
-  const entry = GLOSSARY.find((e) => e.slug === term);
+  const entry = getPseoEntity("glossary", term) as GlossaryEntity | null;
   if (!entry) return {};
 
-  const title = fitTitle([
-    `${entry.term} — ASO Glossary | ASOGrade`,
-    `${entry.term} — ASO Glossary`,
-    `${entry.term} | ASOGrade`,
-    entry.term,
-  ]);
-  const description = fitDescription(entry.metaDescription ?? entry.definition);
-
-  return {
-    title,
-    description,
-    alternates: { canonical: `/glossary/${term}` },
-    openGraph: {
-      images: [OG_IMAGE],
-      title,
-      description,
-      url: `${SITE_URL}/glossary/${term}`,
-      type: "article",
-    },
-  };
+  return buildPseoMetadata({
+    titleCandidates: [
+      `${entry.term} — ASO Glossary | ASOGrade`,
+      `${entry.term} — ASO Glossary`,
+      `${entry.term} | ASOGrade`,
+      entry.term,
+    ],
+    descriptionCandidates: [
+      entry.description,
+      `What is ${entry.term}? Definition, formula, and actionable App Store keyword research strategy for iOS developers.`,
+      `Learn about ${entry.term} in the ASOGrade App Store Optimization glossary.`,
+    ],
+    canonicalPath: entry.canonicalPath,
+    type: "article",
+  });
 }
 
 export default async function GlossaryTermPage({ params }: Props) {
   const { term } = await params;
-  const entry = GLOSSARY.find((e) => e.slug === term);
+  const entry = getPseoEntity("glossary", term) as GlossaryEntity | null;
   if (!entry) notFound();
 
-  const related = entry.related
-    .map((slug) => GLOSSARY.find((e) => e.slug === slug))
-    .filter(Boolean) as typeof GLOSSARY;
+  const related = getRelatedGlossaryTerms(entry.slug, 6);
+
+  const jsonLdGraph = buildUnifiedGraphSchema([
+    buildWebPageSchema({
+      title: `${entry.term} — ASO Glossary`,
+      description: entry.description,
+      url: `${SITE_URL}${entry.canonicalPath}`,
+    }),
+    buildDefinedTermSchema({
+      term: entry.term,
+      definition: entry.definition,
+      url: `${SITE_URL}${entry.canonicalPath}`,
+    }),
+    buildBreadcrumbSchema([
+      { name: "ASOGrade", url: SITE_URL },
+      { name: "ASO Glossary", url: `${SITE_URL}/glossary` },
+      { name: entry.term, url: `${SITE_URL}${entry.canonicalPath}` },
+    ]),
+    buildFaqSchema(entry.faq ?? []),
+  ]);
 
   return (
     <PseoLayout
@@ -63,19 +88,7 @@ export default async function GlossaryTermPage({ params }: Props) {
         { label: "ASO Glossary", href: "/glossary" },
         { label: entry.term },
       ]}
-      schema={[
-        definedTermSchema({
-          term: entry.term,
-          definition: entry.definition,
-          url: `${SITE_URL}/glossary/${entry.slug}`,
-        }),
-        faqSchema(entry.faq),
-        breadcrumbSchema([
-          { name: "ASOGrade", url: SITE_URL },
-          { name: "ASO Glossary", url: `${SITE_URL}/glossary` },
-          { name: entry.term, url: `${SITE_URL}/glossary/${entry.slug}` },
-        ]),
-      ]}
+      schema={jsonLdGraph}
       cta={{
         heading: "Put this into practice",
         body: `Score App Store keywords by popularity and difficulty across 109 storefronts — the numbers behind ${entry.term.toLowerCase()}.`,
@@ -84,9 +97,15 @@ export default async function GlossaryTermPage({ params }: Props) {
     >
       <PageHero kicker="ASO Glossary" title={entry.term} />
 
-      <p className="mt-5 border-l-[3px] border-accent bg-sunken px-5 py-4 text-md leading-relaxed text-ink-2">
-        {entry.definition}
-      </p>
+      {/* AEO / Quick Definition Block */}
+      <Card tone="sunken" className="mt-5 border-l-[3px] border-l-accent" pad="md">
+        <span className="text-2xs font-bold uppercase tracking-wider text-accent">
+          Core Definition
+        </span>
+        <p className="mt-1 text-base font-medium leading-relaxed text-ink">
+          {entry.definition}
+        </p>
+      </Card>
 
       <Prose className="mt-8">
         {entry.body.map((para, i) => (
@@ -94,7 +113,7 @@ export default async function GlossaryTermPage({ params }: Props) {
         ))}
       </Prose>
 
-      {entry.faq.length > 0 && (
+      {entry.faq && entry.faq.length > 0 && (
         <Section title="Frequently asked questions">
           <Faq items={entry.faq} />
         </Section>

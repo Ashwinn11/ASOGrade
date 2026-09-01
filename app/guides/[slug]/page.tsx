@@ -1,30 +1,31 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { GUIDES } from "@/lib/seo/guides";
-import { GLOSSARY } from "@/lib/seo/glossary";
-import { faqSchema, breadcrumbSchema, articleSchema } from "@/lib/seo/schema";
-import { fitTitle, fitDescription, OG_IMAGE } from "@/lib/seo/meta";
-import { SITE_URL } from "@/lib/seo/site";
+import {
+  GUIDE_ENTITIES,
+  getPseoEntity,
+  buildPseoMetadata,
+  buildUnifiedGraphSchema,
+  buildArticleSchema,
+  buildBreadcrumbSchema,
+  buildFaqSchema,
+  getRelatedGuides,
+  SITE_URL,
+  DEFAULT_OG_IMAGE,
+  type GuideEntity,
+} from "@/lib/seo/engine";
+import { GLOSSARY_ENTITIES } from "@/lib/seo/engine/registry";
 import PseoLayout from "@/app/ui/PseoLayout";
 import Section, { PageHero } from "@/app/ui/Section";
 import Prose from "@/app/ui/Prose";
 import Faq from "@/app/ui/Faq";
+import Pill from "@/app/ui/Pill";
+import Card from "@/app/ui/Card";
 import { LinkCardGrid } from "@/app/ui/LinkCard";
 
-/**
- * Fixed dates, not `new Date()`. That was the bug here before: `MODIFIED` was
- * computed at build time, so every deploy — including one that touched a
- * README and nothing in this file — silently republished "updated today" on
- * all 8 guides. Google discounts trust in dateModified once it stops
- * correlating with real changes, so a value that moves on every build is
- * worse than a static one that occasionally lags.
- *
- * Anchored to this file's own git history rather than invented: `guides.ts`
- * was added 2026-08-26, last substantively touched 2026-08-27, then grew from
- * 8 to 23 entries on 2026-08-28. Bump MODIFIED by hand the next time a guide's
- * content actually changes.
- */
+export const dynamicParams = true;
+export const revalidate = 86400;
+
 const PUBLISHED = "2026-08-26T00:00:00Z";
 const MODIFIED = "2026-08-28T00:00:00Z";
 
@@ -33,57 +34,69 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  return GUIDES.map((guide) => ({ slug: guide.slug }));
+  return GUIDE_ENTITIES.map((guide) => ({ slug: guide.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const guide = GUIDES.find((g) => g.slug === slug);
+  const guide = getPseoEntity("guide", slug) as GuideEntity | null;
   if (!guide) return {};
 
-  const title = fitTitle([
-    `${guide.metaTitle ?? guide.title} | ASOGrade`,
-    guide.metaTitle ?? guide.title,
-  ]);
-  const description = fitDescription(guide.description);
-
-  return {
-    title,
-    description,
-    alternates: { canonical: `/guides/${slug}` },
-    openGraph: {
-      images: [OG_IMAGE],
-      title,
-      description,
-      url: `${SITE_URL}/guides/${slug}`,
-      type: "article",
-    },
-  };
+  return buildPseoMetadata({
+    titleCandidates: [
+      `${guide.metaTitle ?? guide.title} | ASOGrade`,
+      guide.metaTitle ?? guide.title,
+    ],
+    descriptionCandidates: [guide.description],
+    canonicalPath: guide.canonicalPath,
+    type: "article",
+    publishedTime: PUBLISHED,
+    modifiedTime: MODIFIED,
+  });
 }
 
 export default async function GuidePage({ params }: Props) {
   const { slug } = await params;
-  const guide = GUIDES.find((g) => g.slug === slug);
+  const guide = getPseoEntity("guide", slug) as GuideEntity | null;
   if (!guide) notFound();
 
-  const related = guide.related.map((rel) => {
+  const related = guide.relatedItems.map((rel) => {
     if (rel.type === "guide") {
-      const found = GUIDES.find((g) => g.slug === rel.slug);
+      const found = GUIDE_ENTITIES.find((g) => g.slug === rel.slug);
       return {
         href: `/guides/${rel.slug}`,
         title: found?.title ?? rel.label,
         note: found?.description,
-        cta: "Read",
+        cta: "Read guide",
       };
     }
-    const found = GLOSSARY.find((g) => g.slug === rel.slug);
+    const found = GLOSSARY_ENTITIES.find((g) => g.slug === rel.slug);
     return {
       href: `/glossary/${rel.slug}`,
       title: found?.term ?? rel.label,
       note: found?.definition,
-      cta: "Read",
+      cta: "Read term",
     };
   });
+
+  const moreGuides = getRelatedGuides(guide.slug, 4);
+
+  const jsonLdGraph = buildUnifiedGraphSchema([
+    buildArticleSchema({
+      title: guide.title,
+      description: guide.description,
+      url: `${SITE_URL}${guide.canonicalPath}`,
+      image: DEFAULT_OG_IMAGE,
+      datePublished: PUBLISHED,
+      dateModified: MODIFIED,
+    }),
+    buildBreadcrumbSchema([
+      { name: "ASOGrade", url: SITE_URL },
+      { name: "Guides", url: `${SITE_URL}/guides` },
+      { name: guide.title, url: `${SITE_URL}${guide.canonicalPath}` },
+    ]),
+    buildFaqSchema(guide.faq ?? []),
+  ]);
 
   return (
     <PseoLayout
@@ -93,29 +106,31 @@ export default async function GuidePage({ params }: Props) {
         { label: "Guides", href: "/guides" },
         { label: guide.title },
       ]}
-      schema={[
-        articleSchema({
-          title: guide.title,
-          description: guide.description,
-          url: `${SITE_URL}/guides/${guide.slug}`,
-          image: { ...OG_IMAGE, url: `${SITE_URL}${OG_IMAGE.url}` },
-          datePublished: PUBLISHED,
-          dateModified: MODIFIED,
-        }),
-        faqSchema(guide.faq),
-        breadcrumbSchema([
-          { name: "ASOGrade", url: SITE_URL },
-          { name: "Guides", url: `${SITE_URL}/guides` },
-          { name: guide.title, url: `${SITE_URL}/guides/${guide.slug}` },
-        ]),
-      ]}
+      schema={jsonLdGraph}
       cta={{
         heading: "Apply this in your own keyword research",
         body: "Score App Store keywords by popularity and difficulty across 109 storefronts — the tool behind every strategy in this guide.",
         label: "Start keyword research",
       }}
     >
-      <PageHero kicker="ASOGrade Guide" title={guide.title} lead={guide.description} />
+      <PageHero
+        kicker="ASOGrade Guide"
+        title={guide.title}
+        lead={guide.description}
+        badges={
+          <Pill tone="neutral">{guide.readingTimeMinutes} min read</Pill>
+        }
+      />
+
+      {/* Key Takeaways Callout for AEO / Quick Scan */}
+      <Card tone="sunken" className="mt-6 border-l-[3px] border-l-accent" pad="md">
+        <span className="text-2xs font-bold uppercase tracking-wider text-accent">
+          Key Takeaway &amp; Summary
+        </span>
+        <p className="mt-1 text-sm font-medium leading-relaxed text-ink">
+          {guide.description}
+        </p>
+      </Card>
 
       <Prose className="mt-8">
         {guide.sections.map((section, si) => (
@@ -128,7 +143,7 @@ export default async function GuidePage({ params }: Props) {
         ))}
       </Prose>
 
-      {guide.faq.length > 0 && (
+      {guide.faq && guide.faq.length > 0 && (
         <Section title="Frequently asked questions">
           <Faq items={guide.faq} />
         </Section>
@@ -142,14 +157,12 @@ export default async function GuidePage({ params }: Props) {
 
       <Section title="More guides">
         <LinkCardGrid
-          items={GUIDES.filter((g) => g.slug !== guide.slug)
-            .slice(0, 4)
-            .map((g) => ({
-              href: `/guides/${g.slug}`,
-              title: g.metaTitle ?? g.title,
-              note: g.description,
-              cta: "Read guide",
-            }))}
+          items={moreGuides.map((g) => ({
+            href: `/guides/${g.slug}`,
+            title: g.metaTitle ?? g.title,
+            note: g.description,
+            cta: "Read guide",
+          }))}
         />
         <Link
           href="/guides"

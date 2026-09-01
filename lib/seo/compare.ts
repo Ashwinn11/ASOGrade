@@ -15,6 +15,11 @@ export interface ComparePageData {
   title: string;
   subtitle: string;
   description: string;
+  quickVerdict?: {
+    summary: string;
+    bestForCompetitor: string;
+    bestForASOGrade: string;
+  };
   intro: string[];
   whatThisApproachDoes: string[];
   whereItFalls: string[];
@@ -30,6 +35,12 @@ export const COMPARE_DATA: ComparePageData[] = [
     subtitle: "Moving from gut feel to grounded keyword decisions",
     description:
       "Guessing on keyword instinct is a common starting point — here's what it costs you and when a research tool earns its keep.",
+    quickVerdict: {
+      summary:
+        "Instinct generates strong candidate ideas but cannot predict search demand or ranking accessibility. ASOGrade pairs intuitive ideation with real Apple Search Ads popularity and difficulty metrics.",
+      bestForCompetitor: "Day 0 pre-launch product validation before committing to optimization.",
+      bestForASOGrade: "Developers actively updating metadata to systematically grow organic App Store downloads.",
+    },
     intro: [
       "Most developers pick their first App Store keywords on instinct. You know your app, you know what it does, and you write the subtitle and keyword field based on how you'd describe it. This is a reasonable starting point — you're not making things up, you're drawing on genuine product knowledge.",
       "The problem is that instinct doesn't have access to two pieces of information that matter: which of your instinctive terms actually have search demand in the App Store, and which of them have ranking sets you can realistically break into. Without those numbers, you're optimizing on assumptions that may or may not match real user search behaviour.",
@@ -71,6 +82,12 @@ export const COMPARE_DATA: ComparePageData[] = [
     subtitle: "What spreadsheet-based ASO does well and where it stalls",
     description:
       "DIY spreadsheet keyword research is a disciplined approach — here's what it gets right, what it misses, and when dedicated tooling becomes worth the cost.",
+    quickVerdict: {
+      summary:
+        "Spreadsheets are free and highly customizable for small keyword sets, but fail at volume and multi-storefront scale. ASOGrade cuts 2–3 hours of manual lookup down to seconds with daily-refreshed scoring across 109 markets.",
+      bestForCompetitor: "Developers tracking 20–30 keywords in a single market with zero tooling budget.",
+      bestForASOGrade: "Developers running batch research across 100+ keywords or multiple App Store countries.",
+    },
     intro: [
       "Running App Store keyword research through a spreadsheet — collecting candidates, manually checking each one in the App Store or via a free tool, recording scores, sorting and filtering — is a legitimate approach. It is disciplined, repeatable, and free beyond the time investment.",
       "Many indie developers and small studios manage their ASO this way and get good results. The question is not whether spreadsheet-based research works, but at what point the time cost and data freshness limitations make a dedicated tool the better option.",
@@ -108,6 +125,12 @@ export const COMPARE_DATA: ComparePageData[] = [
     subtitle: "The keyword research pass versus the everything tool",
     description:
       "Full ASO suites do more than keyword research. Here's what they include, what they cost, and when a dedicated research tool makes more sense.",
+    quickVerdict: {
+      summary:
+        "Full suites ($79–$300/mo) bundle rank tracking, review management, and ad intelligence with steep onboarding. ASOGrade ($8.25–$14.99/mo) focuses strictly on the pre-update keyword scoring pass with zero setup.",
+      bestForCompetitor: "Agencies and teams requiring daily rank tracking, review replies, and enterprise ad analytics.",
+      bestForASOGrade: "Developers who only need keyword demand & difficulty scoring before metadata updates.",
+    },
     intro: [
       "If you're already paying for a full ASO suite, you know the numbers matter — you're already investing in data to improve your App Store results. The question is whether you're using the full feature set you're paying for, or whether you primarily need the keyword research component.",
       "Full ASO suites — products like AppTweak, Sensor Tower, and MobileAction — are comprehensive platforms that bundle keyword research, rank tracking, review management, competitor monitoring, ad campaign analytics, and reporting dashboards. They price for the full bundle.",
@@ -149,6 +172,12 @@ export const COMPARE_DATA: ComparePageData[] = [
     subtitle: "When agency-managed ASO makes sense — and when it doesn't",
     description:
       "ASO agencies handle keyword research and metadata for you. What you get, what it costs, and when DIY research with good tooling is the better fit.",
+    quickVerdict: {
+      summary:
+        "Agencies charge $500–$5,000/mo to handle full ASO strategy on retainer. ASOGrade ($8.25–$14.99/mo) lets developers run in-house research or audit agency shortlists with verifiable Apple Search Ads data.",
+      bestForCompetitor: "High-revenue apps lacking internal marketing bandwidth who want full delegation.",
+      bestForASOGrade: "Developers managing ASO in-house or wanting independent verification of agency recommendations.",
+    },
     intro: [
       "Hiring an ASO agency or freelancer to manage your keyword research means outsourcing the process entirely — they run the research, write the metadata, submit the updates, and report results. For the right situation, this is genuinely valuable. For others, it creates dependency without the corresponding benefit.",
       "The most important thing you can do with agency-managed ASO is understand their work well enough to evaluate it. Being able to check a shortlist they've proposed — looking up the demand and difficulty for each keyword they've recommended — is the minimum viable oversight for a decision that directly affects your app's organic growth.",
@@ -190,6 +219,12 @@ export const COMPARE_DATA: ComparePageData[] = [
     subtitle: "A full App Store and Google Play intelligence suite versus a research-only tool",
     description:
       "AppTweak bundles keyword research with rank tracking, competitor monitoring, and ad intelligence across App Store and Google Play. Here's how the research pass compares.",
+    quickVerdict: {
+      summary:
+        "AppTweak ($79–$499/mo) is a comprehensive multi-store platform for continuous rank tracking and Google Play + iOS intelligence. ASOGrade ($8.25–$14.99/mo) is a dedicated browser tool for instant App Store keyword difficulty scoring.",
+      bestForCompetitor: "Cross-platform teams (iOS & Android) needing ongoing rank monitoring and review management.",
+      bestForASOGrade: "iOS developers looking for fast, affordable App Store keyword research without subscription bloat.",
+    },
     intro: [
       "AppTweak is one of the most established ASO platforms on the market, covering both the App Store and Google Play with keyword research, rank tracking, competitor monitoring, ratings and reviews analysis, and Apple Search Ads intelligence in one dashboard.",
       "If you're evaluating AppTweak against ASOGrade, the real question is whether you need the full platform or just the keyword research step inside it. AppTweak is built to be the single tool a team lives in daily; ASOGrade is built to be the tool you open before a metadata update and close afterward.",
@@ -231,6 +266,12 @@ export const COMPARE_DATA: ComparePageData[] = [
     subtitle: "Enterprise market intelligence versus a self-serve keyword research tool",
     description:
       "Sensor Tower is a market-intelligence platform with custom, quote-based pricing. Here's what that means if you only need App Store keyword research.",
+    quickVerdict: {
+      summary:
+        "Sensor Tower is an enterprise intelligence platform with custom quote-based pricing for macro market sizing. ASOGrade is an instant, transparently priced ($14.99/mo) tool built for App Store keyword scoring.",
+      bestForCompetitor: "Enterprises needing cross-market download/revenue estimations and advertising intelligence.",
+      bestForASOGrade: "Indie developers and app marketers needing immediate, self-serve App Store keyword demand scoring.",
+    },
     intro: [
       "Sensor Tower is a mobile market-intelligence platform built for enterprise clients: Store Intelligence, Ad Intelligence, Audience data, Web Insights, and more, plus its own Gen AI product and MCP server for programmatic access. It's aimed at competitive intelligence across an entire market, not a single app's keyword research.",
       "The comparison here is unusual because Sensor Tower doesn't publish self-serve pricing at all. Their own pricing page states plainly that plans are customized for each customer through a sales conversation, so there's no tier or dollar figure to weigh against ASOGrade's $14.99/month the way you can with other tools.",
@@ -271,6 +312,12 @@ export const COMPARE_DATA: ComparePageData[] = [
     subtitle: "A tiered ASO and ad-intelligence suite versus a flat-priced research tool",
     description:
       "MobileAction prices ASO Intelligence, Apple Ads campaign management, and ad intelligence as three separate products. Here's how the keyword research tier compares.",
+    quickVerdict: {
+      summary:
+        "MobileAction bundles ASO and Apple Search Ads campaign management with tiered keyword limits ($15–$239/mo). ASOGrade provides flat pricing with uncapped total research across 109 storefronts.",
+      bestForCompetitor: "Teams managing live Apple Search Ads campaigns alongside keyword rank tracking.",
+      bestForASOGrade: "Developers wanting pure organic keyword research across 100-keyword batches without tier caps.",
+    },
     intro: [
       "MobileAction sells ASO Intelligence (keyword research, rank tracking, competitor analysis) as one product, Apple Ads campaign management (CMP) as a second, and Ad Intelligence (creative and network data) as a third. Each has its own pricing, so the number you land on depends on which you need.",
       "For keyword research specifically, MobileAction's ASO Intelligence tiers are the relevant comparison. Its CMP tool has a free tier for accounts under $10,000/month in Apple Ads spend, which is worth knowing if you're already running Search Ads campaigns and just need a keyword-scoring layer alongside them.",
@@ -312,6 +359,12 @@ export const COMPARE_DATA: ComparePageData[] = [
     subtitle: "An app analytics platform with ASO features versus a keyword-research-first tool",
     description:
       "Appfigures is built around download, revenue, and subscription analytics, with keyword tools layered on top. Here's how it compares for keyword research specifically.",
+    quickVerdict: {
+      summary:
+        "Appfigures bundles revenue and download analytics with keyword monitoring (real ASO starting at $44.99/mo). ASOGrade ($8.25–$14.99/mo) strips away unneeded analytics to focus purely on rapid keyword difficulty scoring.",
+      bestForCompetitor: "Developers wanting third-party download, revenue, and subscription analytics alongside basic ASO.",
+      bestForASOGrade: "Developers already using App Store Connect for metrics who just need high-speed keyword scoring.",
+    },
     intro: [
       "Appfigures started as an app analytics platform (downloads, revenue, subscriptions, ad spend across your own apps) and has added ASO features across its pricing tiers over time. Keyword research is one part of what it does rather than the whole product.",
       "That shapes the comparison: if you want analytics and ASO in one dashboard, Appfigures does both. If keyword research is the specific job, you're choosing how much analytics tooling you want to pay for to get it.",
@@ -352,6 +405,12 @@ export const COMPARE_DATA: ComparePageData[] = [
     subtitle: "A native Mac app with rank tracking versus a browser-based research tool",
     description:
       "Astro is a macOS-only app priced close to ASOGrade's yearly rate. The real difference is platform and rank tracking, not cost.",
+    quickVerdict: {
+      summary:
+        "Astro ($9/mo or $108/yr) is a native macOS-only application covering 60+ storefronts with rank tracking. ASOGrade ($8.25–$14.99/mo) runs in any web browser without installation and covers 109 storefronts.",
+      bestForCompetitor: "Mac-only indie developers who require daily historical rank tracking.",
+      bestForASOGrade: "Developers on any OS (Mac, Windows, Linux, Mobile) needing 109 storefronts and zero local software installs.",
+    },
     intro: [
       "Astro (tryastro.app) is a native macOS application for App Store keyword research: install a DMG, sign in, and work from a desktop app rather than a browser tab. It requires macOS 14 or later.",
       "Astro's pricing, $9/month or $108/year for a single Mac license, sits close enough to ASOGrade's $14.99/month ($99/year) that price isn't the deciding factor between them. Platform and feature scope are.",

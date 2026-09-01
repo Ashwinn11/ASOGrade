@@ -1,33 +1,29 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { STORES, POPULAR, flagOf } from "@/lib/types";
-import { collectionPageSchema, breadcrumbSchema } from "@/lib/seo/schema";
-import { OG_IMAGE } from "@/lib/seo/meta";
-import { SITE_URL } from "@/lib/seo/site";
+import {
+  buildPseoMetadata,
+  buildUnifiedGraphSchema,
+  buildWebPageSchema,
+  buildBreadcrumbSchema,
+  SITE_URL,
+} from "@/lib/seo/engine";
 import PseoLayout from "@/app/ui/PseoLayout";
 import Section, { PageHero } from "@/app/ui/Section";
 import Card from "@/app/ui/Card";
 import { LinkCardGrid } from "@/app/ui/LinkCard";
 
-/* Retitled to lead with the modifier rather than the head term.
-   Five pages carried "app store keyword research" in title and H1 while the
-   homepage, which has the most internal links on the domain, carried it in
-   neither. The homepage now owns the bare term; every page below it leads with
-   what makes it different — by storefront, how-to, fast, affordable. */
-export const metadata: Metadata = {
-  title: `App Store Keyword Research by Storefront: ${STORES.length} Markets`,
-  description:
-    "App Store keyword research guides for all 109 storefronts — which markets have the best demand-to-difficulty ratio, from the US to emerging markets.",
-  alternates: { canonical: "/keyword-research" },
-  openGraph: {
-    images: [OG_IMAGE],
-    title: `App Store Keyword Research by Storefront: ${STORES.length} Markets`,
-    description:
-      "App Store keyword research guides for all 109 storefronts. Find out which markets have the best demand-to-difficulty ratio for your category.",
-    url: `${SITE_URL}/keyword-research`,
-    type: "website",
-  },
-};
+export const metadata: Metadata = buildPseoMetadata({
+  titleCandidates: [
+    `App Store Keyword Research by Storefront: ${STORES.length} Markets | ASOGrade`,
+    `App Store Keyword Research by Storefront: ${STORES.length} Markets`,
+  ],
+  descriptionCandidates: [
+    "App Store keyword research guides for all 109 storefronts — discover which markets have the best demand-to-difficulty ratio, from the US to emerging markets.",
+  ],
+  canonicalPath: "/keyword-research",
+  type: "website",
+});
 
 const popular = STORES.filter(([code]) => POPULAR.includes(code));
 const others = STORES.filter(([code]) => !POPULAR.includes(code));
@@ -48,22 +44,25 @@ const TIERS = [
 ];
 
 export default function KeywordResearchHub() {
+  const jsonLdGraph = buildUnifiedGraphSchema([
+    buildWebPageSchema({
+      title: "App Store Keyword Research by Storefront",
+      description:
+        "App Store keyword research guides for all 109 storefronts, covering market tier, primary language, and keyword strategy for each market.",
+      url: `${SITE_URL}/keyword-research`,
+      type: "CollectionPage",
+    }),
+    buildBreadcrumbSchema([
+      { name: "ASOGrade", url: SITE_URL },
+      { name: "Keyword Research by Storefront", url: `${SITE_URL}/keyword-research` },
+    ]),
+  ]);
+
   return (
     <PseoLayout
       current="/keyword-research"
       trail={[{ label: "ASOGrade", href: "/" }, { label: "Keyword Research by Storefront" }]}
-      schema={[
-        collectionPageSchema({
-          title: "App Store Keyword Research by Storefront",
-          description:
-            "App Store keyword research guides for all 109 storefronts, covering market tier, primary language, and keyword strategy for each market.",
-          url: `${SITE_URL}/keyword-research`,
-        }),
-        breadcrumbSchema([
-          { name: "ASOGrade", url: SITE_URL },
-          { name: "Keyword Research by Storefront", url: `${SITE_URL}/keyword-research` },
-        ]),
-      ]}
+      schema={jsonLdGraph}
       cta={{
         heading: "Research keywords across all 109 storefronts",
         body: "Score any keyword for popularity and difficulty in any storefront. Paste 100 ideas and read the numbers — no install required.",
@@ -86,7 +85,7 @@ export default function KeywordResearchHub() {
         <StoreGrid stores={others} />
       </Section>
 
-      <Section title="Storefront strategy & tier classification">
+      <Section title="Storefront strategy &amp; tier classification">
         <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))]">
           {TIERS.map((t) => (
             <Card key={t.name}>
@@ -97,7 +96,7 @@ export default function KeywordResearchHub() {
         </div>
       </Section>
 
-      <Section title="Related localization & keyword guides">
+      <Section title="Related localization &amp; keyword guides">
         <LinkCardGrid
           items={[
             {

@@ -1,33 +1,66 @@
 import type { MetadataRoute } from "next";
-import { STORES } from "@/lib/types";
-import { GLOSSARY } from "@/lib/seo/glossary";
-import { GUIDES } from "@/lib/seo/guides";
-import { COMPARE_DATA } from "@/lib/seo/compare";
-import { SOLUTION_DETAILS } from "@/lib/seo/solutions";
-import { PERSONAS } from "@/lib/seo/personas";
-import { LOCALIZATIONS } from "@/lib/seo/localization";
-import { TIPS } from "@/lib/seo/tips";
+import { SITE_URL } from "@/lib/seo/site";
+import {
+  STOREFRONT_ENTITIES,
+  GLOSSARY_ENTITIES,
+  GUIDE_ENTITIES,
+  COMPARE_ENTITIES,
+  PERSONA_ENTITIES,
+  SOLUTION_ENTITIES,
+  LOCALIZATION_ENTITIES,
+  TIP_ENTITIES,
+} from "@/lib/seo/engine";
 
-/* Read from the same arrays the routes generate from, so a new page cannot
-   ship without a sitemap entry. These two were hand-listed here while their
-   content still lived inline in the route files. */
-const COMPARE_SLUGS = COMPARE_DATA.map((d) => d.slug);
-const SOLUTION_SLUGS = SOLUTION_DETAILS.map((d) => d.slug);
+/**
+ * Sitemap IDs for scalable partitioning.
+ * Keeps each chunk under Google's 50,000 URL limit and enables incremental builds.
+ */
+export const SITEMAP_CHUNKS = [
+  { id: 0, name: "core-and-hubs" },
+  { id: 1, name: "storefronts" },
+  { id: 2, name: "glossary" },
+  { id: 3, name: "guides" },
+  { id: 4, name: "comparisons-and-solutions" },
+  { id: 5, name: "localization-and-tips" },
+];
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://asograde.com";
+export async function generateSitemaps() {
+  return SITEMAP_CHUNKS.map((c) => ({ id: c.id }));
+}
+
+interface SitemapProps {
+  id?: Promise<{ id: string | number }> | { id: string | number } | number | string;
+}
+
+export default async function sitemap(props?: SitemapProps): Promise<MetadataRoute.Sitemap> {
+  const siteUrl = SITE_URL;
   const now = new Date();
 
-  const coreRoutes: MetadataRoute.Sitemap = [
+  // Resolve ID across Next.js versions (synchronous, object, or Promise-wrapped)
+  let rawId: unknown = props;
+  if (props && typeof props === "object" && "id" in props) {
+    rawId = (props as { id: unknown }).id;
+    if (rawId && typeof rawId === "object" && typeof (rawId as Promise<unknown>).then === "function") {
+      const resolved = await (rawId as Promise<{ id?: string | number } | string | number>);
+      rawId = typeof resolved === "object" && resolved !== null && "id" in resolved ? resolved.id : resolved;
+    }
+  }
+
+  const chunkId =
+    rawId !== undefined && rawId !== null && rawId !== ""
+      ? typeof rawId === "number"
+        ? rawId
+        : parseInt(String(rawId), 10)
+      : null;
+
+  // Chunk 0: Core static pages & category hubs
+  const coreAndHubs: MetadataRoute.Sitemap = [
     {
       url: siteUrl,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 1.0,
     },
-    /* /pricing, not /onboarding. The funnel is noindex and gated behind Google
-       sign-in, so it had nothing to offer a crawler but a spinner; the price
-       it was ranked for now lives on a server-rendered page of its own. */
     {
       url: `${siteUrl}/pricing`,
       lastModified: now,
@@ -46,9 +79,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.4,
     },
-  ];
-
-  const hubRoutes: MetadataRoute.Sitemap = [
     {
       url: `${siteUrl}/keyword-research`,
       lastModified: now,
@@ -99,72 +129,86 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const storeRoutes: MetadataRoute.Sitemap = STORES.map(([code]) => ({
-    url: `${siteUrl}/keyword-research/${code}`,
+  // Chunk 1: Storefront programmatic pages (109 markets)
+  const storefrontRoutes: MetadataRoute.Sitemap = STOREFRONT_ENTITIES.map((s) => ({
+    url: `${siteUrl}${s.canonicalPath}`,
+    lastModified: now,
+    changeFrequency: s.isMajor ? "weekly" : "monthly",
+    priority: s.isMajor ? 0.8 : 0.7,
+  }));
+
+  // Chunk 2: Glossary terms (75+ terms)
+  const glossaryRoutes: MetadataRoute.Sitemap = GLOSSARY_ENTITIES.map((g) => ({
+    url: `${siteUrl}${g.canonicalPath}`,
     lastModified: now,
     changeFrequency: "monthly",
     priority: 0.7,
   }));
 
-  const glossaryRoutes: MetadataRoute.Sitemap = GLOSSARY.map((entry) => ({
-    url: `${siteUrl}/glossary/${entry.slug}`,
+  // Chunk 3: Comprehensive Guides (25+ guides)
+  const guideRoutes: MetadataRoute.Sitemap = GUIDE_ENTITIES.map((g) => ({
+    url: `${siteUrl}${g.canonicalPath}`,
     lastModified: now,
-    changeFrequency: "monthly",
-    priority: 0.7,
+    changeFrequency: "weekly",
+    priority: 0.85,
   }));
 
-  const guideRoutes: MetadataRoute.Sitemap = GUIDES.map((guide) => ({
-    url: `${siteUrl}/guides/${guide.slug}`,
+  // Chunk 4: Competitor alternatives, Solutions, and Personas
+  const compareRoutes: MetadataRoute.Sitemap = COMPARE_ENTITIES.map((c) => ({
+    url: `${siteUrl}${c.canonicalPath}`,
     lastModified: now,
     changeFrequency: "monthly",
     priority: 0.8,
   }));
 
-  const compareRoutes: MetadataRoute.Sitemap = COMPARE_SLUGS.map((slug) => ({
-    url: `${siteUrl}/compare/${slug}`,
+  const solutionRoutes: MetadataRoute.Sitemap = SOLUTION_ENTITIES.map((s) => ({
+    url: `${siteUrl}${s.canonicalPath}`,
     lastModified: now,
     changeFrequency: "monthly",
-    priority: 0.7,
+    priority: 0.75,
   }));
 
-  const solutionRoutes: MetadataRoute.Sitemap = SOLUTION_SLUGS.map((slug) => ({
-    url: `${siteUrl}/solutions/${slug}`,
+  const personaRoutes: MetadataRoute.Sitemap = PERSONA_ENTITIES.map((p) => ({
+    url: `${siteUrl}${p.canonicalPath}`,
     lastModified: now,
     changeFrequency: "monthly",
-    priority: 0.7,
+    priority: 0.75,
   }));
 
-  const personaRoutes: MetadataRoute.Sitemap = PERSONAS.map((p) => ({
-    url: `${siteUrl}/for/${p.slug}`,
+  const comparisonsAndSolutions = [...compareRoutes, ...solutionRoutes, ...personaRoutes];
+
+  // Chunk 5: Localization & Actionable Tips
+  const localizationRoutes: MetadataRoute.Sitemap = LOCALIZATION_ENTITIES.map((l) => ({
+    url: `${siteUrl}${l.canonicalPath}`,
     lastModified: now,
     changeFrequency: "monthly",
-    priority: 0.7,
+    priority: 0.75,
   }));
 
-  const localizationRoutes: MetadataRoute.Sitemap = LOCALIZATIONS.map((l) => ({
-    url: `${siteUrl}/localization/${l.slug}`,
+  const tipRoutes: MetadataRoute.Sitemap = TIP_ENTITIES.map((t) => ({
+    url: `${siteUrl}${t.canonicalPath}`,
     lastModified: now,
     changeFrequency: "monthly",
-    priority: 0.7,
+    priority: 0.65,
   }));
 
-  const tipRoutes: MetadataRoute.Sitemap = TIPS.map((t) => ({
-    url: `${siteUrl}/tips/${t.slug}`,
-    lastModified: now,
-    changeFrequency: "monthly",
-    priority: 0.6,
-  }));
+  const localizationAndTips = [...localizationRoutes, ...tipRoutes];
 
+  // Return chunk if requested by generateSitemaps
+  if (chunkId === 0) return coreAndHubs;
+  if (chunkId === 1) return storefrontRoutes;
+  if (chunkId === 2) return glossaryRoutes;
+  if (chunkId === 3) return guideRoutes;
+  if (chunkId === 4) return comparisonsAndSolutions;
+  if (chunkId === 5) return localizationAndTips;
+
+  // Fallback: full sitemap if called without an ID
   return [
-    ...coreRoutes,
-    ...hubRoutes,
-    ...guideRoutes,
+    ...coreAndHubs,
+    ...storefrontRoutes,
     ...glossaryRoutes,
-    ...compareRoutes,
-    ...solutionRoutes,
-    ...personaRoutes,
-    ...localizationRoutes,
-    ...tipRoutes,
-    ...storeRoutes,
+    ...guideRoutes,
+    ...comparisonsAndSolutions,
+    ...localizationAndTips,
   ];
 }

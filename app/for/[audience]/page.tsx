@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { PERSONAS } from "@/lib/seo/personas";
-import { faqSchema, breadcrumbSchema, webPageSchema } from "@/lib/seo/schema";
-import { fitTitle, fitDescription, OG_IMAGE } from "@/lib/seo/meta";
-import { SITE_URL } from "@/lib/seo/site";
+import {
+  PERSONA_ENTITIES,
+  getPseoEntity,
+  buildPseoMetadata,
+  buildUnifiedGraphSchema,
+  buildBreadcrumbSchema,
+  buildFaqSchema,
+  buildWebPageSchema,
+  SITE_URL,
+  type PersonaEntity,
+} from "@/lib/seo/engine";
 import PseoLayout from "@/app/ui/PseoLayout";
 import Section, { PageHero } from "@/app/ui/Section";
 import Prose from "@/app/ui/Prose";
@@ -11,42 +18,53 @@ import Faq from "@/app/ui/Faq";
 import Card from "@/app/ui/Card";
 import { LinkCardGrid } from "@/app/ui/LinkCard";
 
+export const dynamicParams = true;
+export const revalidate = 86400;
+
 interface Props {
   params: Promise<{ audience: string }>;
 }
 
 export async function generateStaticParams() {
-  return PERSONAS.map((p) => ({ audience: p.slug }));
+  return PERSONA_ENTITIES.map((p) => ({ audience: p.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { audience } = await params;
-  const persona = PERSONAS.find((p) => p.slug === audience);
+  const persona = getPseoEntity("persona", audience) as PersonaEntity | null;
   if (!persona) return {};
 
-  const title = fitTitle([`${persona.metaTitle ?? persona.title} | ASOGrade`, persona.metaTitle ?? persona.title]);
-  const description = fitDescription(persona.description);
-
-  return {
-    title,
-    description,
-    alternates: { canonical: `/for/${audience}` },
-    openGraph: {
-      images: [OG_IMAGE],
-      title,
-      description,
-      url: `${SITE_URL}/for/${audience}`,
-      type: "article",
-    },
-  };
+  return buildPseoMetadata({
+    titleCandidates: [
+      `${persona.metaTitle ?? persona.title} | ASOGrade`,
+      persona.metaTitle ?? persona.title,
+    ],
+    descriptionCandidates: [persona.description],
+    canonicalPath: persona.canonicalPath,
+    type: "article",
+  });
 }
 
 export default async function PersonaPage({ params }: Props) {
   const { audience } = await params;
-  const persona = PERSONAS.find((p) => p.slug === audience);
+  const persona = getPseoEntity("persona", audience) as PersonaEntity | null;
   if (!persona) notFound();
 
-  const others = PERSONAS.filter((p) => p.slug !== persona.slug);
+  const others = PERSONA_ENTITIES.filter((p) => p.slug !== persona.slug);
+
+  const jsonLdGraph = buildUnifiedGraphSchema([
+    buildWebPageSchema({
+      title: persona.title,
+      description: persona.description,
+      url: `${SITE_URL}${persona.canonicalPath}`,
+    }),
+    buildBreadcrumbSchema([
+      { name: "ASOGrade", url: SITE_URL },
+      { name: "For", url: `${SITE_URL}/for` },
+      { name: persona.audience, url: `${SITE_URL}${persona.canonicalPath}` },
+    ]),
+    buildFaqSchema(persona.faq ?? []),
+  ]);
 
   return (
     <PseoLayout
@@ -56,19 +74,7 @@ export default async function PersonaPage({ params }: Props) {
         { label: "For", href: "/for" },
         { label: persona.audience },
       ]}
-      schema={[
-        webPageSchema({
-          title: persona.title,
-          description: persona.description,
-          url: `${SITE_URL}/for/${persona.slug}`,
-        }),
-        faqSchema(persona.faq),
-        breadcrumbSchema([
-          { name: "ASOGrade", url: SITE_URL },
-          { name: "For", url: `${SITE_URL}/for` },
-          { name: persona.audience, url: `${SITE_URL}/for/${persona.slug}` },
-        ]),
-      ]}
+      schema={jsonLdGraph}
       cta={{
         heading: "See it with your own keywords",
         body: "Paste your candidate list and read popularity, difficulty, and competing app count across 109 storefronts.",
@@ -120,7 +126,7 @@ export default async function PersonaPage({ params }: Props) {
         </Prose>
       </Section>
 
-      {persona.faq.length > 0 && (
+      {persona.faq && persona.faq.length > 0 && (
         <Section title="Frequently asked questions">
           <Faq items={persona.faq} />
         </Section>

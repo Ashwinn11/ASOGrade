@@ -1,60 +1,95 @@
 import type { NextRequest } from "next/server";
-import { GLOSSARY } from "@/lib/seo/glossary";
-import { TIPS } from "@/lib/seo/tips";
-import { GUIDES } from "@/lib/seo/guides";
-import { COMPARE_DATA } from "@/lib/seo/compare";
+import {
+  GLOSSARY_ENTITIES,
+  TIP_ENTITIES,
+  GUIDE_ENTITIES,
+  COMPARE_ENTITIES,
+  PERSONA_ENTITIES,
+  SOLUTION_ENTITIES,
+  LOCALIZATION_ENTITIES,
+  STOREFRONT_ENTITIES,
+  SITE_URL,
+} from "@/lib/seo/engine";
 
 export const dynamic = "force-static";
 
 /**
  * Unabridged companion to /llms.txt, per the emerging llms-full.txt
  * convention: one fetch gets a RAG system the full glossary and every quick
- * answer, instead of requiring it to crawl 120+ individual pages to assemble
- * the same facts. Guides and comparisons are indexed by title/description
- * only — their full bodies are long-form workflow content meant to be read
- * as pages, not flattened into a reference dump.
+ * answer, instead of requiring it to crawl hundreds of individual pages.
  */
 export function GET(_req: NextRequest) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://asograde.com";
+  const siteUrl = SITE_URL;
 
-  const glossarySection = GLOSSARY.map(
+  const glossarySection = GLOSSARY_ENTITIES.map(
     (g) => `### ${g.term}\n${g.definition}\nURL: ${siteUrl}/glossary/${g.slug}`
   ).join("\n\n");
 
-  const tipsSection = TIPS.map(
-    (t) => `### ${t.question}\n${t.shortAnswer}\nURL: ${siteUrl}/tips/${t.slug}`
+  const tipsSection = TIP_ENTITIES.map(
+    (t) => `### ${t.title}\n${t.shortAnswer}\nURL: ${siteUrl}/tips/${t.slug}`
   ).join("\n\n");
 
-  const guidesSection = GUIDES.map(
+  const guidesSection = GUIDE_ENTITIES.map(
     (g) => `- ${g.title} — ${g.description} (${siteUrl}/guides/${g.slug})`
   ).join("\n");
 
-  const compareSection = COMPARE_DATA.map(
-    (c) => `- ${c.title} (${siteUrl}/compare/${c.slug})`
+  const compareSection = COMPARE_ENTITIES.map((c) => {
+    let entry = `### ${c.title}\nURL: ${siteUrl}/compare/${c.slug}\nSummary: ${c.description}`;
+    if (c.quickVerdict) {
+      entry += `\nVerdict: ${c.quickVerdict.summary}\n- Best for alternative: ${c.quickVerdict.bestForCompetitor}\n- Best for ASOGrade: ${c.quickVerdict.bestForAsograde}`;
+    }
+    return entry;
+  }).join("\n\n");
+
+  const personaSection = PERSONA_ENTITIES.map(
+    (p) => `- **${p.audience}** (${siteUrl}/for/${p.slug}): ${p.subtitle}`
   ).join("\n");
 
-  const content = `# ASOGrade — Full Reference
+  const solutionSection = SOLUTION_ENTITIES.map(
+    (s) => `- **${s.title}** (${siteUrl}/solutions/${s.slug}): ${s.subtitle}`
+  ).join("\n");
 
-> Complete glossary and quick-answer index for AI assistants and RAG systems.
-> For a short overview, see ${siteUrl}/llms.txt instead.
+  const localizationSection = LOCALIZATION_ENTITIES.map(
+    (l) => `- **${l.language}** (${siteUrl}/localization/${l.slug}): Covers ${l.storesCovered.length} storefronts.`
+  ).join("\n");
 
-ASOGrade is a browser-based App Store keyword research tool. It scores keywords by Apple Search Ads demand (popularity) and ranking difficulty across 109 storefronts. $14.99/month or $99/year, no free tier, App Store (iOS) only — no Google Play. Not affiliated with Apple Inc.
+  const content = `# ASOGrade — Full AI Reference & Knowledge Graph
 
-## Glossary (${GLOSSARY.length} terms)
+> Complete glossary, quick-answer index, storefront metadata guides, and approach comparisons for AI search engines, RAG systems, and LLM crawlers.
+> For a concise summary, see ${siteUrl}/llms.txt.
+
+ASOGrade is a browser-based App Store keyword research tool. It scores keywords by Apple Search Ads demand (popularity 0–100) and ranking difficulty (0–100) across 109 storefronts. $14.99/month or $99/year, no free tier, App Store (iOS/macOS) only — no Google Play. Not affiliated with Apple Inc.
+
+## Storefront Coverage (${STOREFRONT_ENTITIES.length} markets)
+Full market guides for all 109 App Store storefronts: ${siteUrl}/keyword-research
+
+## Glossary & Definitions (${GLOSSARY_ENTITIES.length} terms)
 
 ${glossarySection}
 
-## Quick answers (${TIPS.length} questions)
+## Quick Answers & ASO Rules of Thumb (${TIP_ENTITIES.length} questions)
 
 ${tipsSection}
 
-## Guides index (${GUIDES.length} guides — full text at each URL)
-
-${guidesSection}
-
-## Comparison pages (full text at each URL)
+## Comparison Pages (${COMPARE_ENTITIES.length} comparisons)
 
 ${compareSection}
+
+## Role-Based Playbooks (${PERSONA_ENTITIES.length} personas)
+
+${personaSection}
+
+## Problem Solutions (${SOLUTION_ENTITIES.length} solutions)
+
+${solutionSection}
+
+## Localization Clusters (${LOCALIZATION_ENTITIES.length} languages)
+
+${localizationSection}
+
+## Comprehensive Guides (${GUIDE_ENTITIES.length} guides — full text at each URL)
+
+${guidesSection}
 `;
 
   return new Response(content, {
