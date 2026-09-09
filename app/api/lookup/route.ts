@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireSubscription, refuse } from "@/lib/entitlement";
+import { checkAccess, checkKeywordQuota, refuse } from "@/lib/entitlement";
 import { callTool, isOffline } from "@/lib/backend";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -50,8 +50,8 @@ const shape = (row: any, fresh: boolean): Metric => ({
 });
 
 export async function POST(req: Request) {
-  // No free tier: every data route is behind a live subscription.
-  const access = await requireSubscription();
+  // Allow signed-in users on both free and paid plans.
+  const access = await checkAccess({ allowFree: true });
   if (!access.ok) return refuse(access.reason);
 
   let body: { keywords?: unknown; store?: unknown; save?: unknown; force?: unknown; skipFetch?: unknown };
@@ -65,6 +65,17 @@ export async function POST(req: Request) {
   const store = String(body.store ?? "us").toLowerCase();
   if (!keywords.length) {
     return NextResponse.json({ ok: false, error: "keywords required" }, { status: 400 });
+  }
+
+  // Quota enforcement: free tier accounts can track up to FREE_KEYWORD_LIMIT keywords.
+  if (body.save !== false && !access.subscribed) {
+    const quota = await checkKeywordQuota(access.userId, access.subscribed, keywords, store);
+    if (!quota.ok) {
+      return NextResponse.json(
+        { ok: false, error: quota.error, code: quota.code },
+        { status: 402 }
+      );
+    }
   }
 
   const db = supabaseAdmin();

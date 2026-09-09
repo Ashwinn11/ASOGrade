@@ -20,6 +20,12 @@ import { ALL_STORES, flagOf, storeName, timeAgo, type KeywordRow, type RankingAp
 
 /* ------------------------------------------------------------------ utils */
 
+const AppleMark = ({ size = 13 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09ZM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25Z" />
+  </svg>
+);
+
 const split = (text: string) =>
   text.split(/[\n,]/).map((k) => k.trim().toLowerCase().replace(/\s+/g, " ")).filter(Boolean);
 
@@ -111,7 +117,7 @@ export default function Page() {
    */
   const fail = (e: unknown, byAction = false) => {
     const msg = e instanceof Error ? e.message : String(e);
-    if (/subscription/i.test(msg)) {
+    if (/subscription/i.test(msg) || /free plan/i.test(msg) || /limit/i.test(msg)) {
       setSubscribed(false);
       setError(null);
       if (byAction) setGate(true);
@@ -552,12 +558,31 @@ export default function Page() {
           account chip at the actual right edge. */}
       <header className="flex w-full min-w-0 items-center justify-between gap-3 px-4 py-5 sm:px-6">
         <BrandMark size="sm" />
-        <AccountChip onSignIn={() => router.push("/")} />
+        <div className="flex items-center gap-3">
+          {subscribed === false && (
+            <button
+              type="button"
+              onClick={() => setGate(true)}
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-accent/30 bg-tint px-3 py-1 text-xs font-semibold text-accent-2 transition-colors hover:bg-tint-2 hover:border-accent/40"
+              title="Click to upgrade"
+            >
+              <span>Free</span>
+              <span className="opacity-50" aria-hidden>·</span>
+              <span className="font-mono tabular-nums">{rows.length}/3 keywords</span>
+            </button>
+          )}
+          <AccountChip onSignIn={() => router.push("/")} />
+        </div>
       </header>
 
       <main className="mx-auto mt-8 w-[min(100%-1.5rem,72rem)] min-w-0 flex-1">
         <div className="min-w-0">
-          <Kicker>Apple Search Ads data</Kicker>
+          <Kicker>
+            <span className="inline-flex items-center gap-1.5">
+              <AppleMark size={13} />
+              <span>Apple Search Ads data</span>
+            </span>
+          </Kicker>
           <h1 className="mt-3 max-w-[22ch] font-display text-2xl font-extrabold leading-tight tracking-tight text-ink sm:text-3xl">
             Build the keyword set you can actually rank for.
           </h1>
@@ -1064,18 +1089,19 @@ export default function Page() {
 
       {/* -------------------------------------------------- subscription gate */}
       {gate && (
-        <Modal onClose={() => setGate(false)} title="Subscription needed">
+        <Modal onClose={() => setGate(false)} title="Upgrade to track more keywords">
           <BrandMark size="sm" as="span" />
           <p className="mt-5 font-display text-xl font-extrabold leading-tight text-ink">
-            Subscription needed
+            {rows.length >= 3 ? "Free limit reached (3/3 keywords)" : "Subscription needed"}
           </p>
           <p className="mt-2 text-sm leading-relaxed text-muted">
-            Scoring keywords needs an active plan. Your lists stay exactly as you
-            left them.
+            {rows.length >= 3
+              ? "You've used your 3 free keywords. Upgrade to track unlimited keywords with live Apple Search Ads metrics across all 109 stores."
+              : "Scoring keywords across all storefronts requires an active plan. Your saved lists stay safe."}
           </p>
 
           <div className="mt-6 flex flex-col gap-2.5">
-            <Button href="/pricing" size="lg" block>See the plans</Button>
+            <Button href="/pricing" size="lg" block>Upgrade for unlimited keywords</Button>
             <Button href="/billing" variant="ghost" size="sm" block>Check billing</Button>
           </div>
         </Modal>

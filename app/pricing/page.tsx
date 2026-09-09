@@ -46,10 +46,10 @@ const TITLE = `ASOGrade Pricing — $${MONTHLY}/mo or $${YEARLY}/yr`;
 /* Was 178 characters, the only description on the site over the 160 Google
    renders, so it was the only one being cut in the result it was written for. */
 const DESCRIPTION = fitMeta([
-  `App Store keyword research for $${PER_MONTH_ON_YEARLY} a month on the yearly plan. All ${STORES.length} storefronts, ` +
-    `100 keywords a check, competitor teardowns. No free tier.`,
+  `App Store keyword research from $${PER_MONTH_ON_YEARLY} a month on the yearly plan. All ${STORES.length} storefronts, ` +
+    `100 keywords a check, competitor teardowns. Try 3 keywords free.`,
   `App Store keyword research from $${PER_MONTH_ON_YEARLY} a month. All ${STORES.length} storefronts and ` +
-    `competitor teardowns on both plans.`,
+    `competitor teardowns on both plans. Try free, no account needed.`,
 ]);
 
 /* Below the buttons, and that placement is the whole argument.
@@ -71,7 +71,7 @@ const DESCRIPTION = fitMeta([
 const FAQ = [
   {
     q: "Is there a free trial?",
-    a: `No, and there is no free tier either. Every keyword you score costs a live Apple Search Ads lookup and a ranking pass over the storefront, so there is no version of this that is free to run. The yearly plan works out at $${PER_MONTH_ON_YEARLY} a month if you want the cheapest way in.`,
+    a: `Yes — you can score 3 keywords on the homepage without signing in. After that, a paid plan unlocks 100 keywords at once, all ${STORES.length} storefronts, and full competitor teardowns. The yearly plan works out at $${PER_MONTH_ON_YEARLY} a month.`,
   },
   {
     q: "What is the difference between the monthly and yearly plans?",
@@ -118,6 +118,13 @@ export default function Pricing() {
         <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
           One price, every storefront
         </h1>
+        <p className="mt-2 text-sm text-faint">
+          Not sure yet?{" "}
+          <Link href="/" className="text-accent underline-offset-2 hover:underline">
+            ← Try 3 keywords free
+          </Link>
+          {" "}— no account needed.
+        </p>
 
         <BuyPlans />
 

@@ -37,15 +37,32 @@ const SAVED = "asograde.onboarding";
  * No footer, no nav. A funnel has one thing it wants the visitor to do, and a
  * footer is thirty links to somewhere else sitting directly under it.
  */
-function Shell({ children, ready, user, onHome }: {
+function Shell({ children, ready, user, onHome, onSkip }: {
   children: React.ReactNode;
   ready: boolean;
   user: { email?: string | null } | null;
   onHome: () => void;
+  onSkip?: () => void;
 }) {
   return (
     <div className="flex min-h-screen min-w-0 flex-col">
-      <SiteHeader links={[]} actions={ready && user ? <AccountChip onSignIn={onHome} /> : undefined} />
+      <SiteHeader
+        links={[]}
+        actions={
+          <div className="flex items-center gap-3">
+            {onSkip && (
+              <button
+                type="button"
+                onClick={onSkip}
+                className="cursor-pointer text-xs font-semibold text-muted transition-colors hover:text-ink"
+              >
+                Skip to dashboard →
+              </button>
+            )}
+            {ready && user ? <AccountChip onSignIn={onHome} /> : null}
+          </div>
+        }
+      />
       <main className="mx-auto my-10 w-[min(100%-1.5rem,40rem)] min-w-0 flex-1">{children}</main>
     </div>
   );
@@ -121,7 +138,7 @@ export default function Start() {
         router.replace("/dashboard");
         return;
       }
-      if (prior) { router.replace("/pricing"); return; }
+      if (prior) { router.replace("/dashboard"); return; }
       setChecked(true);
     })();
   }, [ready, user, router]);
@@ -133,8 +150,8 @@ export default function Start() {
 
   const back = () => setStep((s) => Math.max(0, s - 1));
 
-  /* The last answer is the end of the funnel, not a step towards another
-     screen: it is filed and the visitor is handed to the price. */
+  /* The last answer is the end of the funnel: answers are saved and the user
+     lands directly on their dashboard with their free quota ready. */
   const finish = async (final: Answers) => {
     setSaving(true);
     try {
@@ -146,11 +163,9 @@ export default function Start() {
       if (!r?.ok) console.error("[start] answers not saved:", r?.error);
       else { try { localStorage.removeItem(SAVED); } catch { /* nothing to clear */ } }
     } catch (e) {
-      // A failed write costs us a row of research and costs them the six
-      // questions again next time. It must not also cost them the price.
       console.error("[start] answers not saved:", e);
     }
-    router.replace("/pricing");
+    router.replace("/dashboard");
   };
 
   const advance = (final: Answers) => {
@@ -175,12 +190,13 @@ export default function Start() {
 
   const pct = useMemo(() => Math.round((step / QUESTIONS.length) * 100), [step]);
   const home = () => router.push("/");
+  const skip = () => router.replace("/dashboard");
 
   /* Signed in, but we do not yet know whether they belong here, in the
      workspace or at the price. A quiet hold rather than a flash of question one. */
   if (!ready || !user || !checked) {
     return (
-      <Shell ready={ready} user={user} onHome={home}>
+      <Shell ready={ready} user={user} onHome={home} onSkip={skip}>
         <Waiting label={ready && user ? "Setting up your account…" : "Taking you to sign in…"} />
       </Shell>
     );
@@ -188,14 +204,14 @@ export default function Start() {
 
   if (saving) {
     return (
-      <Shell ready={ready} user={user} onHome={home}>
+      <Shell ready={ready} user={user} onHome={home} onSkip={skip}>
         <Waiting label="Saving your answers…" />
       </Shell>
     );
   }
 
   return (
-    <Shell ready={ready} user={user} onHome={home}>
+    <Shell ready={ready} user={user} onHome={home} onSkip={skip}>
       <div className="h-1 w-full overflow-hidden rounded-full bg-line" aria-hidden="true">
         <div
           className="h-full rounded-full bg-accent transition-[width] duration-300 ease-brand"
