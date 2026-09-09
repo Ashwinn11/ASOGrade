@@ -225,13 +225,19 @@ export default function Landing() {
                   </p>
                 )}
 
-                <div className="mt-8 flex min-w-0 flex-wrap items-center gap-3">
-                  <div className="flex items-center gap-1.5 text-xs text-faint">
-                    <AppleMark size={13} />
-                    <span>Powered by Apple Search Ads</span>
+                {/* Apple Search Ads credibility callout */}
+                <div className="mt-9 flex items-start gap-4 border-t border-line/70 pt-6">
+                  <div className="shrink-0 text-ink pt-0.5">
+                    <AppleMark size={36} />
                   </div>
-                  <span className="text-faint" aria-hidden>·</span>
-                  <span className="text-xs text-faint">{STORES.length} markets</span>
+                  <div className="min-w-0">
+                    <p className="font-display text-base font-bold text-ink sm:text-lg">
+                      Powered by Apple Search Ads
+                    </p>
+                    <p className="mt-1 text-sm leading-relaxed text-muted">
+                      The same number advertisers bid on, scored across all {STORES.length} markets.
+                    </p>
+                  </div>
                 </div>
               </div>
 

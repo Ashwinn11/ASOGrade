@@ -35,36 +35,38 @@ export default function SignInModal({ onClose, next = "/dashboard" }: {
 
   return (
     <Modal onClose={onClose} title="Sign in to ASOGrade">
-      <BrandMark size="sm" as="span" />
+      <div className="flex flex-col items-center text-center">
+        <BrandMark size="sm" as="span" />
 
-      <p className="mt-5 font-display text-xl font-extrabold leading-tight text-ink">
-        Sign in to ASOGrade
-      </p>
-      <p className="mt-2 text-sm leading-relaxed text-muted">
-        Sign in and your lists stay put — one workspace per store, on every device.
-      </p>
+        <p className="mt-5 font-display text-xl font-extrabold leading-tight text-ink">
+          Sign in to ASOGrade
+        </p>
+        <p className="mt-2 text-sm leading-relaxed text-muted">
+          Sign in and your lists stay put — one workspace per store, on every device.
+        </p>
 
-      <button
-        type="button"
-        onClick={go}
-        disabled={busy || !ready}
-        className="mt-6 flex w-full min-w-0 cursor-pointer items-center justify-center gap-2.5 rounded-full bg-ink px-5 py-3.5 text-base font-semibold text-white transition-colors duration-150 hover:not-disabled:bg-ink-2 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {GOOGLE}
-        <span>{busy ? "Redirecting…" : "Continue with Google"}</span>
-      </button>
+        <button
+          type="button"
+          onClick={go}
+          disabled={busy || !ready}
+          className="mt-6 flex w-full min-w-0 cursor-pointer items-center justify-center gap-2.5 rounded-full bg-ink px-5 py-3.5 text-base font-semibold text-white transition-colors duration-150 hover:not-disabled:bg-ink-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {GOOGLE}
+          <span>{busy ? "Redirecting…" : "Continue with Google"}</span>
+        </button>
 
-      {!ready && (
-        <Notice tone="error" className="mt-4">
-          Add <code className="font-mono text-xs">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
-          <code className="font-mono text-xs">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to{" "}
-          <code className="font-mono text-xs">.env.local</code>, then enable Google under
-          Authentication → Providers.
-        </Notice>
-      )}
-      {err && <Notice tone="error" className="mt-4">{err}</Notice>}
+        {!ready && (
+          <Notice tone="error" className="mt-4 w-full text-left">
+            Add <code className="font-mono text-xs">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
+            <code className="font-mono text-xs">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to{" "}
+            <code className="font-mono text-xs">.env.local</code>, then enable Google under
+            Authentication → Providers.
+          </Notice>
+        )}
+        {err && <Notice tone="error" className="mt-4 w-full text-left">{err}</Notice>}
 
-      <p className="mt-5 text-xs text-faint">No card, no spam. Takes a couple of seconds.</p>
+        <p className="mt-5 text-xs text-faint">No card, no spam. Takes a couple of seconds.</p>
+      </div>
     </Modal>
   );
 }
