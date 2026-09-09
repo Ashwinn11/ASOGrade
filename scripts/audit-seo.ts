@@ -39,7 +39,7 @@ import {
   SITE_URL,
 } from "@/lib/seo/engine";
 
-import sitemap, { generateSitemaps, SITEMAP_CHUNKS } from "@/app/sitemap";
+import sitemap from "@/app/sitemap";
 
 console.log("=================================================");
 console.log("  ASOGrade Programmatic SEO Audit & Quality Suite");
@@ -301,43 +301,34 @@ for (const store of STOREFRONT_ENTITIES) {
 console.log("  ✓ Validated market-specific analytical insights and differentiation engines.");
 
 // ---------------------------------------------------------------------------
-// 7. Sitemap Partitioning & Scale Check (100k+ scalability)
+// 7. Sitemap Validity & Scale Check
 // ---------------------------------------------------------------------------
-console.log("\n▶ Auditing XML Sitemap Partitioning & Scalability...");
+console.log("\n▶ Auditing XML Sitemap...");
 
 async function auditSitemaps() {
-  const sitemaps = await generateSitemaps();
+  const urls = await sitemap();
+
   assert(
-    Array.isArray(sitemaps) && sitemaps.length === SITEMAP_CHUNKS.length,
-    `generateSitemaps() must return ${SITEMAP_CHUNKS.length} partitioned chunks`
+    Array.isArray(urls) && urls.length > 0,
+    "sitemap() must return a non-empty array of URLs"
+  );
+  assert(
+    urls.length < 50000,
+    `Sitemap must not exceed Google's 50,000 URL limit (has ${urls.length})`
   );
 
-  let totalSitemapUrls = 0;
-  for (const chunk of SITEMAP_CHUNKS) {
-    const urls = await sitemap({ id: chunk.id });
+  for (const item of urls) {
     assert(
-      Array.isArray(urls) && urls.length > 0,
-      `Sitemap chunk [${chunk.id}: ${chunk.name}] must contain URLs`
+      item.url.startsWith("https://") || item.url.startsWith("http://"),
+      `Sitemap URL must be absolute HTTPS: ${item.url}`
     );
     assert(
-      urls.length < 50000,
-      `Sitemap chunk [${chunk.id}] must not exceed Google's 50,000 URL limit (has ${urls.length})`
+      item.priority !== undefined && item.priority >= 0 && item.priority <= 1.0,
+      `Sitemap URL priority must be between 0 and 1.0: ${item.url} (${item.priority})`
     );
-
-    for (const item of urls) {
-      assert(
-        item.url.startsWith("https://") || item.url.startsWith("http://"),
-        `Sitemap URL must be absolute HTTPS: ${item.url}`
-      );
-      assert(
-        item.priority !== undefined && item.priority >= 0 && item.priority <= 1.0,
-        `Sitemap URL priority must be between 0 and 1.0: ${item.url} (${item.priority})`
-      );
-    }
-    totalSitemapUrls += urls.length;
   }
 
-  console.log(`  ✓ Sitemap partitioned into ${SITEMAP_CHUNKS.length} clean chunks with ${totalSitemapUrls} total URLs.`);
+  console.log(`  ✓ Sitemap contains ${urls.length} valid URLs (single /sitemap.xml).`);
 }
 
 async function main() {
