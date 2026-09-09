@@ -11,49 +11,11 @@ import {
   TIP_ENTITIES,
 } from "@/lib/seo/engine";
 
-/**
- * Sitemap IDs for scalable partitioning.
- * Keeps each chunk under Google's 50,000 URL limit and enables incremental builds.
- */
-export const SITEMAP_CHUNKS = [
-  { id: 0, name: "core-and-hubs" },
-  { id: 1, name: "storefronts" },
-  { id: 2, name: "glossary" },
-  { id: 3, name: "guides" },
-  { id: 4, name: "comparisons-and-solutions" },
-  { id: 5, name: "localization-and-tips" },
-];
-
-export async function generateSitemaps() {
-  return SITEMAP_CHUNKS.map((c) => ({ id: c.id }));
-}
-
-interface SitemapProps {
-  id?: Promise<{ id: string | number }> | { id: string | number } | number | string;
-}
-
-export default async function sitemap(props?: SitemapProps): Promise<MetadataRoute.Sitemap> {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = SITE_URL;
   const now = new Date();
 
-  // Resolve ID across Next.js versions (synchronous, object, or Promise-wrapped)
-  let rawId: unknown = props;
-  if (props && typeof props === "object" && "id" in props) {
-    rawId = (props as { id: unknown }).id;
-    if (rawId && typeof rawId === "object" && typeof (rawId as Promise<unknown>).then === "function") {
-      const resolved = await (rawId as Promise<{ id?: string | number } | string | number>);
-      rawId = typeof resolved === "object" && resolved !== null && "id" in resolved ? resolved.id : resolved;
-    }
-  }
-
-  const chunkId =
-    rawId !== undefined && rawId !== null && rawId !== ""
-      ? typeof rawId === "number"
-        ? rawId
-        : parseInt(String(rawId), 10)
-      : null;
-
-  // Chunk 0: Core static pages & category hubs
+  // Core static pages & category hubs
   const coreAndHubs: MetadataRoute.Sitemap = [
     {
       url: siteUrl,
@@ -129,7 +91,7 @@ export default async function sitemap(props?: SitemapProps): Promise<MetadataRou
     },
   ];
 
-  // Chunk 1: Storefront programmatic pages (109 markets)
+  // Storefront programmatic pages (109 markets)
   const storefrontRoutes: MetadataRoute.Sitemap = STOREFRONT_ENTITIES.map((s) => ({
     url: `${siteUrl}${s.canonicalPath}`,
     lastModified: now,
@@ -137,7 +99,7 @@ export default async function sitemap(props?: SitemapProps): Promise<MetadataRou
     priority: s.isMajor ? 0.8 : 0.7,
   }));
 
-  // Chunk 2: Glossary terms (75+ terms)
+  // Glossary terms
   const glossaryRoutes: MetadataRoute.Sitemap = GLOSSARY_ENTITIES.map((g) => ({
     url: `${siteUrl}${g.canonicalPath}`,
     lastModified: now,
@@ -145,7 +107,7 @@ export default async function sitemap(props?: SitemapProps): Promise<MetadataRou
     priority: 0.7,
   }));
 
-  // Chunk 3: Comprehensive Guides (25+ guides)
+  // Comprehensive Guides
   const guideRoutes: MetadataRoute.Sitemap = GUIDE_ENTITIES.map((g) => ({
     url: `${siteUrl}${g.canonicalPath}`,
     lastModified: now,
@@ -153,7 +115,7 @@ export default async function sitemap(props?: SitemapProps): Promise<MetadataRou
     priority: 0.85,
   }));
 
-  // Chunk 4: Competitor alternatives, Solutions, and Personas
+  // Competitor alternatives & Solutions
   const compareRoutes: MetadataRoute.Sitemap = COMPARE_ENTITIES.map((c) => ({
     url: `${siteUrl}${c.canonicalPath}`,
     lastModified: now,
@@ -175,9 +137,7 @@ export default async function sitemap(props?: SitemapProps): Promise<MetadataRou
     priority: 0.75,
   }));
 
-  const comparisonsAndSolutions = [...compareRoutes, ...solutionRoutes, ...personaRoutes];
-
-  // Chunk 5: Localization & Actionable Tips
+  // Localization & Tips
   const localizationRoutes: MetadataRoute.Sitemap = LOCALIZATION_ENTITIES.map((l) => ({
     url: `${siteUrl}${l.canonicalPath}`,
     lastModified: now,
@@ -192,23 +152,15 @@ export default async function sitemap(props?: SitemapProps): Promise<MetadataRou
     priority: 0.65,
   }));
 
-  const localizationAndTips = [...localizationRoutes, ...tipRoutes];
-
-  // Return chunk if requested by generateSitemaps
-  if (chunkId === 0) return coreAndHubs;
-  if (chunkId === 1) return storefrontRoutes;
-  if (chunkId === 2) return glossaryRoutes;
-  if (chunkId === 3) return guideRoutes;
-  if (chunkId === 4) return comparisonsAndSolutions;
-  if (chunkId === 5) return localizationAndTips;
-
-  // Fallback: full sitemap if called without an ID
   return [
     ...coreAndHubs,
     ...storefrontRoutes,
     ...glossaryRoutes,
     ...guideRoutes,
-    ...comparisonsAndSolutions,
-    ...localizationAndTips,
+    ...compareRoutes,
+    ...solutionRoutes,
+    ...personaRoutes,
+    ...localizationRoutes,
+    ...tipRoutes,
   ];
 }
