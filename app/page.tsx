@@ -199,8 +199,9 @@ export default function Landing() {
                   Find keywords your competitors are missing.
                 </h1>
                 <p className="mt-5 max-w-[42ch] text-md leading-relaxed text-muted">
-                  Score any App Store keyword in seconds. See real search demand and
-                  how hard it is to rank — then use the best ones in your listing.
+                  The right keywords turn searches into downloads. See which ones
+                  you're missing, and how many people are already typing them, in
+                  under a minute.
                 </p>
 
                 <div className="mt-8 flex min-w-0 flex-wrap items-center gap-3">
@@ -209,7 +210,7 @@ export default function Landing() {
                     onClick={handleDashboard}
                     disabled={!ready}
                   >
-                    {user ? "Go to dashboard" : "Get started free"}
+                    {user ? "Go to dashboard" : "Score my keywords free"}
                   </Button>
                   <Button
                     href="/pricing"
@@ -224,6 +225,19 @@ export default function Landing() {
                     3 free keywords · No credit card required
                   </p>
                 )}
+
+                {/* Outcome proof, placed right under the CTA so it backs the promise before the click */}
+                <div className="mt-6 flex items-start gap-2.5">
+                  <div className="flex shrink-0 gap-0.5 pt-0.5 text-accent">
+                    {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={12} />)}
+                  </div>
+                  <p className="max-w-[38ch] text-sm leading-relaxed text-muted">
+                    <span className="text-ink-2">
+                      "Found 15 keywords I never would have thought of. Downloads up 2× the next month."
+                    </span>{" "}
+                    <span className="text-faint">— Indie developer, productivity app</span>
+                  </p>
+                </div>
 
                 {/* Apple Search Ads credibility callout */}
                 <div className="mt-9 flex items-start gap-4 border-t border-line/70 pt-6">
@@ -375,11 +389,11 @@ export default function Landing() {
                   }}
                   disabled={!ready}
                 >
-                  {user ? "Go to dashboard" : "Get started free"}
+                  {user ? "Go to dashboard" : "Score my keywords free"}
                 </Button>
                 {!user && (
                   <span className="text-xs text-faint">
-                    5 keywords free · No credit card required
+                    3 keywords free · No credit card required
                   </span>
                 )}
               </div>
