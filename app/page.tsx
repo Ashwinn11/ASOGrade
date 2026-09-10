@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { track } from "@vercel/analytics/react";
@@ -113,9 +113,28 @@ const Spark = ({ size = 13 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2Z" /></svg>
 );
 
-const Star = ({ size = 18 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2.6 2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.44 6.19 20.5 7.3 14.03 2.6 9.45l6.5-.95Z" /></svg>
-);
+/** `fill` (0–1) lets a rating land between whole stars — 0.5 draws a half
+ *  star via a hard-edged gradient rather than needing a second glyph. */
+const Star = ({ size = 18, fill = 1 }: { size?: number; fill?: number }) => {
+  const gradId = useId();
+  const pct = `${Math.round(Math.max(0, Math.min(1, fill)) * 100)}%`;
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      {fill < 1 && (
+        <defs>
+          <linearGradient id={gradId}>
+            <stop offset={pct} stopColor="currentColor" />
+            <stop offset={pct} stopColor="currentColor" stopOpacity={0.25} />
+          </linearGradient>
+        </defs>
+      )}
+      <path
+        d="m12 2.6 2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.44 6.19 20.5 7.3 14.03 2.6 9.45l6.5-.95Z"
+        fill={fill >= 1 ? "currentColor" : `url(#${gradId})`}
+      />
+    </svg>
+  );
+};
 
 const AppleMark = ({ size = 15 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -226,16 +245,19 @@ export default function Landing() {
                   </p>
                 )}
 
-                {/* Outcome proof, placed right under the CTA so it backs the promise before the click */}
-                <div className="mt-6 flex items-start gap-2.5">
-                  <div className="flex shrink-0 gap-0.5 pt-0.5 text-accent">
-                    {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={12} />)}
+                {/* Outcome proof, placed right under the CTA so it backs the promise before the click.
+                    Boxed to match the other testimonial treatments on this page (the marquee cards
+                    below, the Apple Search Ads callout right after this) instead of floating as bare text. */}
+                <div className="mt-6 max-w-[27rem] rounded-card border border-line bg-surface px-4 py-3">
+                  <div className="flex items-center gap-1.5">
+                    <div className="flex gap-0.5 text-accent">
+                      {[1, 1, 1, 1, 0.5].map((f, i) => <Star key={i} size={13} fill={f} />)}
+                    </div>
+                    <span className="text-[13px] font-semibold leading-none text-ink-2">4.5/5</span>
                   </div>
-                  <p className="max-w-[38ch] text-sm leading-relaxed text-muted">
-                    <span className="text-ink-2">
-                      "Found 15 keywords I never would have thought of. Downloads up 2× the next month."
-                    </span>{" "}
-                    <span className="text-faint">— Indie developer, productivity app</span>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted">
+                    "Found 15 keywords I never would have thought of. Downloads up 2× the next month."
+                    <span className="mt-1 block text-xs text-faint">— Indie developer, productivity app</span>
                   </p>
                 </div>
 

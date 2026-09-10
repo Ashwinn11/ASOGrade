@@ -29,6 +29,13 @@ const AppleMark = ({ size = 13 }: { size?: number }) => (
 const split = (text: string) =>
   text.split(/[\n,]/).map((k) => k.trim().toLowerCase().replace(/\s+/g, " ")).filter(Boolean);
 
+/** Same id the /api/rival-keywords route itself accepts, so the composer can
+ *  tell a competitor's link apart from a keyword before it ever hits the
+ *  server. A single App Store link never contains a comma or newline, so
+ *  that's what keeps it from being read as a (very strange) keyword list. */
+const idFromUrl = (v: string) =>
+  !/[\n,]/.test(v) ? (v.match(/\/id(\d{6,})/) ?? v.match(/^\s*(\d{6,})\s*$/))?.[1] ?? null : null;
+
 function Check({ state }: { state: "on" | "off" | "some" }) {
   return (
     <span
@@ -88,7 +95,6 @@ export default function Page() {
     app: { appStoreId: string; name: string | null; subtitle: string | null; developer: string | null; iconUrl: string | null };
     keywords: { keyword: string; popularity: number | null; difficulty: number | null; appsCount: number | null }[];
   } | null>(null);
-  const [spyQuery, setSpyQuery] = useState("");
   const [spyPicked, setSpyPicked] = useState<Set<string>>(new Set());
 
   const [chips, setChips] = useState<string[]>([]);
@@ -256,7 +262,11 @@ export default function Page() {
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" || e.key === "Tab" || e.key === ",") {
-      if (draft.trim()) { e.preventDefault(); addChips(draft); }
+      const text = draft.trim();
+      if (e.key === "Enter" && text && idFromUrl(text)) {
+        e.preventDefault(); setDraft(""); spyOn({ query: text }); return;
+      }
+      if (text) { e.preventDefault(); addChips(draft); }
       else if (e.key === "Enter" && chips.length) { e.preventDefault(); check(); }
     } else if (e.key === "Backspace" && !draft && chips.length) {
       setChips((cur) => cur.slice(0, -1));
@@ -275,9 +285,16 @@ export default function Page() {
    * existing backfill, deliberately not awaited, so the field is usable again
    * while the numbers fill themselves in.
    */
-  const check = () =>
-    run("Checking", async () => {
-      const list = draft.trim() ? [...chips, ...split(draft)] : chips;
+  const check = () => {
+    const text = draft.trim();
+    // A pasted link names one specific competitor, not a keyword to score —
+    // route it to the same lookup the old "spy" box used, chips or no chips.
+    if (!chips.length && text && idFromUrl(text)) {
+      setDraft("");
+      return spyOn({ query: text });
+    }
+    return run("Checking", async () => {
+      const list = text ? [...chips, ...split(draft)] : chips;
       if (!list.length || store === ALL_STORES) return;
       const j = await fetch("/api/lookup", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -288,6 +305,7 @@ export default function Page() {
       const owed = await loadKeywords(store, true);
       if (owed?.length) void backfill(owed);
     });
+  };
 
   /**
    * Read a rival's keyword profile. The provider will describe any App Store
@@ -302,7 +320,6 @@ export default function Page() {
       if (!j.ok) { setOffline(!!j.offline); throw new Error(j.error ?? "could not read that app"); }
       setSpy({ app: j.app, keywords: j.keywords ?? [] });
       setSpyPicked(new Set());
-      setSpyQuery("");
     });
 
   /**
@@ -500,6 +517,10 @@ export default function Page() {
 
   const showStore = store === ALL_STORES;
   const staged = chips.length + (draft.trim() ? 1 : 0);
+  // A competitor lookup isn't scoped to "every store at once" the way keyword
+  // checking is — spyOn always targets one storefront on its own — so a link
+  // in the field stays actionable even while showStore disables plain checks.
+  const draftIsLink = !chips.length && !!idFromUrl(draft.trim());
 
   /* ------------------------------------------------------------- render */
 
@@ -623,7 +644,7 @@ export default function Page() {
               <input
                 ref={field}
                 value={draft}
-                placeholder={chips.length ? "Add another..." : "habit tracker"}
+                placeholder={chips.length ? "Add another..." : "habit tracker, or paste a competitor's App Store link"}
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={onKeyDown}
                 onPaste={(e) => {
@@ -638,18 +659,20 @@ export default function Page() {
               size="md"
               className="w-full shrink-0 sm:w-auto"
               onClick={() => check()}
-              disabled={!staged || !!busy || showStore}
+              disabled={!staged || !!busy || (showStore && !draftIsLink)}
             >
-              {busy === "Checking" ? "Checking..." : staged ? `Check ${staged}` : "Check"}
+              {busy === "Checking" ? "Checking..." : draftIsLink ? "Spy" : staged ? `Check ${staged}` : "Check"}
             </Button>
           </div>
 
           <p className="mt-2.5 px-1 text-xs leading-relaxed text-dark-ink/50">
-            {showStore
-              ? <>Viewing every store at once. Pick one country to add keywords.</>
-              : staged
-                ? <>Press <Kbd>Enter</Kbd> again to run. <Kbd>Backspace</Kbd> removes the last one.</>
-                : <>Type a keyword and press <Kbd>Enter</Kbd>. Pasting a list works too.</>}
+            {draftIsLink
+              ? <>Press <Kbd>Enter</Kbd> to see their keywords.</>
+              : showStore
+                ? <>Viewing every store at once. Pick one country to add keywords.</>
+                : staged
+                  ? <>Press <Kbd>Enter</Kbd> again to run. <Kbd>Backspace</Kbd> removes the last one.</>
+                  : <>Type a keyword and press <Kbd>Enter</Kbd>. A list, or a competitor's App Store link, works too.</>}
           </p>
         </Card>
 
@@ -701,18 +724,6 @@ export default function Page() {
             right={
               <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <StorePicker value={store} onChange={setStore} onDark={false} />
-
-                <label className="flex min-w-0 flex-1 basis-full items-center gap-2 rounded-full bg-white px-3 py-2 text-accent-2/70 lg:basis-auto">
-                  <Eye size={14} />
-                  <input
-                    value={spyQuery}
-                    placeholder="Spy on a competitor — paste their link"
-                    autoCapitalize="off" autoCorrect="off" spellCheck={false} autoComplete="off"
-                    onChange={(e) => setSpyQuery(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter" && spyQuery.trim()) spyOn({ query: spyQuery.trim() }); }}
-                    className="min-w-0 flex-1 bg-transparent text-sm text-accent-2 outline-none placeholder:text-accent-2/60"
-                  />
-                </label>
 
                 <label className="flex min-w-0 items-center gap-2 rounded-full bg-white px-3 py-2 text-accent-2/70">
                   <Search size={14} />
