@@ -107,10 +107,21 @@ export default function Page() {
 
   const [busy, setBusy] = useState<string | null>(null);
   const [scoring, setScoring] = useState(0);   // keywords the backfill is filling in right now
+  // Set only while the scoring in progress was kicked off by a press of Check,
+  // as opposed to the quiet catch-up backfill a page load or store switch can
+  // also trigger — that one stays the inline banner below, since nobody is
+  // sitting in front of a dialog waiting on it.
+  const [postCheckScoring, setPostCheckScoring] = useState(false);
   const [loadingRows, setLoadingRows] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [subscribed, setSubscribed] = useState<boolean | null>(null); // null = not yet known
-  const [gate, setGate] = useState(false);   // the "subscription needed" dialog
+  /**
+   * Why the upgrade dialog is open, since that changes what it should say:
+   * - "limit"    an action was refused because the free quota is used up
+   * - "required" an action was refused because it needs a subscription outright
+   * - "info"     the visitor just tapped the free-plan pill to see where they stand
+   */
+  const [gate, setGate] = useState<null | "limit" | "required" | "info">(null);
 
   /**
    * Every failure goes through here.
@@ -126,7 +137,7 @@ export default function Page() {
     if (/subscription/i.test(msg) || /free plan/i.test(msg) || /limit/i.test(msg)) {
       setSubscribed(false);
       setError(null);
-      if (byAction) setGate(true);
+      if (byAction) setGate(/free plan/i.test(msg) || /limit/i.test(msg) ? "limit" : "required");
     } else setError(msg);
   };
 
@@ -238,13 +249,13 @@ export default function Page() {
   /**
    * Wraps anything the visitor actually pressed.
    *
-   * Guarding on the known answer first means an unsubscribed visitor gets the
-   * dialog immediately instead of after a round trip that was always going to
-   * be refused; a 402 from the route is still handled, since the local answer
-   * can be stale.
+   * Guarding on the known answer first only applies to actions that require a
+   * subscription outright (spying on a rival) — a free visitor still has
+   * quota left on the free actions (check, adopt, recheck, remove), so those
+   * always reach the route and let its 402 decide, via the same `fail` path.
    */
-  const run = useCallback(async (what: string, fn: () => Promise<void>) => {
-    if (subscribed === false) { setGate(true); return; }
+  const run = useCallback(async (what: string, fn: () => Promise<void>, requireSub = false) => {
+    if (requireSub && subscribed === false) { setGate("required"); return; }
     setBusy(what); setError(null);
     try { await fn(); }
     catch (e) { fail(e, true); }
@@ -303,7 +314,10 @@ export default function Page() {
       if (!j.ok) throw new Error(j.error ?? "lookup failed");
       setChips([]); setDraft("");
       const owed = await loadKeywords(store, true);
-      if (owed?.length) void backfill(owed);
+      if (owed?.length) {
+        setPostCheckScoring(true);
+        void backfill(owed).finally(() => setPostCheckScoring(false));
+      }
     });
   };
 
@@ -320,7 +334,7 @@ export default function Page() {
       if (!j.ok) { setOffline(!!j.offline); throw new Error(j.error ?? "could not read that app"); }
       setSpy({ app: j.app, keywords: j.keywords ?? [] });
       setSpyPicked(new Set());
-    });
+    }, true);
 
   /**
    * Adopt a rival's keywords.
@@ -464,7 +478,7 @@ export default function Page() {
 
   useEffect(() => {
     if (!gate) return;
-    const key = (e: KeyboardEvent) => e.key === "Escape" && setGate(false);
+    const key = (e: KeyboardEvent) => e.key === "Escape" && setGate(null);
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
   }, [gate]);
@@ -583,9 +597,9 @@ export default function Page() {
           {subscribed === false && (
             <button
               type="button"
-              onClick={() => setGate(true)}
+              onClick={() => setGate("info")}
               className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-accent/30 bg-tint px-3 py-1 text-xs font-semibold text-accent-2 transition-colors hover:bg-tint-2 hover:border-accent/40"
-              title="Click to upgrade"
+              title="See your free plan and upgrade options"
             >
               <span>Free</span>
               <span className="opacity-50" aria-hidden>·</span>
@@ -614,14 +628,33 @@ export default function Page() {
         </div>
 
         {/* ------------------------------------------------------- composer */}
+        {/* One bar, not two panels. The store used to be a picker in the
+            results table's header below — a different card, decided after
+            you'd already typed — even though it only ever governs what
+            pressing Check here does. It's a leading segment of the same bar
+            now, fused to the field it scopes rather than left to a
+            neighbouring surface, with a rule (not just a gap) between them:
+            both read as "things you fill in," so space alone left the flag
+            looking like a rogue chip inside the input rather than a
+            separate control next to it. The leading icon doubles as the
+            mode indicator this field always needed — a magnifier for
+            keywords, an eye once a competitor's link is recognised — so
+            the one field's two jobs are told apart without extra copy. */}
         <Card tone="dark" pad="sm" className="mt-8">
-          <div
-            className="flex min-w-0 flex-wrap items-center gap-2 rounded-lg bg-white/6 p-2 sm:flex-nowrap"
-            onClick={() => field.current?.focus()}
-          >
-            <span className="shrink-0 pl-1 text-dark-ink/50"><Search size={17} /></span>
+          <div className="flex min-w-0 flex-col gap-3 rounded-lg bg-white/6 p-1.5 sm:flex-row sm:items-center sm:gap-0">
+            <div className="flex shrink-0 items-center">
+              <StorePicker value={store} onChange={setStore} onDark />
+              <span aria-hidden className="mx-2 hidden h-6 w-px shrink-0 bg-white/10 sm:block" />
+            </div>
 
-            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+            <div
+              className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5 px-1.5 py-0.5 sm:px-0"
+              onClick={() => field.current?.focus()}
+            >
+              <span className="shrink-0 pl-1 text-dark-ink/50">
+                {draftIsLink ? <Eye size={17} /> : <Search size={17} />}
+              </span>
+
               {chips.map((c) => (
                 /* A chip paints a background, so it can never be given a width
                    it cannot fill — it truncates instead, which clips the text
@@ -657,11 +690,11 @@ export default function Page() {
 
             <Button
               size="md"
-              className="w-full shrink-0 sm:w-auto"
+              className="w-full shrink-0 sm:ml-2 sm:w-auto"
               onClick={() => check()}
               disabled={!staged || !!busy || (showStore && !draftIsLink)}
             >
-              {busy === "Checking" ? "Checking..." : draftIsLink ? "Spy" : staged ? `Check ${staged}` : "Check"}
+              {draftIsLink ? "Spy" : staged ? `Check ${staged}` : "Check"}
             </Button>
           </div>
 
@@ -669,7 +702,7 @@ export default function Page() {
             {draftIsLink
               ? <>Press <Kbd>Enter</Kbd> to see their keywords.</>
               : showStore
-                ? <>Viewing every store at once. Pick one country to add keywords.</>
+                ? <>Viewing every store at once. Pick one country above to add keywords.</>
                 : staged
                   ? <>Press <Kbd>Enter</Kbd> again to run. <Kbd>Backspace</Kbd> removes the last one.</>
                   : <>Type a keyword and press <Kbd>Enter</Kbd>. A list, or a competitor's App Store link, works too.</>}
@@ -678,7 +711,7 @@ export default function Page() {
 
         {error && <Notice tone="error" className="mt-4">{error}</Notice>}
 
-        {scoring > 0 && (
+        {scoring > 0 && !postCheckScoring && (
           <Notice tone="working" className="mt-4">
             Scoring {scoring} new keyword{scoring === 1 ? "" : "s"} — the dashes fill in shortly.
           </Notice>
@@ -723,8 +756,6 @@ export default function Page() {
             subtitle={showStore ? "Comparing every saved storefront" : `Researching ${storeName(store)}`}
             right={
               <div className="flex min-w-0 flex-wrap items-center gap-2">
-                <StorePicker value={store} onChange={setStore} onDark={false} />
-
                 <label className="flex min-w-0 items-center gap-2 rounded-full bg-white px-3 py-2 text-accent-2/70">
                   <Search size={14} />
                   <input
@@ -1100,20 +1131,54 @@ export default function Page() {
 
       {/* -------------------------------------------------- subscription gate */}
       {gate && (
-        <Modal onClose={() => setGate(false)} title="Upgrade to track more keywords">
+        <Modal
+          onClose={() => setGate(null)}
+          title={
+            gate === "limit" ? "Free limit reached" : gate === "info" ? "You're on the free plan" : "Upgrade to track more keywords"
+          }
+        >
           <BrandMark size="sm" as="span" />
           <p className="mt-5 font-display text-xl font-extrabold leading-tight text-ink">
-            {rows.length >= 3 ? "Free limit reached (3/3 keywords)" : "Subscription needed"}
+            {gate === "limit"
+              ? "Free limit reached (3/3 keywords)"
+              : gate === "info"
+                ? `${rows.length}/3 free keywords used`
+                : "Subscription needed"}
           </p>
           <p className="mt-2 text-sm leading-relaxed text-muted">
-            {rows.length >= 3
+            {gate === "limit"
               ? "You've used your 3 free keywords. Upgrade to track unlimited keywords with live Apple Search Ads metrics across all 109 stores."
-              : "Scoring keywords across all storefronts requires an active plan. Your saved lists stay safe."}
+              : gate === "info"
+                ? "No card needed for your first 3 keywords. Upgrade any time for unlimited keywords, competitor teardowns, and live Apple Search Ads metrics across all 109 stores."
+                : "Scoring keywords across all storefronts requires an active plan. Your saved lists stay safe."}
           </p>
 
           <div className="mt-6 flex flex-col gap-2.5">
             <Button href="/pricing" size="lg" block>Upgrade for unlimited keywords</Button>
             <Button href="/billing" variant="ghost" size="sm" block>Check billing</Button>
+          </div>
+        </Modal>
+      )}
+
+      {/* ------------------------------------------------------- checking */}
+      {/* Claiming a keyword and scoring it are two separate round trips (see
+          the comment on `check`), and both used to leave their progress
+          stuck in a button label or a banner easy to miss below the fold.
+          One dialog now spans both phases, closing only once the numbers
+          are actually in. Not dismissible: there's nothing to cancel
+          mid-flight. */}
+      {(busy === "Checking" || postCheckScoring) && (
+        <Modal onClose={() => {}} title="Checking your keywords" hideClose>
+          <div className="flex flex-col items-center py-4 text-center">
+            <span
+              aria-hidden="true"
+              className="size-8 animate-spin-slow rounded-full border-2 border-tint-line border-t-accent"
+            />
+            <p className="mt-4 text-sm text-muted">
+              {busy === "Checking"
+                ? <>Adding {staged || ""} keyword{staged === 1 ? "" : "s"}…</>
+                : <>Scoring {scoring || ""} keyword{scoring === 1 ? "" : "s"} — almost done…</>}
+            </p>
           </div>
         </Modal>
       )}

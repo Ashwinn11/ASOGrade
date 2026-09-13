@@ -7,6 +7,7 @@ import SiteHeader from "../ui/SiteHeader";
 import Faq from "../ui/Faq";
 import JsonLd from "../ui/JsonLd";
 import BuyPlans from "./BuyPlans";
+import TryFree from "./TryFree";
 import { MONTHLY, YEARLY, PER_MONTH_ON_YEARLY, SAVING, YEAR_AT_MONTHLY } from "../ui/Plans";
 
 /**
@@ -118,15 +119,11 @@ export default function Pricing() {
         <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
           One price, every storefront
         </h1>
-        <p className="mt-2 text-sm text-faint">
-          Not sure yet?{" "}
-          <Link href="/" className="text-accent underline-offset-2 hover:underline">
-            ← Try 3 keywords free
-          </Link>
-          {" "}— no account needed.
-        </p>
+        <TryFree />
 
-        <BuyPlans />
+        <div className="mt-8">
+          <BuyPlans />
+        </div>
 
         <p className="mt-8 text-xs leading-relaxed text-faint">
           Cancel any time. Prices exclude tax; local tax is added at checkout.
