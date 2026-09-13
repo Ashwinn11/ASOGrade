@@ -643,7 +643,7 @@ export default function Page() {
         <Card tone="dark" pad="sm" className="mt-8">
           <div className="flex min-w-0 flex-col gap-3 rounded-lg bg-white/6 p-1.5 sm:flex-row sm:items-center sm:gap-0">
             <div className="flex shrink-0 items-center">
-              <StorePicker value={store} onChange={setStore} onDark />
+              <StorePicker value={store} onChange={setStore} onDark align="left" />
               <span aria-hidden className="mx-2 hidden h-6 w-px shrink-0 bg-white/10 sm:block" />
             </div>
 

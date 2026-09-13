@@ -14,12 +14,19 @@ const Globe = () => (
   </svg>
 )
 
-export default function StorePicker({ value, onChange, onDark = true }: {
+export default function StorePicker({ value, onChange, onDark = true, align = "right" }: {
   value: string; onChange: (code: string) => void;
   /** Whether the trigger sits on a dark surface (the workspace) or a light/
    *  coral one (the results panel header). The dropdown panel itself is
    *  always the light surface — only the closed trigger's colours change. */
   onDark?: boolean;
+  /** Which edge of the trigger the panel hangs from. A panel this wide has
+   *  to open toward whichever side actually has room: "right" for a trigger
+   *  near the right edge (the old results-header placement), "left" for one
+   *  that leads a row from the left (the composer) — anchoring the wrong
+   *  edge pins the panel's far side to a narrow button and runs it off the
+   *  opposite edge of the viewport. */
+  align?: "left" | "right";
 }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -101,7 +108,9 @@ export default function StorePicker({ value, onChange, onDark = true }: {
       {open && (
         <div
           onKeyDown={onKeyDown}
-          className="absolute right-0 top-[calc(100%+0.5rem)] z-30 w-[min(18rem,calc(100vw-2.5rem))] animate-drop rounded-md border border-line bg-surface p-1.5 shadow-3"
+          className={`absolute top-[calc(100%+0.5rem)] z-30 w-[min(18rem,calc(100vw-2.5rem))] animate-drop rounded-md border border-line bg-surface p-1.5 shadow-3 ${
+            align === "left" ? "left-0" : "right-0"
+          }`}
         >
           <label className="flex min-w-0 items-center gap-2 border-b border-line px-2.5 pb-2">
             <Search size={14} />
