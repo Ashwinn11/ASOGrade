@@ -13,7 +13,10 @@ export type PseoCategory =
   | "persona"
   | "solution"
   | "localization"
-  | "tip";
+  | "tip"
+  | "category"
+  | "storefront-category"
+  | "cross-localization";
 
 export type TierLevel = "major" | "mid" | "emerging";
 
@@ -147,12 +150,16 @@ export interface CompareEntity extends BasePseoEntity {
     feature: string;
     asograde: string;
     competitor: string;
-    advantage: "asograde" | "competitor" | "neutral";
+    competitorB?: string;
+    advantage: "asograde" | "competitor" | "competitorB" | "neutral";
   }[];
   breakdown: {
     heading: string;
     paragraphs: string[];
   }[];
+  format?: "single-alternative" | "vs-asograde" | "vs-competitor" | "workflow";
+  competitorBName?: string;
+  competitorBPrice?: string;
 }
 
 /**
@@ -212,6 +219,83 @@ export interface TipEntity extends BasePseoEntity {
   relatedSlugs: string[];
 }
 
+/**
+ * App Store Category / Niche Entity
+ */
+export interface CategoryEntity extends BasePseoEntity {
+  category: "category";
+  nicheId: string;
+  nicheName: string;
+  appStoreCategory: string;
+  benchmarkMetrics: {
+    averagePopularity: number;
+    typicalDifficultyRange: string;
+    averageReviewMoat: string;
+    monetizationModel: string;
+  };
+  seedKeywords: {
+    keyword: string;
+    intent: "discovery" | "high-intent" | "feature" | "problem";
+    estimatedPop: number;
+    estimatedDiff: number;
+  }[];
+  titleFormulas: string[];
+  subtitleFormulas: string[];
+  cannibalizationTraps: string[];
+  breakdown: {
+    heading: string;
+    paragraphs: string[];
+  }[];
+}
+
+/**
+ * Storefront x Category Intersection Entity
+ */
+export interface StorefrontCategoryEntity extends BasePseoEntity {
+  category: "storefront-category";
+  storeCode: string;
+  storeName: string;
+  nicheId: string;
+  nicheName: string;
+  localizedMetrics: {
+    storefrontTier: TierLevel;
+    scriptEfficiency: number;
+    difficultyDiscount: number;
+    marketOpportunityScore: number;
+  };
+  localizedSeedKeywords: string[];
+  storefrontStrategy: string[];
+  breakdown: {
+    heading: string;
+    paragraphs: string[];
+  }[];
+}
+
+/**
+ * Cross-Border Storefront Localization Entity
+ */
+export interface CrossLocalizationEntity extends BasePseoEntity {
+  category: "cross-localization";
+  fromStoreCode: string;
+  fromStoreName: string;
+  toStoreCode: string;
+  toStoreName: string;
+  sourceLang: string;
+  targetLang: string;
+  expansionRatio: number;
+  secondaryIndexingRules: string;
+  translationChecklist: string[];
+  metadataAdjustments: {
+    titleAdvice: string;
+    subtitleAdvice: string;
+    keywordAdvice: string;
+  };
+  breakdown: {
+    heading: string;
+    paragraphs: string[];
+  }[];
+}
+
 export type AnyPseoEntity =
   | StorefrontEntity
   | GlossaryEntity
@@ -220,4 +304,7 @@ export type AnyPseoEntity =
   | PersonaEntity
   | SolutionEntity
   | LocalizationEntity
-  | TipEntity;
+  | TipEntity
+  | CategoryEntity
+  | StorefrontCategoryEntity
+  | CrossLocalizationEntity;

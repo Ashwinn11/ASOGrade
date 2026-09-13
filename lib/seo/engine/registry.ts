@@ -10,10 +10,17 @@ import { STORE_INFO, scriptOf } from "@/lib/seo/countries";
 import { GLOSSARY, type GlossaryEntry } from "@/lib/seo/glossary";
 import { GUIDES, type GuideEntry } from "@/lib/seo/guides";
 import { COMPARE_DATA, type ComparePageData } from "@/lib/seo/compare";
+import { ALL_COMPETITOR_ENTITIES } from "@/lib/seo/competitors";
+import {
+  CATEGORY_ENTITIES,
+  STOREFRONT_CATEGORY_ENTITIES,
+} from "@/lib/seo/categories";
+import { CROSS_LOCALIZATION_ENTITIES } from "@/lib/seo/cross-localization";
 import { PERSONAS, type PersonaDetail } from "@/lib/seo/personas";
 import { SOLUTION_DETAILS, type SolutionDetail } from "@/lib/seo/solutions";
 import { LOCALIZATIONS, type LocalizationDetail } from "@/lib/seo/localization";
 import { TIPS, type TipEntry } from "@/lib/seo/tips";
+import { fitTitle, fitDescription } from "./metadata";
 import type {
   StorefrontEntity,
   GlossaryEntity,
@@ -23,9 +30,15 @@ import type {
   SolutionEntity,
   LocalizationEntity,
   TipEntity,
+  CategoryEntity,
+  StorefrontCategoryEntity,
+  CrossLocalizationEntity,
   PseoCategory,
   AnyPseoEntity,
 } from "./types";
+
+export { CATEGORY_ENTITIES, STOREFRONT_CATEGORY_ENTITIES } from "@/lib/seo/categories";
+export { CROSS_LOCALIZATION_ENTITIES } from "@/lib/seo/cross-localization";
 
 // ---------------------------------------------------------------------------
 // Storefront Entities Index
@@ -175,14 +188,14 @@ export const GUIDE_ENTITIES: GuideEntity[] = GUIDES.map((g: GuideEntry) => {
 // Competitor Entities Index
 // ---------------------------------------------------------------------------
 
-export const COMPARE_ENTITIES: CompareEntity[] = COMPARE_DATA.map((c: ComparePageData) => ({
+const baseCompareEntities: CompareEntity[] = COMPARE_DATA.map((c: ComparePageData) => ({
   category: "compare",
   slug: c.slug,
   competitorName: c.slug,
   title: c.title,
-  metaTitle: `${c.title} | ASOGrade`,
+  metaTitle: fitTitle([`${c.title} | ASOGrade`, c.title]),
   subtitle: c.subtitle,
-  description: c.description,
+  description: fitDescription(c.description),
   canonicalPath: `/compare/${c.slug}`,
   priceRange: "$79–$499/mo",
   setupTime: "15–30 mins",
@@ -190,7 +203,7 @@ export const COMPARE_ENTITIES: CompareEntity[] = COMPARE_DATA.map((c: ComparePag
   quickVerdict: c.quickVerdict ?? {
     summary: c.description,
     bestForCompetitor: "Full multi-platform marketing suites with ad tracking.",
-    bestForAsograde: "Fast, focused App Store keyword difficulty and popularity scoring across 109 storefronts.",
+    bestForASOGrade: "Fast, focused App Store keyword difficulty and popularity scoring across 109 storefronts.",
   },
   comparisonMatrix: [
     {
@@ -218,6 +231,11 @@ export const COMPARE_ENTITIES: CompareEntity[] = COMPARE_DATA.map((c: ComparePag
   ],
   faq: c.faq,
 }));
+
+export const COMPARE_ENTITIES: CompareEntity[] = [
+  ...baseCompareEntities,
+  ...ALL_COMPETITOR_ENTITIES,
+];
 
 // ---------------------------------------------------------------------------
 // Persona Entities Index
@@ -344,6 +362,18 @@ const tipBySlug = new Map<string, TipEntity>(
   TIP_ENTITIES.map((e) => [e.slug.toLowerCase(), e])
 );
 
+const categoryBySlug = new Map<string, CategoryEntity>(
+  CATEGORY_ENTITIES.map((e) => [e.slug.toLowerCase(), e])
+);
+
+const storefrontCategoryBySlug = new Map<string, StorefrontCategoryEntity>(
+  STOREFRONT_CATEGORY_ENTITIES.map((e) => [e.slug.toLowerCase(), e])
+);
+
+const crossLocalizationBySlug = new Map<string, CrossLocalizationEntity>(
+  CROSS_LOCALIZATION_ENTITIES.map((e) => [e.slug.toLowerCase(), e])
+);
+
 /**
  * Get an entity by category and slug/code with O(1) performance.
  */
@@ -366,6 +396,12 @@ export function getPseoEntity(category: PseoCategory, slugOrCode: string): AnyPs
       return localizationBySlug.get(key) ?? null;
     case "tip":
       return tipBySlug.get(key) ?? null;
+    case "category":
+      return categoryBySlug.get(key) ?? null;
+    case "storefront-category":
+      return storefrontCategoryBySlug.get(key) ?? null;
+    case "cross-localization":
+      return crossLocalizationBySlug.get(key) ?? null;
     default:
       return null;
   }
@@ -378,8 +414,10 @@ export function getPseoEntity(category: PseoCategory, slugOrCode: string): AnyPs
 export const PRIORITY_STORE_CODES = POPULAR;
 export const PRIORITY_GLOSSARY_SLUGS = GLOSSARY_ENTITIES.slice(0, 30).map((g) => g.slug);
 export const PRIORITY_GUIDE_SLUGS = GUIDE_ENTITIES.map((g) => g.slug);
-export const PRIORITY_COMPARE_SLUGS = COMPARE_ENTITIES.map((c) => c.slug);
+export const PRIORITY_COMPARE_SLUGS = COMPARE_ENTITIES.slice(0, 40).map((c) => c.slug);
 export const PRIORITY_PERSONA_SLUGS = PERSONA_ENTITIES.map((p) => p.slug);
 export const PRIORITY_SOLUTION_SLUGS = SOLUTION_ENTITIES.map((s) => s.slug);
 export const PRIORITY_LOCALIZATION_SLUGS = LOCALIZATION_ENTITIES.map((l) => l.slug);
 export const PRIORITY_TIP_SLUGS = TIP_ENTITIES.slice(0, 30).map((t) => t.slug);
+export const PRIORITY_CATEGORY_SLUGS = CATEGORY_ENTITIES.slice(0, 20).map((c) => c.slug);
+export const PRIORITY_CROSS_LOCALIZATION_SLUGS = CROSS_LOCALIZATION_ENTITIES.slice(0, 20).map((c) => c.slug);

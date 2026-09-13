@@ -77,13 +77,20 @@ ASOGrade uses Apple Search Ads demand signals — the same data Apple uses for a
 ## Competitor & Approach Comparison Pages
 
 - [ASOGrade vs. AppTweak](${siteUrl}/compare/apptweak): Dedicated comparison for developers deciding between a research tool and a full suite.
-- [ASOGrade vs. Sensor Tower](${siteUrl}/compare/sensor-tower): Breakdown of enterprise market intelligence vs. indie keyword scoring.
+- [AppTweak Alternative](${siteUrl}/compare/apptweak-alternative): Why developers switch to ASOGrade for faster, lower-cost ASO.
+- [ASOGrade vs. Sensor Tower](${siteUrl}/compare/sensor-tower): Enterprise market intelligence vs. indie keyword scoring.
+- [Sensor Tower Alternative](${siteUrl}/compare/sensor-tower-alternative): Streamlined self-serve alternative to multi-thousand dollar contracts.
+- [ASOGrade vs. Appfigures](${siteUrl}/compare/appfigures): Bulk keyword scoring vs. app sales analytics.
+- [Appfigures Alternative](${siteUrl}/compare/appfigures-alternative): Unconstrained bulk keyword discovery across 109 storefronts.
+- [ASOGrade vs. MobileAction](${siteUrl}/compare/mobileaction): Dedicated organic ASO vs. ad management suites.
+- [MobileAction Alternative](${siteUrl}/compare/mobileaction-alternative): Low-cost organic keyword research without ad-spend commitments.
 - [ASOGrade vs. Astro](${siteUrl}/compare/astro): Browser-based 109 storefronts vs. native macOS 60+ storefronts.
-- [ASOGrade vs. MobileAction](${siteUrl}/compare/mobileaction): Research-first vs. ad intelligence platform.
-- [ASOGrade vs. Appfigures](${siteUrl}/compare/appfigures): Keyword scoring vs. app analytics & review tracker.
-- [ASOGrade vs. DIY Spreadsheets](${siteUrl}/compare/spreadsheets): Automated batch scoring vs. manual App Store lookups.
-- [ASOGrade vs. Hiring an Agency](${siteUrl}/compare/agencies): In-house data verification vs. agency retainers.
-- [All Comparisons Hub](${siteUrl}/compare): Overview matrix and methodology.
+- [Astro Alternative](${siteUrl}/compare/astro-alternative): Web access across all devices vs. Mac desktop lock-in.
+- [SplitMetrics Alternative](${siteUrl}/compare/splitmetrics-alternative): Organic keyword focus vs. simulated landing page A/B testing.
+- [Asodesk Alternative](${siteUrl}/compare/asodesk-alternative): Fast research engine vs. review customer support desks.
+- [FoxData Alternative](${siteUrl}/compare/foxdata-alternative): Verified Apple Search Ads demand vs. modeled estimates.
+- [AppFollow Alternative](${siteUrl}/compare/appfollow-alternative): Focused keyword difficulty scoring vs. enterprise review operations.
+- [All 140+ Comparisons Hub](${siteUrl}/compare): Overview matrix and full comparative catalog.
 
 ## Resource Hubs & Documentation
 
@@ -91,12 +98,13 @@ ASOGrade uses Apple Search Ads demand signals — the same data Apple uses for a
 - Pricing: ${siteUrl}/pricing
 - Sign up: ${siteUrl}/onboarding
 - App Store Keyword Research by Storefront (109 markets): ${siteUrl}/keyword-research
+- App Store Category ASO Blueprints (45 niches): ${siteUrl}/keyword-research/category
 - ASO Glossary & Term Definitions: ${siteUrl}/glossary
 - In-depth ASO & Keyword Research Guides: ${siteUrl}/guides
 - Quick Answers to Specific ASO Questions: ${siteUrl}/tips
 - ASO Solutions for Core Problems: ${siteUrl}/solutions
 - ASOGrade by Role (indie developers, studios, agencies, Apple Search Ads advertisers): ${siteUrl}/for
-- App Store Keyword Research by Language (13 language clusters spanning the 109 storefronts): ${siteUrl}/localization
+- Cross-Border Storefront Localization Playbooks (60 pairings): ${siteUrl}/localization
 - Privacy policy: ${siteUrl}/privacy
 - Terms of service: ${siteUrl}/terms
 - Contact: support@asograde.com

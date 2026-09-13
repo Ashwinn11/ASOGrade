@@ -8,6 +8,8 @@ import {
   SOLUTION_ENTITIES,
   LOCALIZATION_ENTITIES,
   STOREFRONT_ENTITIES,
+  CATEGORY_ENTITIES,
+  CROSS_LOCALIZATION_ENTITIES,
   SITE_URL,
 } from "@/lib/seo/engine";
 
@@ -32,6 +34,14 @@ export function GET(_req: NextRequest) {
   const guidesSection = GUIDE_ENTITIES.map(
     (g) => `- ${g.title} — ${g.description} (${siteUrl}/guides/${g.slug})`
   ).join("\n");
+
+  const categorySection = CATEGORY_ENTITIES.map(
+    (cat) => `### ${cat.nicheName} (${siteUrl}/keyword-research/category/${cat.slug})\n${cat.directAnswer}\nSeed keywords: ${cat.seedKeywords.map((k) => k.keyword).join(", ")}`
+  ).join("\n\n");
+
+  const crossLocalizationSection = CROSS_LOCALIZATION_ENTITIES.map(
+    (cl) => `### ${cl.title} (${siteUrl}/localization/${cl.slug})\n${cl.directAnswer}\nRule: ${cl.secondaryIndexingRules}`
+  ).join("\n\n");
 
   const compareSection = COMPARE_ENTITIES.map((c) => {
     let entry = `### ${c.title}\nURL: ${siteUrl}/compare/${c.slug}\nSummary: ${c.description}`;
@@ -82,6 +92,14 @@ ${personaSection}
 ## Problem Solutions (${SOLUTION_ENTITIES.length} solutions)
 
 ${solutionSection}
+
+## Category Playbooks (${CATEGORY_ENTITIES.length} verticals)
+
+${categorySection}
+
+## Cross-Border Storefront Localization (${CROSS_LOCALIZATION_ENTITIES.length} pairs)
+
+${crossLocalizationSection}
 
 ## Localization Clusters (${LOCALIZATION_ENTITIES.length} languages)
 

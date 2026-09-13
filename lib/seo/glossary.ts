@@ -1366,4 +1366,94 @@ export const GLOSSARY: GlossaryEntry[] = [
       },
     ],
   },
+  {
+    slug: "custom-product-pages-keyword-matching",
+    term: "Custom Product Page Keyword Matching",
+    definition: "Creating dedicated App Store product pages tailored to the visual and functional expectations of specific search queries or Apple Search Ads ad groups.",
+    body: [
+      "Custom Product Pages (CPPs) let developers publish up to 35 alternate versions of their App Store product page with unique screenshots, promotional text, and app previews.",
+      "By pairing a specific keyword intent (e.g. 'marathon training') with a dedicated CPP showing race prep screenshots rather than generic running features, conversion rates can increase by 20–40%.",
+      "While CPPs are primarily used in Apple Search Ads, organic Custom Product Pages can also be used in external marketing links to preserve message match.",
+    ],
+    related: ["custom-product-pages", "app-store-conversion-rate", "apple-search-ads"],
+    faq: [
+      {
+        q: "Do Custom Product Pages index for organic search keywords?",
+        a: "No. The screenshots and text on a CPP do not create new organic keyword indexation. Organic indexation comes exclusively from the default product page metadata.",
+      },
+      {
+        q: "How many Custom Product Pages can an app have?",
+        a: "Apple allows up to 35 active Custom Product Pages per app at any given time in App Store Connect.",
+      },
+    ],
+  },
+  {
+    slug: "apple-search-ads-search-match",
+    term: "Search Match (Apple Search Ads)",
+    definition: "An automated Apple Search Ads targeting feature that pairs ads with search queries based on your app's metadata, category, and historical user behavior without explicit keyword bidding.",
+    body: [
+      "Search Match is commonly used in Discovery campaigns to harvest search queries that developers may have omitted from their keyword list.",
+      "Because Search Match relies on Apple's machine learning understanding of your app's metadata, a well-optimized organic title and subtitle directly improves the quality and relevance of Search Match ad impressions.",
+      "Keywords discovered through Search Match that deliver positive ROAS should be migrated into Exact Match ad groups and evaluated for organic metadata placement.",
+    ],
+    related: ["search-match", "discovery-campaign", "apple-search-ads"],
+    faq: [
+      {
+        q: "Should I keep Search Match enabled indefinitely?",
+        a: "Yes, in a low-budget Discovery campaign with negative keywords applied for terms you already target as Exact Match. It serves as a continuous radar for emerging search terms.",
+      },
+    ],
+  },
+  {
+    slug: "storefront-language-overlap",
+    term: "Storefront Language Overlap (Secondary Locales)",
+    definition: "Apple's multi-storefront indexing behavior where an app store in one country indexes metadata provided in multiple languages (e.g. US indexing Spanish (Mexico) and English (US)).",
+    body: [
+      "Apple configures each storefront with a primary language and one or more secondary languages. When an iPhone user searches in that territory, Apple's search engine queries both the primary and secondary metadata pools.",
+      "For example, the US App Store indexes both English (US) and Spanish (Mexico). The Swiss App Store indexes German, French, Italian, and English (UK).",
+      "Developers can strategically use secondary language slots to target secondary English keywords or fully localize for resident multilingual populations.",
+    ],
+    related: ["localization-aso", "app-store-storefront", "multi-storefront-keyword-research"],
+    faq: [
+      {
+        q: "Which secondary languages index in the US App Store?",
+        a: "In the United States, Apple indexes English (US), Spanish (Mexico), and French (Canada).",
+      },
+    ],
+  },
+  {
+    slug: "tap-through-rate-ranking-weight",
+    term: "Tap-Through Rate (TTR) as a Ranking Factor",
+    definition: "The percentage of users who see an app in search results and tap to view the product page, used by Apple as an immediate relevance quality signal.",
+    body: [
+      "When users search for a keyword, Apple tracks which app icons and screenshots get tapped from the search results feed.",
+      "An app with high Tap-Through Rate (TTR) for a specific keyword signals strong relevance to Apple's search algorithm, which can boost its organic rank above competitors with higher total review counts but lower search CTR.",
+      "Optimizing your app icon and the first three portrait screenshots directly improves search TTR.",
+    ],
+    related: ["tap-through-rate", "app-store-search-ranking-factors", "app-store-conversion-rate"],
+    faq: [
+      {
+        q: "What is an average Tap-Through Rate in Apple Search Ads?",
+        a: "Average TTR across categories is between 6% and 10%. Highly relevant brand or exact utility searches can exceed 15–20% TTR.",
+      },
+    ],
+  },
+  {
+    slug: "in-app-event-keyword-indexing",
+    term: "In-App Event (IAE) Keyword Indexing",
+    definition: "Timely events within an app (e.g. game competitions, live streams, seasonal challenges) that can be indexed and featured directly in App Store search results.",
+    body: [
+      "In-App Events appear as rich cards directly in App Store search feeds for up to 30 days before and during the event.",
+      "The Event Name (30 characters) and Event Short Description (50 characters) are indexed for search queries, allowing apps to temporarily rank for seasonal or topic-specific keywords.",
+      "Running continuous In-App Events provides an additional mechanism to capture search real estate without changing core app version metadata.",
+    ],
+    related: ["metadata-fields", "app-store-search-ranking-factors", "keyword-indexing-time"],
+    faq: [
+      {
+        q: "Can In-App Events appear in search results for users who don't have the app installed?",
+        a: "Yes. In-App Events are visible to both new and existing users, providing a download CTA for new users and an open/update CTA for existing users.",
+      },
+    ],
+  },
 ];
+

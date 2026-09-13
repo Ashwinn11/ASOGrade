@@ -21,6 +21,9 @@ import {
   SOLUTION_ENTITIES,
   LOCALIZATION_ENTITIES,
   TIP_ENTITIES,
+  CATEGORY_ENTITIES,
+  STOREFRONT_CATEGORY_ENTITIES,
+  CROSS_LOCALIZATION_ENTITIES,
   fitTitle,
   fitDescription,
   fitMeta,
@@ -75,10 +78,13 @@ const allEntities = [
   ...SOLUTION_ENTITIES,
   ...LOCALIZATION_ENTITIES,
   ...TIP_ENTITIES,
+  ...CATEGORY_ENTITIES,
+  ...STOREFRONT_CATEGORY_ENTITIES,
+  ...CROSS_LOCALIZATION_ENTITIES,
 ];
 
-console.log(`  Indexed ${allEntities.length} programmatic entities across 8 categories.`);
-assert(allEntities.length >= 250, `Entity count should be >= 250 (found ${allEntities.length})`);
+console.log(`  Indexed ${allEntities.length} programmatic entities across 11 categories.`);
+assert(allEntities.length >= 800, `Entity count should be >= 800 (found ${allEntities.length})`);
 
 // ---------------------------------------------------------------------------
 // 2. Canonical URL & Collision Checks

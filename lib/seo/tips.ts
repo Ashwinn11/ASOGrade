@@ -794,4 +794,145 @@ export const TIPS: TipEntry[] = [
       { slug: "update-frequency-signal", label: "Update Frequency Signal", type: "glossary" },
     ],
   },
+  {
+    slug: "can-i-put-competitor-brand-names-in-my-app-store-keywords",
+    question: "Can I put competitor brand names in my App Store keywords?",
+    shortAnswer:
+      "No. Apple's App Review Guideline 2.3.7 explicitly prohibits using trademarked competitor names in metadata, and doing so risks metadata rejection or app suspension.",
+    explanation: [
+      "While some developers attempt to slip competitor names into the 100-character keyword field, Apple's automated and manual review filters frequently detect and flag them during review.",
+      "If you want to capture demand from searchers looking for competitor apps, the legal and approved method is bidding on their brand terms through Apple Search Ads, where trademark bidding is permitted under Apple's ad policies.",
+    ],
+    related: [
+      { slug: "branded-vs-nonbranded-keywords", label: "Branded vs Non-Branded Keywords", type: "glossary" },
+      { slug: "apple-search-ads", label: "Apple Search Ads", type: "glossary" },
+    ],
+  },
+  {
+    slug: "do-spaces-count-in-the-app-store-keyword-field",
+    question: "Do spaces count toward the 100-character App Store keyword limit?",
+    shortAnswer:
+      "Yes. Every space in the 100-character keyword field consumes 1 character, so putting spaces after commas wastes 10–15% of your available indexing capacity.",
+    explanation: [
+      "The keyword field should be formatted strictly as comma-separated single words with zero spaces: 'habit,routine,planner,streak'.",
+      "Formatting as 'habit, routine, planner, streak' wastes 3 characters in just 4 words. Across 15 words, spaces cost you the equivalent of 2 or 3 additional keywords.",
+    ],
+    related: [
+      { slug: "metadata-fields", label: "App Store Metadata Fields", type: "glossary" },
+      { slug: "app-store-character-limits-and-what-is-indexed", label: "App Store Character Limits", type: "guide" },
+    ],
+  },
+  {
+    slug: "how-long-does-it-take-for-new-app-store-keywords-to-rank",
+    question: "How long does it take for new App Store keywords to rank?",
+    shortAnswer:
+      "Apple's search indexing engine typically indexes updated metadata within 24 to 48 hours after your app update is approved and goes live in the App Store.",
+    explanation: [
+      "You will usually see your app appear in search results for newly added keywords within the first two days of release.",
+      "However, your ultimate ranking position will stabilize over 2 to 4 weeks as Apple measures initial tap-through rate, install conversion, and post-download retention against competing apps.",
+    ],
+    related: [
+      { slug: "keyword-indexing-time", label: "Keyword Indexing Time", type: "glossary" },
+      { slug: "download-velocity", label: "Download Velocity", type: "glossary" },
+    ],
+  },
+  {
+    slug: "does-app-store-promotional-text-affect-search-ranking",
+    question: "Does App Store promotional text affect search ranking?",
+    shortAnswer:
+      "No. Apple does not index the 170-character Promotional Text field for organic search ranking; it is strictly a conversion and marketing element visible to visitors.",
+    explanation: [
+      "The advantage of promotional text is that it can be edited at any time in App Store Connect without submitting a new binary build or waiting for formal app review.",
+      "Use promotional text to highlight limited-time seasonal offers, press quotes, or major feature announcements, but do not rely on it to rank for new keywords.",
+    ],
+    related: [
+      { slug: "promotional-text", label: "Promotional Text", type: "glossary" },
+      { slug: "metadata-fields-that-affect-ranking", label: "Metadata Fields That Affect Ranking", type: "guide" },
+    ],
+  },
+  {
+    slug: "can-i-change-app-store-keywords-without-releasing-an-update",
+    question: "Can I change App Store keywords without releasing a new app update?",
+    shortAnswer:
+      "No. Modifying the App Title, Subtitle, or 100-character Keyword field requires submitting a new version in App Store Connect that passes Apple's App Review.",
+    explanation: [
+      "The only store listing elements you can update without a new build are Promotional Text, in-app purchase metadata, and certain App Store Connect pricing configurations.",
+      "Because keyword updates require a new version, planning your keyword research in bulk before submitting an update ensures you don't waste an entire release cycle on unvalidated terms.",
+    ],
+    related: [
+      { slug: "metadata-fields", label: "App Store Metadata Fields", type: "glossary" },
+      { slug: "app-store-keyword-research-workflow", label: "App Store Keyword Research Workflow", type: "guide" },
+    ],
+  },
+  {
+    slug: "how-does-apple-combine-words-across-metadata-fields",
+    question: "How does Apple combine words across metadata fields?",
+    shortAnswer:
+      "Apple's search algorithm automatically creates cross-field phrase combinations between words in your App Title, Subtitle, and Keyword field.",
+    explanation: [
+      "For example, if your title contains 'RunPlan', your subtitle contains 'Marathon Coach', and your keyword field contains '5k,beginner,schedule', Apple can rank your app for 'marathon schedule', '5k coach', and 'beginner run'.",
+      "Because words combine across fields, you never need to enter full phrases like 'marathon coach' into your keyword field if both words already exist in your title and subtitle.",
+    ],
+    related: [
+      { slug: "single-keyword-vs-phrase-match", label: "Single Keyword vs Phrase Match", type: "glossary" },
+      { slug: "title-vs-subtitle-keywords", label: "Title vs Subtitle Keywords", type: "glossary" },
+    ],
+  },
+  {
+    slug: "what-is-a-good-apple-search-ads-popularity-score",
+    question: "What is a good Apple Search Ads popularity score?",
+    shortAnswer:
+      "An Apple Search Ads popularity score of 25 or above indicates meaningful, active search demand worth targeting for indie and mid-tier applications.",
+    explanation: [
+      "Apple scores popularity on a non-linear 0–100 scale calibrated to US search volume. Scores below 20 represent trace search traffic that will yield very few organic downloads.",
+      "Head terms like 'photo editor' or 'vpn' score 70–90+, but have immense competition. The sweet spot for growing apps is popularity between 25 and 55 with keyword difficulty below 50.",
+    ],
+    related: [
+      { slug: "keyword-popularity", label: "Keyword Popularity", type: "glossary" },
+      { slug: "apple-search-ads-popularity", label: "Apple Search Ads Popularity Score", type: "guide" },
+    ],
+  },
+  {
+    slug: "does-in-app-purchase-name-rank-in-app-store-search",
+    question: "Does In-App Purchase (IAP) name rank in App Store search?",
+    shortAnswer:
+      "Yes. Promoted In-App Purchases have their own titles (up to 30 characters) that can be indexed and displayed directly in App Store search results.",
+    explanation: [
+      "When an IAP is promoted in App Store Connect, Apple allows it to appear in search cards alongside or below your main app listing.",
+      "By strategically including keywords in your promoted IAP display names (e.g. 'Annual Pro Workout Pass'), you can capture additional search impression real estate for high-intent terms.",
+    ],
+    related: [
+      { slug: "in-app-purchase-keywords", label: "In-App Purchase Keywords", type: "glossary" },
+      { slug: "metadata-fields-that-affect-ranking", label: "Metadata Fields That Affect Ranking", type: "guide" },
+    ],
+  },
+  {
+    slug: "how-many-reviews-do-i-need-to-rank-for-competitive-keywords",
+    question: "How many reviews do I need to rank for competitive keywords?",
+    shortAnswer:
+      "For competitive keywords (difficulty > 65), top-5 ranking apps typically hold at least 5,000 to 20,000+ customer ratings with an average rating above 4.5 stars.",
+    explanation: [
+      "Apple's algorithm heavily weights total rating count and recent rating velocity as proof of app quality and stability.",
+      "If every app ranking in the top 10 for a search term has over 50,000 reviews, an app with 200 reviews cannot win organically regardless of how perfectly optimized its metadata is. Target lower-difficulty modifier keywords first.",
+    ],
+    related: [
+      { slug: "ratings-and-reviews-aso", label: "Ratings and Reviews in ASO", type: "glossary" },
+      { slug: "evaluate-keyword-difficulty", label: "Evaluating Keyword Difficulty", type: "guide" },
+    ],
+  },
+  {
+    slug: "what-is-the-difference-between-aso-and-seo",
+    question: "What is the difference between ASO and SEO?",
+    shortAnswer:
+      "ASO (App Store Optimization) focuses on organic discoverability and conversion within app stores (Apple App Store and Google Play), whereas SEO optimizes websites for search engines like Google and Bing.",
+    explanation: [
+      "Key differences include indexing constraints: App Store search ignores web factors like backlinks and page text, relying instead on strict character-capped fields (Title, Subtitle, 100-character keywords) and download conversion velocity.",
+      "In ASO, search intent is directly transactional: users search to immediately download and run a software utility on their mobile device.",
+    ],
+    related: [
+      { slug: "app-store-optimization", label: "App Store Optimization", type: "glossary" },
+      { slug: "app-store-algorithm", label: "App Store Algorithm", type: "glossary" },
+    ],
+  },
 ];
+

@@ -9,6 +9,9 @@ import {
   SOLUTION_ENTITIES,
   LOCALIZATION_ENTITIES,
   TIP_ENTITIES,
+  CATEGORY_ENTITIES,
+  STOREFRONT_CATEGORY_ENTITIES,
+  CROSS_LOCALIZATION_ENTITIES,
 } from "@/lib/seo/engine";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -46,6 +49,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
+    },
+    {
+      url: `${siteUrl}/keyword-research/category`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.85,
     },
     {
       url: `${siteUrl}/glossary`,
@@ -115,7 +124,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.85,
   }));
 
-  // Competitor alternatives & Solutions
+  // Competitor alternatives & comparisons
   const compareRoutes: MetadataRoute.Sitemap = COMPARE_ENTITIES.map((c) => ({
     url: `${siteUrl}${c.canonicalPath}`,
     lastModified: now,
@@ -152,6 +161,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.65,
   }));
 
+  // Category playbooks (45 verticals)
+  const categoryRoutes: MetadataRoute.Sitemap = CATEGORY_ENTITIES.map((c) => ({
+    url: `${siteUrl}${c.canonicalPath}`,
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: 0.85,
+  }));
+
+  // Storefront x Category matrix (250 pages)
+  const storefrontCategoryRoutes: MetadataRoute.Sitemap = STOREFRONT_CATEGORY_ENTITIES.map((sc) => ({
+    url: `${siteUrl}${sc.canonicalPath}`,
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.75,
+  }));
+
+  // Cross-Border Localization Playbooks (60 pairings)
+  const crossLocalizationRoutes: MetadataRoute.Sitemap = CROSS_LOCALIZATION_ENTITIES.map((cl) => ({
+    url: `${siteUrl}${cl.canonicalPath}`,
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.75,
+  }));
+
   return [
     ...coreAndHubs,
     ...storefrontRoutes,
@@ -162,5 +195,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...personaRoutes,
     ...localizationRoutes,
     ...tipRoutes,
+    ...categoryRoutes,
+    ...storefrontCategoryRoutes,
+    ...crossLocalizationRoutes,
   ];
 }

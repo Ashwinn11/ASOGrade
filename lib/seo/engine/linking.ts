@@ -180,6 +180,9 @@ export function buildBreadcrumbHierarchy(
     solution: { label: "Solutions", href: "/solutions" },
     localization: { label: "Localization", href: "/localization" },
     tip: { label: "ASO Tips", href: "/tips" },
+    category: { label: "Categories", href: "/keyword-research/category" },
+    "storefront-category": { label: "Storefront Categories", href: "/keyword-research" },
+    "cross-localization": { label: "Localization", href: "/localization" },
   };
 
   const hub = hubMap[category];
